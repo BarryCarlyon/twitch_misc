@@ -6,6 +6,8 @@ This example covers how to use the config service and pubsub service together to
 
 - [Set Extension Configuration Segment](https://dev.twitch.tv/docs/extensions/reference#set-extension-configuration-segment)
 - [Send Extension PubSub Message](https://dev.twitch.tv/docs/extensions/reference#send-extension-pubsub-message)
+- [Helper: Configuration](https://dev.twitch.tv/docs/extensions/reference#helper-configuration)
+- [Helper: Extensions - Listen](https://dev.twitch.tv/docs/extensions/reference#helper-extensions)
 
 ## Setting up the config
 
@@ -18,6 +20,8 @@ This example covers how to use the config service and pubsub service together to
 - Copy the contents of the field into the `""` of `extension_secret`
 - Set the `""` of `owner` to the TwitchID of the user that owns the extension, usually this is you but it might not be
 - Save your modified file as `extension_config.json`
+
+Your Extension front end will need to include the code similar to what is in `set_n_publish_frontend.js`
 
 ## Running the example
 
