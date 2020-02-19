@@ -21,6 +21,10 @@ This example covers how to use the config service and pubsub service together to
 - Set the `""` of `owner` to the TwitchID of the user that owns the extension, usually this is you but it might not be
 - Save your modified file as `extension_config.json`
 
+## Setting up the extension
+
+This'll be covered in another quick help example, but for now:
+
 Your Extension front end will need to include the code similar to what is in `set_n_publish_frontend.js`
 
 ## Running the example
