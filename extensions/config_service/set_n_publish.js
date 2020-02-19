@@ -8,7 +8,7 @@ But it's only triggered once when the extension inits
 This example covers how to set the config
 And then Broadcast it
 
-it's a Node JS Example
+it's a NodeJS Example
 it's suitable for cron jobs
 
 */
@@ -19,7 +19,7 @@ const path = require('path');
 // Load configuation
 const config = JSON.parse(fs.readFileSync(path.join(
     __dirname,
-    'extension_config.json'
+    'config.json'
 )));
 
 // Require depedancies

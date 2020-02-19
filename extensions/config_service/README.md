@@ -11,7 +11,7 @@ This example covers how to use the config service and pubsub service together to
 
 ## Setting up the config
 
-- Open `extension_config_sample.json` in a text editor
+- Open `config_sample.json` in a text editor
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
 - Manage your extension
 - Top right select "Extension Settings"
@@ -19,7 +19,7 @@ This example covers how to use the config service and pubsub service together to
 - Down the bottom under `Extension Client Configuration` hit the `show` button
 - Copy the contents of the field into the `""` of `extension_secret`
 - Set the `""` of `owner` to the TwitchID of the user that owns the extension, usually this is you but it might not be
-- Save your modified file as `extension_config.json`
+- Save your modified file as `config.json`
 
 ## Setting up the extension
 
