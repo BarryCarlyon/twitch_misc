@@ -15,7 +15,7 @@ It's written roughly like a node module
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
 - Visit Applications
 - Manage your Application, or create one if you don't have one
-- Copy the Client ID into the `""` or `client_id`
+- Copy the Client ID into the `""` of `client_id`
 - Hit `New Secret` and then Ok
 - Then copy the now Displayed Client Secret into the `""` of `client_secret`
 - Save your modified file as `config.json`
