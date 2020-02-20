@@ -13,7 +13,8 @@ This example covers how to use the config service and pubsub service together to
 
 - Open `config_sample.json` in a text editor
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
-- Manage your extension
+- Visit Extensions
+- Manage your Extension, or create one if you don't have any
 - Top right select "Extension Settings"
 - Copy the "Client ID" from the top into the `""` of `client_id`
 - Down the bottom under `Extension Client Configuration` hit the `show` button
