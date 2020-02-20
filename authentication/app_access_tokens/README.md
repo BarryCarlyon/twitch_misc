@@ -27,3 +27,6 @@ In a console/terminal, run these commands:
 - `npm install`
 - `node run.js`
 
+## A note
+
+The Redis storage is using a hash key, so access tokens are stored in a hash called `twitch_auth` and a key called `twitch_client_credentials_` and appending the ClientID, so you can feasiably store multiple app access tokens for different client ID's in the same Redis hash. If for example your Server serves multiple Extensions or Twitch Applications.
