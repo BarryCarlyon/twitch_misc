@@ -1,0 +1,60 @@
+doctype html
+html(lang="en")
+    head
+        title Twitch User Access Generator Example
+
+        meta(charset="utf-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
+
+        link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous")
+
+        script(src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous")
+        script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous")
+        script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous")
+
+    body
+        div(class="container")
+            div(class="container-fluid")
+                div(id="messages")
+                    if flash.error
+                        div(class="alert alert-danger" role="alert") #{flash.error}
+                    if flash.warning
+                        div(class="alert alert-warning" role="alert") #{flash.warning}
+                    if flash.success
+                        div(class="alert alert-success" role="alert") #{flash.success}
+                    if auth_error
+                        div(class="alert alert-warning" role="alert") #{auth_error}
+
+            div(class="row")
+                div(class="col")
+                    h2 Construct a custom auth
+
+                    p You <i>could</i> pick some scopes but you don't have to
+
+                    table(class="table table-striped table-hover")
+                        for grouped, group in scopes
+                            tr
+                                th #{group}
+                            for desc, scope in grouped
+                                tr
+                                    td #{scope}
+                                    td #{desc}
+                                    td
+                                        input(type="checkbox" name=scope)
+                        tr
+                            th Extra
+                        tr
+                            td Enable Force Verify
+                            td Specifies whether the user should be re-prompted for authorization. If this is true, the user always is prompted to confirm authorization. This is useful to allow your users to switch Twitch accounts, since there is no way to log users out of the API. Default: false (a given user sees the authorization page for a given set of scopes only the first time through the sequence).
+                            td
+                                input(type="checkbox" name="force_verify")
+
+                    h3 And Go
+                    ul
+                        li Client: #{client_id}
+                        li Redirect: #{redirect_uri}
+                    textarea(style={width:'100%'} rows="5" id="auth_url_preview")
+                    a(href="" id="auth_url") Go Auth
+
+        script(type="text/javascript") var client_id = "#{client_id}"; var redirect_uri = encodeURIComponent("#{redirect_uri}"); var state = encodeURIComponent("#{state}");
+        script(type="text/javascript" src="script.js")

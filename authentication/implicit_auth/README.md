@@ -17,3 +17,9 @@ This is a very rough example of using implicit auth to auth and show the auth'ed
 ## Running the example
 
 This is so rough that you need to upload it somewhere or know how to start a WebServer on 127.0.0.1 port 80 locally
+
+If you have PHP installed
+
+> sudo php -S 127.0.0.1:80
+
+Will get you going real quick

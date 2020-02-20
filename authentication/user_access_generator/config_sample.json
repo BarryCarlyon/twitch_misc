@@ -1,0 +1,6 @@
+{
+    "client_id": "",
+    "client_secret": "",
+    "redirect_uri": "http://localhost:8000/",
+    "port": 8000
+}
