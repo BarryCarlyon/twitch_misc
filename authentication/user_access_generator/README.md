@@ -17,7 +17,7 @@ A Token Generator of sorts. To demonstrate how to perform Scoped User oAuth auth
 - Manage your Application, or create one if you don't have one
 - Copy the Client ID into the `""` of `client_id`
 - Hit New Secret then Ok
-- Copy the new Clietn Secret into the `""` of `client_secret`
+- Copy the new Client Secret into the `""` of `client_secret`
 - Add or change the `OAuth Redirect URLs` to include one for `http://localhost:8000/` as Twitch now support multiples
 - Save your modified file as `config.json`
 
