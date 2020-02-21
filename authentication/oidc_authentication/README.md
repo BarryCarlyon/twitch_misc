@@ -4,11 +4,11 @@ This example is similar to the (user_access_generator)[https://github.com/BarryC
 
 It works both "Authorization Code Flow" and "Implicit Code Flow", but this only covers "Authorization Code Flow"
 
-This uses JWT's so you should read up about what a JWT is
+This uses JWT's so you should read up about what a JWT is on [JWT.io](https://jwt.io/)
 
 ## Reference Documentation
 
-- [Getting Tokens: OIDC]https://dev.twitch.tv/docs/authentication/getting-tokens-oidc)
+- [Getting Tokens: OIDC](https://dev.twitch.tv/docs/authentication/getting-tokens-oidc)
 - [JWTs](https://jwt.io/)
 
 ## Setting up the config
@@ -37,7 +37,7 @@ In a console/terminal, run these commands:
 
 JWTs have a really short valid time, around 15 minutes, and also cannot be refreshed!
 
-A Twitch OpenID call, can be combined with other "regular" scopes, and will return a "regular" API access token for use. Uncomment server.js Line 191 to see what you get!
+A Twitch OpenID call, can be combined with other "regular" scopes, and will return a "regular" API access token for use. Uncomment [server.js Line 193](server.js#L193) to see what you get!
 
 The `validate` endpoint returns some important information, such as when the token expires, you'll need to refresh the token as needed if the token expires using the refresh token, thats not covered in this example, but you can read about [refreshing on the docs](https://dev.twitch.tv/docs/authentication#refreshing-access-tokens)
 
