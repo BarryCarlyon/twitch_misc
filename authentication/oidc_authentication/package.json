@@ -1,0 +1,21 @@
+{
+  "name": "oidc_authentication",
+  "version": "1.0.0",
+  "description": "This example is similar to the (user_access_generator)[https://github.com/BarryCarlyon/twitch_misc/tree/master/authentication/user_access_generator] but covers a single scope and how to verify it. Specifically the [OIDC](https://dev.twitch.tv/docs/authentication/getting-tokens-oidc)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Barry Carlyon",
+  "license": "WTFPL",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "got": "^10.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^1.7.0",
+    "pug": "^2.0.4"
+  }
+}
