@@ -1,6 +1,8 @@
 ## What is this example
 
-This example covers how to use the config service and pubsub service together to sensibly update configuration for an extension and update running versions of that extension
+This example covers how to use the config service and pubsub service together to sensibly update configuration for an extension and update running versions of that extension.
+
+Specifically covers setting configuration for _all_ channels the extension is active upon, not channel specific configurations, but modifications for specific channels is straight forward to make.
 
 ## Reference Documentation
 
@@ -21,6 +23,8 @@ This example covers how to use the config service and pubsub service together to
 - Copy the contents of the field into the `""` of `extension_secret`
 - Set the `""` of `owner` to the TwitchID of the user that owns the extension, usually this is you but it might not be
 - Save your modified file as `config.json`
+
+If is *important* that the `owner` in the `config.json` is wrapped in `"`, as channelID's and userID's for extensions need to be cast as strings, not numerics.
 
 ## Setting up the extension
 
