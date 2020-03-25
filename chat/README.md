@@ -2,7 +2,9 @@
 
 This example covers a bad way to make a Twitch Chat client in nodeJS
 
-It's basically identical to the [pubsub client](https://github.com/BarryCarlyon/twitch_misc/tree/master/pubsub) as it uses the same Connectivity logic
+It's basically identical to the [pubsub client](https://github.com/BarryCarlyon/twitch_misc/tree/master/pubsub) as it uses the same Connectivity logic, and both PubSub and this Chat example connect over Websockets (as apposed to the Twitch IRC ports, and IRC logic)
+
+The Regex'es and some of the message parsing was inspired form [Modch.at](https://github.com/CBenni/mt2), (and theres only so many ways to write a IRC parser)
 
 ## Reference Documentation
 
