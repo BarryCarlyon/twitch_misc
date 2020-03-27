@@ -2,6 +2,12 @@
 
 This is a very rough example of using implicit auth to auth and show the auth'ed users "public" profile from helix
 
+## TRY THIS EXAMPLE NOW!
+
+This example is also available via GitHub Pages!
+
+Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/)
+
 ## Reference Documentation
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow)
