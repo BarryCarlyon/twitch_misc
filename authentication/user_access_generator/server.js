@@ -149,6 +149,7 @@ app
                     "method": "GET",
                     "headers": {
                         "Accept": "application/json",
+                        "Client-ID": config.client_id,
                         "Authorization": "Bearer " + req.session.token.access_token
                     },
                     "responseType": 'json'

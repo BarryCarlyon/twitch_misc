@@ -21,7 +21,8 @@ setTimeout(() => {
         url: "https://api.twitch.tv/helix/users?login=barrycarlyon",
         method: "GET",
         headers: {
-            authorization: "Bearer " + twitch.client.access_token
+            "Client-ID": twitch.client.client_id,
+            "Authorization": "Bearer " + twitch.client.access_token
         },
         responseType: "json"
     })
