@@ -49,7 +49,7 @@ const badgesRegex = /([^,]+)\/([^,]*)/g;
 const emotesRegex = /([^\/]+):([^\/]*)/g;
 const emoteIndexRegex = /([^,]+)-([^,]*)/g;
 const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
-const hostRegex = /([a-z_]+)!([a-z_]+)@([a-z._]+)/;
+const hostRegex = /([a-z_0-9]+)!([a-z_0-9]+)@([a-z._0-9]+)/;
 
 let socket;
 const start = function() {
