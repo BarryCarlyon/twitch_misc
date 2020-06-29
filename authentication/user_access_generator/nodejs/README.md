@@ -1,6 +1,6 @@
 ## What is this example
 
-A Token Generator of sorts. To demonstrate how to perform Scoped User oAuth authentication
+A Token Generator of sorts. To demonstrate how to perform Scoped User oAuth authentication in NodeJS
 
 ## Reference Documentation
 
@@ -38,3 +38,13 @@ The `logout` function makes use of the [Token Revoke](https://dev.twitch.tv/docs
 The `validate` endpoint returns some important information, such as when the token expires, you'll need to refresh the token as needed if the token expires using the refresh token, thats not covered in this example, but you can read about [refreshing on the docs](https://dev.twitch.tv/docs/authentication#refreshing-access-tokens)
 
 Also note the `validate` endpoint uses `OAuth` instead of `Bearer` in the `Authorization` header.
+
+An oAuth example such as this, will work for most services that provide oAuth, you just have to swap out the three oAuth URLs (and how to validate a token/fetch a user from the service), for the relevant URL's for that service
+
+- https://id.twitch.tv/oauth2/authorize - where to send a User to to authorize yoru applications access to the users account
+- https://id.twitch.tv/oauth2/token - where you POST/exchange the CODE to to get an Access Token
+- https://id.twitch.tv/oauth2/revoke - where to POST to, to logout/kill a token
+
+And
+
+- https://id.twitch.tv/oauth2/validate - where to validate a token, if the service supports it

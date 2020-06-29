@@ -1,0 +1,42 @@
+{
+    "helix": {
+        "analytics:read:extensions":    "View analytics data for your extensions.",
+        "analytics:read:games":         "View analytics data for your games.",
+        "bits:read":                    "View Bits information for your channel.",
+        "channel:edit:commercial":      "Run commercials on a channel",
+        "channel:read:hype_train":      "Read Hype Train information on a channel",
+        "channel:read:redemptions":     "View your channel points custom reward redemptions",
+        "channel:read:subscriptions":   "Get a list of all subscribers to your channel and check if a user is subscribed to your channel",
+        "clips:edit":                   "Manage a clip object.",
+        "user:edit":                    "Manage a user object.",
+        "user:edit:broadcast":          "Edit your channel’s broadcast configuration, including extension configuration. (This scope implies user:read:broadcast capability.)",
+        "user:read:broadcast":          "View your broadcasting configuration, including extension configurations.",
+        "user:edit:follows":            "Manage follows on a channel/user",
+        "user:read:email":              "Read authorized user's email address.",
+        "user:read:stream_key":         "Read authorized user's stream key"
+    },
+    "kraken": {
+        "channel_check_subscription":   "Read whether a user is subscribed to your channel.",
+        "channel_commercial":           "Trigger commercials on channel.",
+        "channel_editor":               "Write channel metadata (game, status, etc).",
+        "channel_read":                 "Read nonpublic channel information, including email address and stream key.",
+        "channel_stream":               "Reset a channel’s stream key.",
+        "channel_subscriptions":        "Read all subscribers to your channel.",
+        "collections_edit":             "Manage a user’s collections (of videos).",
+        "user_blocks_edit":             "Turn on/off ignoring a user. Ignoring users means you cannot see them type, receive messages from them, etc.",
+        "user_blocks_read":             "Read a user’s list of ignored users.",
+        "user_follows_edit":            "Manage a user’s followed channels.",
+        "user_read":                    "Read nonpublic user information, like email address.",
+        "user_subscriptions":           "Read a user’s subscriptions."
+    },
+    "drops": {
+        "viewing_activity_read":        "Turn on Viewer Heartbeat Service ability to record user data."
+    },
+    "chat": {
+        "channel:moderate":             "Perform moderation actions in a channel. The user requesting the scope must be a moderator in the channel.",
+        "chat:edit":                    "Send live stream chat and rooms messages.",
+        "chat:read":                    "View live stream chat and rooms messages.",
+        "whispers:read":                "View your whisper messages.",
+        "whispers:edit":                "Send whisper messages."
+    }
+}
