@@ -12,8 +12,8 @@
   "license": "WTFPL",
   "dependencies": {
     "express": "^4.17.1",
-    "express-session": "^1.17.0",
-    "got": "^10.6.0",
-    "pug": "^2.0.4"
+    "express-session": "^1.17.1",
+    "got": "^11.3.0",
+    "pug": "^3.0.0"
   }
 }

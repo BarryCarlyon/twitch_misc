@@ -9,7 +9,7 @@
   "author": "Barry Carlyon",
   "license": "WTFPL",
   "dependencies": {
-    "got": "^10.5.7",
+    "got": "^11.3.0",
     "jsonwebtoken": "^8.5.1"
   }
 }

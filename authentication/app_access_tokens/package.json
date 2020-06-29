@@ -10,7 +10,7 @@
   "author": "Barry Carlyon",
   "license": "WTFPL",
   "dependencies": {
-    "got": "^10.5.7",
+    "got": "^11.3.0",
     "redis": "^3.0.2"
   }
 }
