@@ -3,7 +3,7 @@
 Twitch Webhooks are great for real time data
 This example will handle receiving the data of a hook
 
-it's a NodeJS example
+This is a NodeJS example
 
 */
 
