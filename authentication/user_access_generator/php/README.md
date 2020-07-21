@@ -2,7 +2,7 @@
 
 A Token Generator of sorts. To demonstrate how to perform Scoped User oAuth authentication in PHP
 
-Also included is "maintain_user_token.php" a script to demonestrate how to maintain and refresh if needed a user token.
+Also included is `maintain_user_token.php` a script to demonestrate how to maintain and refresh if needed a user token.
 
 ## Reference Documentation
 
@@ -31,6 +31,10 @@ In a console/terminal, run these commands:
 
 - `php -S 127.0.0.1:8000`
 - Open [http://localhost:8000](http://localhost:8000) in a browser
+
+To run the `maintain_user_token.php` example, first you need a token in an `auth.json` file.
+You can make one in this example by uncommenting line [index.php#63] and running the 8080 server.
+Then just `php maintain_user_token.php` after you have a token in `auth.json`
 
 ## Notes
 

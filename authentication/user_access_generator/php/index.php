@@ -54,12 +54,13 @@ if (isset($_GET['logout'])) {
         curl_close($ch);
 
         if ($i['http_code'] == 200) {
-            $r = json_decode($r);
+            $token = json_decode($r);
 
             // always a good idea to check the JSON parsed correctly
             if (json_last_error() == JSON_ERROR_NONE) {
                 // looks good
-                $_SESSION['token'] = $r;
+                $_SESSION['token'] = $token;
+                // file_put_contents(__DIR__ . '/auth.json', $r, JSON_PRETTY_PRINT);
 
                 // login is complete
                 // now we'll redirect home for the "main" viewer

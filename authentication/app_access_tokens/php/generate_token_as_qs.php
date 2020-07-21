@@ -1,5 +1,7 @@
 <?php
 
+include(__DIR__ . '/config.php');
+
 $ch = curl_init('https://id.twitch.tv/oauth2/token?client_id=' . CLIENT_ID . '&client_secret=' . CLIENT_SECRET . '&grant_type=client_credentials');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, true);
