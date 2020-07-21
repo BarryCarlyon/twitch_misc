@@ -28,9 +28,26 @@ $r = curl_exec($ch);
 $i = curl_getinfo($ch);
 curl_close($ch);
 
+$generate_token = false;
 if ($i['http_code'] != 200) {
     echo 'Failed token invalid. Attempt refresh';
+    $generate_token = true;
+} else {
+    $data = json_decode($r);
+    if (json_last_error() == JSON_ERROR_NONE) {
+        if ($data->expires_in < 600) {
+            // less than ten minutes left
+            // make a new token
+            echo 'Token close to expire. Regenerate';
+            $generate_token = true;
+        }
+    } else {
+        echo 'Failed to parse JSON. Assume dead token';
+        $generate_token = true;
+    }
+}
 
+if ($generate_token) {
     // make new token using the refresh token
     $ch = curl_init('https://id.twitch.tv/oauth2/token');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
