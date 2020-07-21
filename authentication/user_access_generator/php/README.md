@@ -2,6 +2,8 @@
 
 A Token Generator of sorts. To demonstrate how to perform Scoped User oAuth authentication in PHP
 
+Also included is "maintain_user_token.php" a script to demonestrate how to maintain and refresh if needed a user token.
+
 ## Reference Documentation
 
 - [OAuth Authorization Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-authorization-code-flow)
