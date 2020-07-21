@@ -1,6 +1,6 @@
 ## What is this example
 
-This example covers a way to create and maintain an app access token. And store that app access token in Redis to maintain/recover it between restarts and for use in other programs running on the same server.
+This example covers a way to create and maintain an app access token in NodeJS. And store that app access token in Redis to maintain/recover it between restarts and for use in other programs running on the same server.
 
 It's written roughly like a node module
 
