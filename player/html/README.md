@@ -6,6 +6,8 @@ It uses [Embed Everything](https://dev.twitch.tv/docs/embed/everything)
 
 Since it uses the JS Embed Library, you do not need to specify the `parent` as the JS Library will work it out for you
 
+This example is based on this ["Web" Example](https://twitch.extensions.barrycarlyon.co.uk/temp/player_test.html)
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via GitHub Pages!
