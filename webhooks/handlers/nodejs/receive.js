@@ -64,7 +64,7 @@ app
             console.log('Got a challenge', req.query['hub.challenge']);
             // it's a challenge from Twitch
             // lets acknowledge it
-            res.send(req.query('hub.challenge'));
+            res.send(req.query['hub.challenge']);
         } else {
             console.log('Got a weird, no challenge');
             // normally won't get called
