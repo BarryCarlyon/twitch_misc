@@ -97,8 +97,9 @@ app
                 );
             })
             .catch(err => {
-                console.error(err);
-                req.session.error = 'An Error occured: ' + ((err.response && err.response.message) ? err.response.message : 'Unknown');
+                console.error('Error body:', err.response.body);
+                // the oAuth dance failed
+                req.session.error = 'An Error occured: ' + ((err.response && err.response.body.message) ? err.response.body.message : 'Unknown');
                 res.redirect('/');
             });
 
@@ -163,8 +164,9 @@ app
                 res.redirect('/');
             })
             .catch(err => {
+                console.error('Error body:', err.response.body);
                 // the oAuth dance failed
-                req.session.error = 'An Error occured: ' + ((err.response && err.response.message) ? err.response.message : 'Unknown');
+                req.session.error = 'An Error occured: ' + ((err.response && err.response.body.message) ? err.response.body.message : 'Unknown');
                 res.redirect('/');
             });
 
