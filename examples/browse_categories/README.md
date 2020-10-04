@@ -4,7 +4,9 @@ This is a very rough example of how to build a page which collects the data need
 
 It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/).
 
-You can use any kind of token
+If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data.
+
+Normally for a server solution (you first wouldn't be doing it client side or with fetch), you'd normally use a [Client Credentaisl/App Access/Server to Server token](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow)
 
 ## TRY THIS EXAMPLE NOW!
 
@@ -15,6 +17,8 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/brows
 ## Reference Documentation
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow)
+- [Get Top Games](https://dev.twitch.tv/docs/api/reference#get-top-games)
+- [Get Streams](https://dev.twitch.tv/docs/api/reference#get-streams) - Using GameID's to filter
 
 ## Setting up the config
 
@@ -26,13 +30,11 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/brows
 
 ## Running the example
 
-This is so rough that you need to upload it somewhere or know how to start a WebServer on 127.0.0.1 port 80 locally
-
 If you have PHP installed
 
 > sudo php -S 127.0.0.1:80
 
-Will get you going real quick
+or just throw the code up on a webpage somewhere
 
 ## Screenshot
 
