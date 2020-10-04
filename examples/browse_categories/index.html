@@ -9,7 +9,23 @@
 
     <a href="" id="authorize">Authorize</a>
     <div id="loading"></div>
-    <div id="loader"></div>
+
+    <h3>Page Loading Status</h3>
+
+    <p>Status output as each page of streams for that gameID loads</p>
+    <table id="loader">
+        <tr>
+            <th>GameID</th>
+            <th>Status</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>...</th>
+        </tr>
+    </table>
+
+    <h3>The Directory</h3>
     <table id="categories"></table>
 
     <script type="text/javascript">
@@ -41,11 +57,20 @@
                 .then(resp => {
                     var tr = false;
 
+                    document.getElementById('loading').textContent = 'Got ' + resp.data.length + ' Categories';
+
                     // dumb table maker
                     for (var x=0;x<resp.data.length;x++) {
-                        var d = document.createElement('div');
+                        var r = document.createElement('tr');
+                        r.setAttribute('id', 'loader_row_' + resp.data[x].id);
+                        document.getElementById('loader').append(r);
+
+                        var d = document.createElement('td');
+                        d.textContent = resp.data[x].id;
+                        r.append(d);
+                        var d = document.createElement('td');
                         d.setAttribute('id', 'loader_' + resp.data[x].id);
-                        document.getElementById('loader').append(d);
+                        r.append(d);
 
                         if (!tr || (x % 10) === 0) {
                             tr = document.createElement('tr');
@@ -95,7 +120,7 @@
         var limit = 50;
         function fetchStreams(game_id, page, after, tot) {
             page = page ? page : 0;
-            document.getElementById('loader_' + game_id).textContent = game_id + ' Loading Page: ' + page + ' Current ' + tot;
+            document.getElementById('loader_' + game_id).textContent = 'Loading Page: ' + page + ' Current ' + tot;
             fetch(
                 'https://api.twitch.tv/helix/streams?first=100&game_id=' + game_id + (after ? '&after=' + after : ''),
                 {
@@ -107,7 +132,7 @@
             )
             .then(resp => resp.json())
             .then(resp => {
-                document.getElementById('loader_' + game_id).textContent = game_id + ' Processing Page: ' + page;
+                document.getElementById('loader_' + game_id).textContent = 'Processing Page: ' + page;
 
                 var total = parseInt(document.getElementById('count_' + game_id).textContent);
                 for (var x=0;x<resp.data.length;x++) {
@@ -115,17 +140,21 @@
                 }
                 document.getElementById('count_' + game_id).textContent = total;
 
+                var d = document.createElement('td');
+                d.textContent = resp.data.length;
+                document.getElementById('loader_row_' + game_id).append(d);
+
                 // loop if we got a cursor
                 if (resp.hasOwnProperty('pagination') && resp.pagination.hasOwnProperty('cursor')) {
                     page++;
                     // do a page limit check
                     if (page >= limit) {
-                        document.getElementById('loader_' + game_id).textContent = game_id + ' Stopped at Page: ' + page + ' - ' + resp.data.length;
+                        document.getElementById('loader_' + game_id).textContent = 'Stopped at Page: ' + page + ' - ' + resp.data.length;
                         return;
                     }
                     fetchStreams(game_id, page, resp.pagination.cursor, total);
                 } else {
-                    document.getElementById('loader_' + game_id).textContent = game_id + ' Last Page: ' + page + ' - ' + resp.data.length;
+                    document.getElementById('loader_' + game_id).textContent = 'Last Page: ' + page + ' - ' + resp.data.length;
                 }
             })
             .catch(err => {
