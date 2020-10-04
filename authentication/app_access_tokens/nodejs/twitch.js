@@ -60,6 +60,7 @@ module.exports = function(config) {
             .then(resp => {
                 console.log(resp.body);
                 twitch.client = resp.body;
+                twitch.client.client_id = config.client_id;
                 redis_client.hset(
                     "twitch_auth",
                     "twitch_client_credentials_" + config.client_id,
