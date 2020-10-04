@@ -11,7 +11,7 @@ Aside from that the dependencies are supposed to be as lightweight as possible.
 
 ## LIVE EXAMPLES
 
-These examples are testable on GitHub pages.
+These examples are testable on GitHub pages, and will prompt for implicit authentication to run the code.
 
 - [How to Implicit auth](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/)
 - [Building a clone of the Directory view](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/)
