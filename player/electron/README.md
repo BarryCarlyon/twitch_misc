@@ -4,7 +4,7 @@ This example covers a methjod to get Electron to "behave" for Embedding streams.
 
 It supports both "dumb iframe" embeds and "Everywhere" embeds
 
-This example also includes the player "test" controls used form the ["Web" Example](https://twitch.extensions.barrycarlyon.co.uk/temp/player_test.html)
+This example also includes the player "test" controls used from the ["Web" Example](https://twitch.extensions.barrycarlyon.co.uk/temp/player_test.html)
 
 ## Reference Documentation
 
