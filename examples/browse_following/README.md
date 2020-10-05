@@ -4,7 +4,7 @@ This is a very rough example of how to build a page which collects the data need
 
 It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/browse_following/).
 
-If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data. But you've have to have a way to get the users username/ID from the user (input field) or prompt the user to login and use a user access token, like this demo does with Implict auth.
+If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data. But you would need to have a way to get the users username (or ID) from the user (input field) or prompt the user to login and use a user access token, like this demo does with Implict auth.
 
 The only gotchas are: due to a current Twitch bug, ReRuns/Watch parties are omitted, and this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching game names as streams only returns the game_id, same for Tags.
 
