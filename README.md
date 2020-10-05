@@ -16,3 +16,9 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
 - [How to Implicit auth](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/) - [Source](https://github.com/BarryCarlyon/twitch_misc/authentication/implicit_auth/)
 - [Building a clone of the Directory view](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/examples/browse_categories)
 - [Building a clone of the Live Following view](https://barrycarlyon.github.io/twitch_misc/examples/browse_following/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/examples/browse_following)
+
+## Twitch Extensions
+
+There are some useful bits for Twitch Extensions in this repo, mainly for the [API side of things](https://github.com/BarryCarlyon/twitch_misc/tree/master/extensions).
+
+If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
