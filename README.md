@@ -4,7 +4,7 @@ This repo contains a bunch of examples and bits and pieces that might be useful 
 
 ## Langauges
 
-Most of these examples either use NodeJS or PHP or pure HTML (using a dumb `php -S` to serve the demo)
+Most of these examples either use NodeJS or PHP or pure HTML (with Javascript) (using a dumb `php -S` to serve the demo, as apposed to file:// to avoid some oddities)
 
 Aside from that the dependencies are supposed to be as lightweight as possible.
 
