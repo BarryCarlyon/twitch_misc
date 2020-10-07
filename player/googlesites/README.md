@@ -38,7 +38,7 @@ This builds a list of parents and appends the innermost parent/iFrame URL (the o
 
 This example is also available via Google Pages/Sites!
 
-Give it a [whirl on Google Pages/Sites here](https://github.com/BarryCarlyon/twitch_misc/tree/master/player/html)
+Give it a [whirl on Google Pages/Sites here](https://sites.google.com/view/barry-twitch-embed-test/home)
 
 ## Reference Documentation
 
