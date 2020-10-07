@@ -13,7 +13,7 @@ This example is based on this ["Web" Example](https://github.com/BarryCarlyon/tw
 Google sites has a tendenacy to change the URL of one of the iFrames in the stack when you save/publish your page.
 So in order to update the parent stack you have to do something clever.
 
-here is the magic
+Here is the magic sauce
 
 ```javascript
   var parent = ['sites.google.com', 'www.gstatic.com', window.location.host];
@@ -33,6 +33,12 @@ here is the magic
 ```
 
 This builds a list of parents and appends the innermost parent/iFrame URL (the one that changes to the stack of parents)
+
+If you are using a custom domain, same `https://www.mycoolwebsite.com/` then you would do this instead:
+
+```javascript
+  var parent = ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host];
+```
 
 ## TRY THIS EXAMPLE NOW!
 
