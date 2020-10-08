@@ -27,4 +27,4 @@ If you are after a demo of a Twitch Extension with an EBS that talks to the Twit
 
 ## OMGLIEKWUT OHMYGOODNESS U SO MUCH HELP
 
-Thank you for the help I want to give you beer/coffee money -> Check the Funding details
+Thank you for the help I want to give you beer/coffee money -> Check the Funding/Sponsor details
