@@ -24,3 +24,7 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
 There are some useful bits for Twitch Extensions in this repo, mainly for the [API side of things](https://github.com/BarryCarlyon/twitch_misc/tree/master/extensions).
 
 If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
+
+## OMGLIEKWUT OHMYGOODNESS U SO MUCH HELP
+
+Thank you for the help I want to give you beer/coffee money -> Check the Funding details
