@@ -144,7 +144,7 @@
                         div.append(p);
 
                         var p = document.createElement('p');
-                        p.setAttribute('stream_link_' + resp.data[x].user_id);
+                        p.setAttribute('id', 'stream_link_' + resp.data[x].user_id);
                         p.textContent = resp.data[x].user_name;
                         div.append(p);
 
@@ -197,7 +197,7 @@
                 } else {
                     el.textContent += ' got no data';
                 }
-            }
+            })
             .catch(err => {
                 console.log(err);
                 document.getElementById('loading').textContent = 'Something went wrong';
