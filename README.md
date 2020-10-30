@@ -8,7 +8,6 @@ Most of these examples either use NodeJS or PHP or pure HTML (with Javascript) (
 
 Aside from that the dependencies are supposed to be as lightweight as possible.
 
-
 ## LIVE EXAMPLES
 
 These examples are testable on GitHub pages, and will prompt for implicit authentication to run the code.
@@ -24,6 +23,15 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
 There are some useful bits for Twitch Extensions in this repo, mainly for the [API side of things](https://github.com/BarryCarlyon/twitch_misc/tree/master/extensions).
 
 If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
+
+## Further Help
+
+Some options
+
+- [TwitchDev Documentation](http://dev.twitch.tv/docs)
+- [TwitchDev Support Forums](https://discuss.dev.twitch.tv/)
+- [TwitchDev Discord](https://link.twitch.tv/devchat)
+- [TwitchDev Other Help](https://dev.twitch.tv/support)
 
 ## OMGLIEKWUT OHMYGOODNESS U SO MUCH HELP
 
