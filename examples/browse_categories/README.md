@@ -25,7 +25,7 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/brows
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
 - Visit Applications
 - Manage your Application, or create one if you don't have one
-- Copy the Client ID into the `""` of `client_id`
+- Copy the Client ID into `client_id` JavaScript Variable
 - You'll need to throw this webpage into a website somewhere, and update the `redirect` in the html file and on the dev console accordingly.
 
 ## Running the example
