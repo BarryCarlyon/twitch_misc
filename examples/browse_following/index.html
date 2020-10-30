@@ -5,6 +5,8 @@
 <body>
     <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will retrun a page similar to <a href="https://www.twitch.tv/directory/following/live" target="_blank">The Live Following</a>.</p>
 
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/master/examples/browse_following">Github</a> or just View the source instead</p>
+
     <p>After authenticating to get a Key, it calls <a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a> with just the access token to get your UserID, then <a href="https://dev.twitch.tv/docs/api/reference#get-users-follows" target="_blank">Get User Follows</a> then calls <a href="https://dev.twitch.tv/docs/api/reference#get-streams" target="_blank">Get Streams</a> using up to 100 user_id's.</p>
 
     <p>The only gotchas are: due to a current Twitch bug, ReRuns/Watch parties are omitted, and this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching game names as streams only returns the game_id, same for Tags</p>
@@ -20,8 +22,9 @@
 
     <script type="text/javascript">
         // go populate this with a client_id
-        var client_id = '';
-        var redirect = 'http://127.0.0.1/';
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/examples/browse_following/';
+        // setup a memory space for the token/userID
         var access_token = '';
         var user_id = '';
 
