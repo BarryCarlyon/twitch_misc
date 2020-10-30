@@ -11,13 +11,13 @@
 
     <p>Then in order to get the <i>true</i> URL's for the stream, we call <a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a> to get the username of the streamer, this is due to <a href="https://github.com/twitchdev/issues/issues/3" target="_blank">TwitchDev Issue 3</a></p>
     <p>You would also probably, only normally want to do the ID to login lookup for live streams, to save a request or two, but we don't in this example</p>
+    <p>You would also probably, only normally want to get the unique games across the WHOLE follows for live streams, (rather than per page) to save a request or two, but we don't in this example</p>
 
-    <p>The only gotchas are: due to a current Twitch bug, <a href="https://github.com/twitchdev/issues/issues/38" target="_blank">ReRuns</a> are omitted, and this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching game names as streams only returns the game_id, same for Tags</p>
+    <p>The only gotchas are: due to a current Twitch bug, <a href="https://github.com/twitchdev/issues/issues/38" target="_blank">ReRuns</a> are omitted, and this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching tag names as Tag IDs are returned</p>
 
     <a href="" id="authorize">Authorize</a>
     <div id="loading"></div>
     <div id="status"></div>
-    <div id="status_b"></div>
 
     <h3>Page Loading Status</h3>
 
@@ -28,7 +28,7 @@
         // go populate this with a client_id
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
         var redirect = 'https://barrycarlyon.github.io/twitch_misc/examples/browse_following/';
-        // setup a memory space for the token/userID
+        // setup a memory space for the token/userID Unique games
         var access_token = '';
         var user_id = '';
 
@@ -68,6 +68,10 @@
         }
 
         function getFollows(after, page) {
+            var el = document.createElement('div');
+            document.getElementById('status').append(el);
+            el.textContent = 'Loading Follows page ' + page;
+
             fetch(
                 'https://api.twitch.tv/helix/users/follows?first=100&from_id=' + user_id + (after ? '&after=' + after : ''),
                 {
@@ -89,6 +93,10 @@
                     if (resp.hasOwnProperty('pagination') && resp.pagination.hasOwnProperty('cursor')) {
                         page++;
                         getFollows(resp.pagination.cursor, page);
+                    } else {
+                        var el = document.createElement('div');
+                        document.getElementById('status').append(el);
+                        el.textContent = 'Follows complete';
                     }
                 }
             })
@@ -114,9 +122,14 @@
             )
             .then(resp => resp.json())
             .then(resp => {
+                var game_ids = [];
                 if (resp.hasOwnProperty('data') && resp.data.length > 0) {
                     el.textContent += ' got ' + resp.data.length + ' streams';
                     for (var x=0;x<resp.data.length;x++) {
+                        if (game_ids.indexOf(resp.data[x].game_id) < 0) {
+                            game_ids.push(resp.data[x].game_id);
+                        }
+
                         console.log('Add', resp.data[x].user_name);
                         var div = document.createElement('div');
                         div.style.display = 'block';
@@ -148,6 +161,12 @@
                         p.textContent = resp.data[x].user_name;
                         div.append(p);
 
+                        var p = document.createElement('p');
+                        p.classList.add('game_name_' + resp.data[x].game_id);
+                        p.style.height = '50px';
+                        p.textContent = resp.data[x].game_id;
+                        div.append(p);
+
                         var d = document.createElement('p');
                         d.textContent = resp.data[x].viewer_count + ' viewers';
                         div.append(d);
@@ -157,6 +176,7 @@
                 }
 
                 fetchUsers(ids, page);
+                fetchGames(game_ids);
             })
             .catch(err => {
                 console.log(err);
@@ -166,7 +186,7 @@
 
         function fetchUsers(ids, page) {
             var el = document.createElement('div');
-            document.getElementById('status_b').append(el);
+            document.getElementById('status').append(el);
             el.textContent = 'Loading ' + ids.length + ' users follow page ' + page;
 
             fetch(
@@ -192,6 +212,40 @@
 
                             link_el.textContent = '';
                             link_el.append(a);
+                        }
+                    }
+                } else {
+                    el.textContent += ' got no data';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'Something went wrong';
+            });
+        }
+
+        function fetchGames(ids) {
+            var el = document.createElement('div');
+            document.getElementById('status').append(el);
+            el.textContent = 'Loading ' + ids.length + ' games';
+
+            fetch(
+                'https://api.twitch.tv/helix/games?first=100&id=' + ids.join('&id='),
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    el.textContent += ' got ' + resp.data.length + ' games';
+                    for (var x=0;x<resp.data.length;x++) {
+                        var els = document.getElementsByClassName('game_name_' + resp.data[x].id);
+                        for (var y=0;y<els.length;y++) {
+                            els[y].textContent = resp.data[x].name + ' (' + resp.data[x].id + ')';
                         }
                     }
                 } else {
