@@ -161,9 +161,9 @@
                         div.append(p);
 
                         var p = document.createElement('p');
-                        p.classList.add('game_name_' + resp.data[x].game_name);
+                        p.classList.add('game_name_' + resp.data[x].game_id);
                         p.style.height = '50px';
-                        p.textContent = resp.data[x].game_id;
+                        p.textContent = resp.data[x].game_name;
                         div.append(p);
 
                         var d = document.createElement('p');
