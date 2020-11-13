@@ -8,7 +8,7 @@ The primary intent here is to demonstrate a basic handler and how to handle the 
 
 ## Reference Documentation
 
-TO FOLLOW
+- [EvetnSub Documentation](https://dev.twitch.tv/docs/eventsub)
 
 ## Setting up the config
 
