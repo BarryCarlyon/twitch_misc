@@ -4,6 +4,8 @@ This example covers how to recieve Twitch Webhooks in NodeJS.
 
 It's a super "get started" basic example. It doesn't touch on using routes to differentiate streamers/topics etc. It doesn't cover how to create subscriptions.
 
+The primary intent here is to demonstrate a basic handler and how to handle the verification of payloads via the shared secret.
+
 ## Reference Documentation
 
 - [Webhooks Guide](https://dev.twitch.tv/docs/api/webhooks-guide)

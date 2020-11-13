@@ -4,6 +4,8 @@ This example covers how to recieve Twitch EventSub via the Webhook transport in 
 
 It's a super "get started" basic example. It doesn't cover how to create subscriptions.
 
+The primary intent here is to demonstrate a basic handler and how to handle the verification of payloads via the shared secret.
+
 ## Reference Documentation
 
 TO FOLLOW
