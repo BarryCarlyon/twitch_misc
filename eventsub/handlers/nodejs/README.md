@@ -1,13 +1,12 @@
 ## What is this example
 
-This example covers how to recieve Twitch Webhooks in NodeJS.
+This example covers how to recieve Twitch EventSub via the Webhook transport in NodeJS.
 
-It's a super "get started" basic example. It doesn't touch on using routes to differentiate streamers/topics etc. It doesn't cover how to create subscriptions.
+It's a super "get started" basic example. It doesn't cover how to create subscriptions.
 
 ## Reference Documentation
 
-- [Webhooks Guide](https://dev.twitch.tv/docs/api/webhooks-guide)
-- [Webhooks Reference](https://dev.twitch.tv/docs/api/webhooks-reference)
+TO FOLLOW
 
 ## Setting up the config
 
@@ -25,4 +24,4 @@ In a console/terminal, run these commands:
 
 This should be run on a server thats web accessable, but this example is designed as an example on how to read and validate the data from a Twitch webhook rather than be used in production directly.
 
-This example doesn't cover how to SSL termiante which you should do in production and is required for some topics
+This example doesn't cover how to SSL termiante which you should do in production
