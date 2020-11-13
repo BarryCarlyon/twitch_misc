@@ -1,7 +1,7 @@
 /*
 
-Twitch Webhooks are great for real time data
-This example will handle receiving the data of a hook
+Twitch Eventsub is great for real time data
+This example will handle receiving the data of a payload
 
 This is a NodeJS example
 
@@ -81,7 +81,6 @@ app
                 return;
             }
         }
-
 
         // the middleware above ran
         // and it prepared the tests for us
