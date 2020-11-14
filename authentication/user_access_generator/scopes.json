@@ -4,6 +4,7 @@
         "analytics:read:games":         "View analytics data for your games.",
         "bits:read":                    "View Bits information for your channel.",
         "channel:edit:commercial":      "Run commercials on a channel",
+        "channel:manage:redemptions":   "Manage Channel Points custom rewards and their redemptions on a channel.",
         "channel:read:hype_train":      "Read Hype Train information on a channel",
         "channel:read:redemptions":     "View your channel points custom reward redemptions",
         "channel:read:stream_key":      "Read the Stream Key for the channel",
