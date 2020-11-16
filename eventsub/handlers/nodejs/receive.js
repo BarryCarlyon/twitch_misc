@@ -75,7 +75,7 @@ app
         // handle the subscriptions callback/setup
         if (req.body.hasOwnProperty('subscription') && req.headers.hasOwnProperty('twitch-eventsub-message-type')) {
             // it's a webhook
-            if (req.body.hasOwnProperty('challenge') && req.headers['twitch-eventsub-message-type'] == 'callback-verification') {
+            if (req.body.hasOwnProperty('challenge') && req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
                 console.log('Got a challenge, return the challenge');
                 res.send(req.body.challenge);
                 return;
