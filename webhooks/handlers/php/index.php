@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     */
 
     // return the challenge to complet the handshake
-    echo $_GET['hub_challenge'];
+    echo rawurlencode($_GET['hub_challenge']);
 } else {
     // Its not a POST request
     // and it's not a verification request
