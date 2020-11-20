@@ -89,6 +89,11 @@ app
                 }
                 // unexpected hook request
                 res.status(403).send('Denied');
+            } else if (req.headers['twitch-eventsub-message-type'] == 'revocation') {
+                // the webhook was revoked
+                // you should probably do something more useful here
+                // than this example does
+                res.send('Ok');
             } else if (req.headers['twitch-eventsub-message-type'] == 'notification') {
                 if (req.twitch_hex == req.twitch_signature) {
                     console.log('The signature matched');
