@@ -72,51 +72,59 @@ app
     .post((req, res) => {
         console.log('Incoming Post request on /');
 
-        // handle the subscriptions callback/setup
-        if (req.body.hasOwnProperty('subscription') && req.headers.hasOwnProperty('twitch-eventsub-message-type')) {
-            // it's a webhook
-            if (req.body.hasOwnProperty('challenge') && req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
-                console.log('Got a challenge, return the challenge');
-                res.send(encodeURIComponent(req.body.challenge));
-                return;
-            }
-        }
-
         // the middleware above ran
         // and it prepared the tests for us
         // so check if we event generated a twitch_hub
         if (req.twitch_hub) {
-            if (req.twitch_hex == req.twitch_signature) {
-                console.log('The signature matched');
-                // the signature passed so it should be a valid payload from Twitch
-                // we ok as quickly as possible
-                res.send('Ok');
+            // is it a verification request
+            if (req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
+                // it's a another check for if it's a challenge request
+                if (req.body.hasOwnProperty('challenge')) {
+                // we can validate the signature here so we'll do that
+                    if (req.twitch_hex == req.twitch_signature) {
+                        console.log('Got a challenge, return the challenge');
+                        res.send(encodeURIComponent(req.body.challenge));
+                        return;
+                    }
+                }
+                // unexpected hook request
+                res.status(403).send('Denied');
+            } else if (req.headers['twitch-eventsub-message-type'] == 'notification') {
+                if (req.twitch_hex == req.twitch_signature) {
+                    console.log('The signature matched');
+                    // the signature passed so it should be a valid payload from Twitch
+                    // we ok as quickly as possible
+                    res.send('Ok');
 
-                // you can do whatever you want with the data
-                // it's in req.body
+                    // you can do whatever you want with the data
+                    // it's in req.body
 
-                // write out the data to a log for now
-                fs.appendFileSync(path.join(
-                    __dirname,
-                    'webhooks.log'
-                ), JSON.stringify({
-                    body: req.body,
-                    headers: req.headers
-                }) + "\n");
-                // pretty print the last webhook to a file
-                fs.appendFileSync(path.join(
-                    __dirname,
-                    'last_webhooks.log'
-                ), JSON.stringify({
-                    body: req.body,
-                    headers: req.headers
-                }, null, 4));
+                    // write out the data to a log for now
+                    fs.appendFileSync(path.join(
+                        __dirname,
+                        'webhooks.log'
+                    ), JSON.stringify({
+                        body: req.body,
+                        headers: req.headers
+                    }) + "\n");
+                    // pretty print the last webhook to a file
+                    fs.appendFileSync(path.join(
+                        __dirname,
+                        'last_webhooks.log'
+                    ), JSON.stringify({
+                        body: req.body,
+                        headers: req.headers
+                    }, null, 4));
+                } else {
+                    console.log('The Signature did not match');
+                    // the signature was invalid
+                    res.send('Ok');
+                    // we'll ok for now but there are other options
+                }
             } else {
-                console.log('The Signature did not match');
-                // the signature was invalid
+                console.log('Invalid hook sent to me');
+                // probably should error here as an invalid hook payload
                 res.send('Ok');
-                // we'll ok for now but there are other options
-            }
         } else {
             console.log('It didn\'t seem to be a Twitch Hook');
             // again, not normally called
