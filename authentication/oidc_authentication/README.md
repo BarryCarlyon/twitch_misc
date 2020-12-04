@@ -1,6 +1,6 @@
 ## What is this example
 
-This example is similar to the (user_access_generator)[https://github.com/BarryCarlyon/twitch_misc/tree/master/authentication/user_access_generator] but covers a single scope and how to verify it. Specifically the [OIDC](https://dev.twitch.tv/docs/authentication/getting-tokens-oidc)
+This example is similar to the [user_access_generator](https://github.com/BarryCarlyon/twitch_misc/tree/master/authentication/user_access_generator) but covers a single scope and how to verify it. Specifically the [OIDC](https://dev.twitch.tv/docs/authentication/getting-tokens-oidc)
 
 It works both "Authorization Code Flow" and "Implicit Code Flow", but this only covers "Authorization Code Flow"
 
