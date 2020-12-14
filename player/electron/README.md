@@ -17,3 +17,5 @@ In a console/terminal, run these commands:
 
 - `npm install`
 - `npm start`
+
+It will force open the dev tools/inspector on launch
