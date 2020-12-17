@@ -48,7 +48,10 @@ app.use(bodyParser.json({
 
             var xHub = req.headers['twitch-eventsub-message-signature'].split('=');
 
-            req.twitch_hex = crypto.createHmac(xHub[0], config.hook_secret)
+            // you could do
+            // req.twitch_hex = crypto.createHmac(xHub[0], config.hook_secret)
+            // but we know Twitch always uses sha256
+            req.twitch_hex = crypto.createHmac('sha256', config.hook_secret)
                 .update(id + timestamp + buf)
                 .digest('hex');
             req.twitch_signature = xHub[1];
