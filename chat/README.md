@@ -10,6 +10,15 @@ The Regex'es and some of the message parsing was inspired form [Modch.at](https:
 
 - [Chat Guide](https://dev.twitch.tv/docs/irc/guide)
 
+## Notes
+
+If you were to use this script and use a "real" user with the right scopes.
+In order to send a chat message you would do something like
+
+    socket.send('PRIVMSG #targetchnanel :Your message here');
+    
+Which matches the IRC Protocol formatting for sending a message to a channel.
+
 ## Running the example
 
 In a console/terminal, run these commands:
