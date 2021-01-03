@@ -224,23 +224,61 @@ const start = function() {
                     break;
 
                 case 'PING':
+                    // Twitch sent a "R U STILL THERE?"
                     socket.send('PONG :' + payload.message);
                     break;
 
                 case 'JOIN':
+                    // You joined a room
                     console.log('Joined', payload.room);
                     break;
+                case 'PART':
+                    // as the result of a PART command
+                    // you left a room
+                    break;
+                    
+                case 'GLOBALUSERSTATE':
+                    // You connected to the server
+                    // here is some info about the user
+                    break;
                 case 'USERSTATE':
+                    // Often sent when you send a PRIVMSG to a room
+                    break;
                 case 'ROOMSTATE':
+                    // You joined a room here is the intial state (followers only etc)
+                    // The Room state was changed, on change only sends what changed, not the whole settings blob
                     break;
 
                 case 'PRIVMSG':
                     // heres where the magic happens
                     break;
+                case 'WHISPER':
+                    // you received a whisper, good luck replying!
+                    break;
 
                 case 'USERNOTICE':
+                    // see https://dev.twitch.tv/docs/irc/tags#usernotice-twitch-tags
+                    // An "Twitch event" occured, like a subscription or raid
                     break;
                 case 'NOTICE':
+                    // General notices about Twitch/rooms you are in
+                    // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
+                    break;
+                case 'RECONNECT':
+                    // The server you are connected to is restarted
+                    // you should restart the bot and reconnect
+                    break;
+
+                // moderationy stuff
+                case 'CLEARCHAT':
+                    // A users message is to be removed
+                    // as the result of a ban or timeout
+                    break;
+                case 'CLEARMSG':
+                    // a single users message was deleted
+                    break;
+                case 'HOSTTARGET':
+                    // the room you are in, is now hosting someone or has ended the host
                     break;
 
                 default:
