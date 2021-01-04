@@ -6,6 +6,8 @@ It's basically identical to the [pubsub client](https://github.com/BarryCarlyon/
 
 The Regex'es and some of the message parsing was inspired form [Modch.at](https://github.com/CBenni/mt2), (and theres only so many ways to write a IRC parser)
 
+This example will connect to the channel Twitch, and will be in the "readonly"/justinfan/anon user configuration. As if you were on the Twitch.tv/twitch channel and you were logged on in the browser.
+
 ## Reference Documentation
 
 - [Chat Guide](https://dev.twitch.tv/docs/irc/guide)
