@@ -236,7 +236,7 @@ const start = function() {
                     // as the result of a PART command
                     // you left a room
                     break;
-                    
+
                 case 'GLOBALUSERSTATE':
                     // You connected to the server
                     // here is some info about the user

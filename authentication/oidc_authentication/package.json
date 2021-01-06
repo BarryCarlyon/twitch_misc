@@ -13,9 +13,9 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "got": "^11.5.1",
+    "got": "^11.8.1",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.8.1",
+    "jwks-rsa": "^1.12.1",
     "pug": "^3.0.0"
   }
 }

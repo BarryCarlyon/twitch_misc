@@ -13,7 +13,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "got": "^11.7.0",
+    "got": "^11.8.1",
     "pug": "^3.0.0"
   }
 }
