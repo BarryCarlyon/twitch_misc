@@ -20,6 +20,13 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/brows
 - [Get Top Games](https://dev.twitch.tv/docs/api/reference#get-top-games)
 - [Get Streams](https://dev.twitch.tv/docs/api/reference#get-streams) - Using GameID's to filter
 
+## But what about rate limits?
+
+This example runs in a browser and we are using implicit auth to get a token to use.
+As a result we are using frontend JS to make the API calls, and browsers will limit the number of requests made to the same domain (api.twitch.tv in this example), so we can't "hammer" enough to get close to the rate limit.
+
+But that is something to consider if you are making these calls server side.
+
 ## Setting up the config
 
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
