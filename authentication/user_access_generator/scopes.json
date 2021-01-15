@@ -5,7 +5,7 @@
         "bits:read":                    "View Bits information for your channel.",
         "channel:edit:commercial":      "Run commercials on a channel",
         "channel:manage:redemptions":   "Manage Channel Points custom rewards and their redemptions on a channel.",
-        "channel:manage:videos":        "	Manage a channel’s videos, including deleting videos.",
+        "channel:manage:videos":        "Manage a channel’s videos, including deleting videos.",
         "channel:read:editors":         "View a list of users with the editor role for a channel.",
         "channel:read:hype_train":      "Read Hype Train information on a channel",
         "channel:read:redemptions":     "View your channel points custom reward redemptions",
