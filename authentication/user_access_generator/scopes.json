@@ -5,6 +5,8 @@
         "bits:read":                    "View Bits information for your channel.",
         "channel:edit:commercial":      "Run commercials on a channel",
         "channel:manage:redemptions":   "Manage Channel Points custom rewards and their redemptions on a channel.",
+        "channel:manage:videos":        "	Manage a channel’s videos, including deleting videos.",
+        "channel:read:editors":         "View a list of users with the editor role for a channel.",
         "channel:read:hype_train":      "Read Hype Train information on a channel",
         "channel:read:redemptions":     "View your channel points custom reward redemptions",
         "channel:read:stream_key":      "Read the Stream Key for the channel",
@@ -15,6 +17,8 @@
         "user:edit:broadcast":          "Edit your channel’s broadcast configuration, including extension configuration. (This scope implies user:read:broadcast capability.)",
         "user:read:broadcast":          "View your broadcasting configuration, including extension configurations.",
         "user:edit:follows":            "Manage follows on a channel/user",
+        "user:read:blocked_users":      "View the block list of a user.",
+        "user:manage:blocked_users":    "Manage the block list of a user.",
         "user:read:email":              "Read authorized user's email address.",
         "user:read:stream_key":         "Read authorized user's stream key"
     },
