@@ -3,6 +3,8 @@
 This example covers some basic and uncommented script, that takes an access token (and client config) from a flat JSON file storage.
 Validate and regenerate the access token if needed.
 
+Note: Normally you probably wouldn't store the user access tokens in a flat JSON file. It's just done for simplicity of the examples
+
 And then do something depending on the script called
 
 - interactive_basic_create.js - using readline ask some questions and create a basic reward

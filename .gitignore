@@ -3,3 +3,5 @@ node_modules
 config.json
 config.php
 auth.json
+config_client.json
+config_user.json
