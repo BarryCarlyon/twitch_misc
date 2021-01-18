@@ -202,7 +202,7 @@ function regenerateUser() {
         fs.writeFileSync(path.join(
             __dirname,
             'jsons',
-            'config_barry.json'
+            'config_user.json'
         ), JSON.stringify(account_config, null, 4));
 
         go();
