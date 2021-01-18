@@ -22,79 +22,6 @@ const app_access_token = JSON.parse(fs.readFileSync(path.join(
     'app_access.json'
 )));
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const crypto = require('crypto');
-
-const app = express();
-const http = require('http').Server(app);
-http.listen(app_access_token.port, function() {
-    console.log('Server raised on', app_access_token.port);
-});
-
-app.use(bodyParser.json({
-    verify: function(req, res, buf, encoding) {
-        // is there a hub to verify against
-        req.twitch_hub = false;
-        if (req.headers && req.headers.hasOwnProperty('twitch-eventsub-message-signature')) {
-            req.twitch_hub = true;
-
-            // id for dedupe
-            var id = req.headers['twitch-eventsub-message-id'];
-            // check age
-            var timestamp = req.headers['twitch-eventsub-message-timestamp'];
-
-            var xHub = req.headers['twitch-eventsub-message-signature'].split('=');
-
-            // you could do
-            // req.twitch_hex = crypto.createHmac(xHub[0], config.hook_secret)
-            // but we know Twitch always uses sha256
-            req.twitch_hex = crypto.createHmac('sha256', app_access_token.eventsub_secret)
-                .update(id + timestamp + buf)
-                .digest('hex');
-            req.twitch_signature = xHub[1];
-
-            if (req.twitch_signature != req.twitch_hex) {
-                console.error('Signature Mismatch');
-            } else {
-                console.log('Signature OK');
-            }
-        }
-    }
-}));
-
-app
-    .route('/')
-    .get((req, res) => {
-        console.log('Incoming Get request on /');
-        res.send('There is no GET Handler');
-    })
-    .post((req, res) => {
-        console.log('Incoming Post request on /');
-
-        if (req.twitch_hub) {
-            if (req.twitch_hex == req.twitch_signature) {
-                if (req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
-                    if (req.body.hasOwnProperty('challenge')) {
-                        console.log('Yay', req.headers);
-                        res.send(encodeURIComponent(req.body.challenge));
-                        return;
-                    }
-                }
-                if (req.headers['twitch-eventsub-message-type'] == 'revocation') {
-                    res.send('Ok');
-                    return;
-                }
-                if (req.headers['twitch-eventsub-message-type'] == 'notification') {
-                    res.send('Ok');
-                    return;
-                }
-            }
-        }
-
-        res.status(403).send('Denied');
-    });
-
 // boot up sub generation
 // generate app access token
 // then we'll go get the userID we wanna work with
@@ -225,10 +152,6 @@ var subscriptions_to_make = {
     'channel.channel_points_custom_reward_redemption.add': 'broadcaster_user_id',
     'channel.channel_points_custom_reward_redemption.update': 'broadcaster_user_id'
 }
-var subscriptions_valid = {}
-for (var topic in subscriptions_to_make) {
-    subscriptions_valid[topic] = false;
-}
 
 function go() {
     // who am I
@@ -298,8 +221,7 @@ function goGetSubs(pagination) {
 function processSubs() {
     for (var x=0;x<subs_that_exist.length;x++) {
         var topic = subs_that_exist[x].type;
-        //console.log(topic, subscriptions_valid.hasOwnProperty(topic));
-        if (subscriptions_valid.hasOwnProperty(topic)) {
+        if (subscriptions_to_make.hasOwnProperty(topic)) {
             var condition = subs_that_exist[x].condition[subscriptions_to_make[topic]];
 
             //console.log(condition, broadcaster_id)
@@ -308,50 +230,28 @@ function processSubs() {
                 var url = subs_that_exist[x].transport.callback;
                 if (url == app_access_token.callback_url) {
                     // needs some tatus manglement here
-                    subscriptions_valid[topic] = true;
+                    deleteSubscription(subs_that_exist[x].id);
                 }
             }
         }
     }
-
-    console.log(subscriptions_valid);
-
-    for (var topic in subscriptions_valid) {
-        if (!subscriptions_valid[topic]) {
-            console.log('Create', topic, subscriptions_to_make[topic]);
-            createSubscription(topic, subscriptions_to_make[topic]);
-        }
-    }
 }
 
-function createSubscription(type, thing) {
-    var condition = {};
-    condition[thing] = broadcaster_id;
-
-    var json = {
-        type,
-        version: "1",
-        condition,
-        transport: {
-            method: 'webhook',
-            callback: app_access_token.callback_url,
-            secret: app_access_token.eventsub_secret
-        }
-    };
-    //console.log(json);process.exit();
-
+function deleteSubscription(id) {
     got({
         url: 'https://api.twitch.tv/helix/eventsub/subscriptions',
-        method: 'POST',
+        method: 'DELETE',
         headers: {
             'client-id': client_config.client_id,
             'Authorization': 'Bearer ' + app_access_token.access_token
         },
-        json,
+        searchParams: {
+            id
+        },
         responseType: 'json'
     })
     .then(resp => {
-        console.log(resp.body);
+        console.log('Deleted', resp.body);
     })
     .catch(err => {
         if (err.response) {

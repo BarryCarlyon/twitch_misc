@@ -36,6 +36,14 @@ The server will then boot up.
 - Create any subscriptions that are "non existant" (example doesn't handle failed subs)
 - Setup a server to capture and process subscription creation and payloads.
 
+The utility script of `delete_subscriptions.js`
+
+Run via
+
+- `node delete_subscriptions.js`
+
+Will delete the created subscriptions.
+
 ## A note
 
 Just some dumb reference scripts, that might be of use
