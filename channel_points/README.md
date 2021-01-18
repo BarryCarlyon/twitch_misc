@@ -10,6 +10,7 @@ And then do something depending on the script called
 - interactive_basic_create.js - using readline ask some questions and create a basic reward
 - fetch_and_dump_rewards.js - will fetch the "manageable" rewards for this ClientID for the authenticating user and store them in a json in the `jsons` folder
 - fetch_and_nail.js - will fetch the "manageable" rewards and delete them all
+- fetch_and_toggle.js - will ask to enable or disable all rewards on the channel, the ClientID owns.
 
 ## Reference Documentation
 

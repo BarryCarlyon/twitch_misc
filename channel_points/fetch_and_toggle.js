@@ -32,7 +32,7 @@ got({
     responseType: 'json'
 })
 .then(resp => {
-    go();
+    goFetch();
 })
 .catch(err => {
     if (err.response) {
@@ -71,7 +71,7 @@ function regenerate() {
             'config_user.json'
         ), JSON.stringify(account_config, null, 4));
 
-        go();
+        goFetch();
     })
     .catch(err => {
         if (err.response) {
@@ -82,35 +82,9 @@ function regenerate() {
     });
 }
 
-function go() {
-//        prompt: '',
-    var item = {
-        title: '',
-        cost: 0,
-        is_enabled: false,
-        background_color: '#000000'
-    }
-    rl.question('Title> ', (dat) => {
-        item.title = dat;
-        rl.question('Prompt> ', (p) => {
-            if (p && p.length > 0) {
-                item.prompt = p;
-            }
+function goFetch() {
+    var broadcaster_id = '';
 
-            rl.question('Cost> ', (c) => {
-                item.cost = parseInt(c);
-
-                rl.question('Color> no #/hex ', (c) => {
-                    item.background_color = '#' + c;
-
-                    create(item);
-                });
-            });
-        })
-    });
-}
-
-function create(item) {
     got({
         url: 'https://api.twitch.tv/helix/users',
         method: 'GET',
@@ -121,25 +95,46 @@ function create(item) {
         responseType: 'json'
     })
     .then(resp => {
-        console.log(resp.body.data[0]);
+        //console.log(resp.body.data[0]);
+        broadcaster_id = resp.body.data[0].id;
+
         return got({
             url: 'https://api.twitch.tv/helix/channel_points/custom_rewards',
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Client-ID': client_config.client_id,
                 'Authorization': 'Bearer ' + account_config.access_token
             },
             searchParams: {
-                broadcaster_id:resp.body.data[0].id
+                broadcaster_id,
+                only_manageable_rewards: 1
             },
-            json: item,
             responseType: 'json'
         })
     })
     .then(resp => {
-        console.log('Did', resp.body);
+        console.log('Found', resp.body.data.length, 'for', broadcaster_id);
 
-        go();
+        rl.question('Enable or disable (1/0)> ', dir => {
+            dir = parseInt(dir);
+
+            var enable = false;
+            if (dir === 1) {
+                enable = true;
+            } else if (dir === 0) {
+                enable = false;
+            } else {
+                console.log('Enter 1/0');
+                goFetch();
+                return;
+            }
+
+            rl.close();
+
+            for (var x=0;x<resp.body.data.length;x++) {
+                toggleReward(broadcaster_id, resp.body.data[x], enable);
+            }
+        })
     })
     .catch(err => {
         if (err.response) {
@@ -147,7 +142,34 @@ function create(item) {
         } else {
             console.error('Error', err);
         }
+    });
+}
 
-        go();
+function toggleReward(broadcaster_id, reward, is_enabled) {
+    got({
+        url: 'https://api.twitch.tv/helix/channel_points/custom_rewards',
+        method: 'PATCH',
+        headers: {
+            'Client-ID': client_config.client_id,
+            'Authorization': 'Bearer ' + account_config.access_token
+        },
+        searchParams: {
+            broadcaster_id,
+            id: reward.id
+        },
+        json: {
+            is_enabled
+        },
+        responseType: 'json'
+    })
+    .then(resp => {
+        console.log('Updated', resp.body);
+    })
+    .catch(err => {
+        if (err.response) {
+            console.error('Error', err.response.statusCode, err.response.body);
+        } else {
+            console.error('Error', err);
+        }
     });
 }
