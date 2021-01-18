@@ -1,0 +1,10 @@
+{
+    "access_token": "",
+    "refresh_token": "",
+    "scope": [
+        "channel:manage:redemptions",
+        "channel:read:redemptions"
+    ],
+    "token_type": "bearer"
+}
+
