@@ -18,7 +18,7 @@ For the access token (`config_user.json`) you will need an access token with the
 - `channel:manage:redemptions`
 - `channel:read:redemptions`
 
-For the "secret" *DO NOT USES YOUR APPLICATION `client_secret`* it should be any random string.
+For the "eventsub_secret" *DO NOT USES YOUR APPLICATION `client_secret`* it should be any random string, between 10 and 100 characters
 
 The callback URL needs to be SSL Secured!
 

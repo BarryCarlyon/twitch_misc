@@ -1,6 +1,6 @@
 {
     "access_token": "",
-    "secret": "",
+    "eventsub_secret": "",
     "callback_url": "https://exmaple.com/",
     "port": 8000
 }
