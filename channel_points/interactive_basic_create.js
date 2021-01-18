@@ -101,7 +101,7 @@ function go() {
                 item.cost = parseInt(c);
 
                 rl.question('Color> no #/hex ', (c) => {
-                    item.color = '#' + c;
+                    item.background_color = '#' + c;
 
                     create(item);
                 });
