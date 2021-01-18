@@ -18,7 +18,7 @@ const account_config = JSON.parse(fs.readFileSync(path.join(
 const app_access_token = JSON.parse(fs.readFileSync(path.join(
     __dirname,
     '..',
-    'json',
+    'jsons',
     'app_access.json'
 )));
 
@@ -139,7 +139,7 @@ function regenerateApp() {
         fs.writeFileSync(path.join(
             __dirname,
             '..',
-            'json',
+            'jsons',
             'app_access.json'
         ), JSON.stringify(app_access_token, null, 4));
 
