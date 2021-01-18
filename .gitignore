@@ -5,3 +5,4 @@ config.php
 auth.json
 config_client.json
 config_user.json
+app_access.json

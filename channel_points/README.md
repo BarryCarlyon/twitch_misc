@@ -16,6 +16,8 @@ And then do something depending on the script called
 - `fetch_and_nail.js` - will fetch the "manageable" rewards and delete them all
 - `fetch_and_toggle.js` - will ask to enable or disable all "manageable" rewards (via an update/`PATCH` request) on the channel, the ClientID owns.
 
+Check the EventSub folder for a "rough" example of a Server to setup and recieve EventSub Events relating to Channel Points
+
 ## Reference Documentation
 
 - [Channel Points Endpoints](https://dev.twitch.tv/docs/api/reference#create-custom-rewardse)
