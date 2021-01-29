@@ -1,6 +1,7 @@
 <html>
 <head>
     <title>Twitch | Browse Live Followings Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
 </head>
 <body>
     <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will retrun a page similar to <a href="https://www.twitch.tv/directory/following/live" target="_blank">The Live Following</a>.</p>
@@ -12,7 +13,7 @@
     <p>Then in order to get the <i>true</i> URL's for the stream, we call <a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a> to get the username of the streamer, this is due to <a href="https://github.com/twitchdev/issues/issues/3" target="_blank">TwitchDev Issue 3</a></p>
     <p>You would also probably, only normally want to do the ID to login lookup for live streams, to save a request or two, but we don't in this example</p>
 
-    <p>The only gotchas are: this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching tag names as Tag IDs are returned</p>
+    <p>The only gotchas are: due to a current Twitch bug, ReRuns/Watch parties are omitted, and this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching game names as streams only returns the game_id, same for Tags.</p>
 
     <a href="" id="authorize">Authorize</a>
     <div id="loading"></div>
