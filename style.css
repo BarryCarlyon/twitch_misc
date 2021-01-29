@@ -10,7 +10,7 @@ table {
     border-top: 1px solid rgb(239, 239, 241);
     border-left: 1px solid rgb(239, 239, 241);
 }
-td {
+th, td {
     border-right: 1px solid rgb(239, 239, 241);
     border-bottom: 1px solid rgb(239, 239, 241);
     padding: 5px 10px;
