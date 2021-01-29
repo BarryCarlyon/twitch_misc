@@ -21,7 +21,7 @@ Then just
 
 > $ ./generic.sh
 
-To run the ffmpeg test patterns
+To run the ffmpeg test pattern
 
 Or
 
