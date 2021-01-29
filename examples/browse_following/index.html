@@ -12,7 +12,7 @@
     <p>Then in order to get the <i>true</i> URL's for the stream, we call <a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a> to get the username of the streamer, this is due to <a href="https://github.com/twitchdev/issues/issues/3" target="_blank">TwitchDev Issue 3</a></p>
     <p>You would also probably, only normally want to do the ID to login lookup for live streams, to save a request or two, but we don't in this example</p>
 
-    <p>The only gotchas are: due to a current Twitch bug, <a href="https://github.com/twitchdev/issues/issues/38" target="_blank">ReRuns</a> are omitted, and this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching tag names as Tag IDs are returned</p>
+    <p>The only gotchas are: this page/example doesn't bother to sort by View Count. As you can sort however you want. And we don't go fetching tag names as Tag IDs are returned</p>
 
     <a href="" id="authorize">Authorize</a>
     <div id="loading"></div>
@@ -156,8 +156,11 @@
                         div.append(p);
 
                         var p = document.createElement('p');
-                        p.setAttribute('id', 'stream_link_' + resp.data[x].user_id);
-                        p.textContent = resp.data[x].user_name;
+                        var a = document.createElement('a');
+                        a.setAttribute('target', 'stream_link_' + resp.data[x].id);
+                        a.textContent = resp.data[x].user_name;
+                        a.setAttribute('href', 'https://twitch.tv/' + resp.data[x].user_login);
+                        p.append(a);
                         div.append(p);
 
                         var p = document.createElement('p');
@@ -169,48 +172,6 @@
                         var d = document.createElement('p');
                         d.textContent = resp.data[x].viewer_count + ' viewers';
                         div.append(d);
-                    }
-                } else {
-                    el.textContent += ' got no data';
-                }
-
-                fetchUsers(ids, page);
-            })
-            .catch(err => {
-                console.log(err);
-                document.getElementById('loading').textContent = 'Something went wrong';
-            });
-        }
-
-        function fetchUsers(ids, page) {
-            var el = document.createElement('div');
-            document.getElementById('status').append(el);
-            el.textContent = 'Loading ' + ids.length + ' users follow page ' + page;
-
-            fetch(
-                'https://api.twitch.tv/helix/users?first=100&id=' + ids.join('&id='),
-                {
-                    "headers": {
-                        "Client-ID": client_id,
-                        "Authorization": "Bearer " + access_token
-                    }
-                }
-            )
-            .then(resp => resp.json())
-            .then(resp => {
-                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
-                    el.textContent += ' got ' + resp.data.length + ' users';
-                    for (var x=0;x<resp.data.length;x++) {
-                        var link_el = document.getElementById('stream_link_' + resp.data[x].id);
-                        if (link_el) {
-                            var a = document.createElement('a');
-                            a.setAttribute('target', 'stream_link_' + resp.data[x].id);
-                            a.textContent = resp.data[x].display_name;
-                            a.setAttribute('href', 'https://twitch.tv/' + resp.data[x].login);
-
-                            link_el.textContent = '';
-                            link_el.append(a);
-                        }
                     }
                 } else {
                     el.textContent += ' got no data';
