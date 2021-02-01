@@ -1,6 +1,7 @@
 ## What is this example
 
-This is a very rough example of using implicit auth to auth and show the auth'ed users "public" profile from helix
+This is a very rough example of using implicit auth to auth.
+It provides two authentication links, one that'll just get public data, and a second that'll return public + the users email.
 
 ## TRY THIS EXAMPLE NOW!
 
