@@ -2,11 +2,12 @@
 
 This example has some utilitiy scripts
 
-Gotchas: when fetching global, Twitch returns it as `global:`
+Gotchas: when fetching the global segment, Twitch returns it as `global:`, this is not a bug, it matches the `broadcaster:channel_id` and `developer:channel_id` segment names for consistency.
 
 ## Reference Documentation
 
-- [Get Extension Configuration Segment](https://dev.twitch.tv/docs/extensions/reference#get-extension-channel-configuration)
+- [Get Extension Global Configuration Segment](https://dev.twitch.tv/docs/extensions/reference#get-extension-configuration-segment)
+- [Get Extension Channel Configuration Segment](https://dev.twitch.tv/docs/extensions/reference#get-extension-channel-configuration)
 - [Set Extension Configuration Segment](https://dev.twitch.tv/docs/extensions/reference#set-extension-configuration-segment)
 - [Example: Set Config and PubSub Publish it to Extension Clients](https://github.com/BarryCarlyon/twitch_misc/tree/master/extensions/config_service)
 
