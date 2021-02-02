@@ -27,7 +27,7 @@
         document.getElementById('authorize_email').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:email');
         document.getElementById('access_token').textContent = '';
 
-        if (document.location.hash) {
+        if (document.location.hash && document.location.hash != '') {
             var parsedHash = new URLSearchParams(window.location.hash.substr(1));
             if (parsedHash.get('access_token')) {
                 var access_token = parsedHash.get('access_token');
@@ -66,7 +66,13 @@
                     document.getElementById('user_data').textContent = 'Something went wrong';
                 });
             }
+        } else if (document.location.search && document.location.search != '') {
+            var parsedParams = new URLSearchParams(window.location.search);
+            if (parsedParams.get('error_description')) {
+                document.getElementById('access_token').textContent = parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
+            }
         }
+            
     </script>
 </body>
 </html>
