@@ -267,6 +267,9 @@ const start = function() {
                 case 'RECONNECT':
                     // The server you are connected to is restarted
                     // you should restart the bot and reconnect
+
+                    // close the socket and let the close handler grab it
+                    socket.close();
                     break;
 
                 // moderationy stuff
