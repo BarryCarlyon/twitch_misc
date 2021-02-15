@@ -30,16 +30,6 @@ app.set('view options', {
    compileDebug: false
 })
 
-/*
-app.use(function(req, res, next) {
-    var fullUrl = req.method + ' - ' + req.protocol + '://' + req.get('host') + req.originalUrl;
-    // don't ding/log for statics
-    if (req.originalUrl.indexOf('.') >= 0) {
-        console.log('Public', fullUrl);
-    }
-    next();
-});
-*/
 app.use(express.static(path.join(__dirname, 'public')));
 
 /* interfaces */
@@ -416,7 +406,6 @@ app.use((req,res,next) => {
 
         // setup a nonce/state
         req.session.state = crypto.randomBytes(16).toString('base64');
-        console.log(req.originalUrl, 'UPDATING STATE', req.session.state);
 
         // build the URL
         var authenticate = 'https://id.twitch.tv/oauth2/authorize'
