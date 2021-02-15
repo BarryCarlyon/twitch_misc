@@ -28,7 +28,7 @@ If you are after a demo of a Twitch Extension with an EBS that talks to the Twit
 
 Most of the code in this repository is various bits and pieces for your to copy/paste in other projects.
 
-However the [examples](tree/master/examples) folder will contain self contained examples that demonstrate a more full "product".
+However the [examples](examples) folder will contain self contained examples that demonstrate a more full "product".
 
 ## Further Help
 
