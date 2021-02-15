@@ -13,10 +13,18 @@ You could use such a system to protect a bot control panel, or other system wher
 
 Conceivably, you can use this example to create a subscribers only "portal", you would substitiute `moderation:read` scope for `moderation:read+channel:read:subscriptions` (this would allow moderators _and_ subscribers to login to this "portal"). And update the `moderatorCheck` function to include a call to [Get Broadcaster Subscriptions](https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions) (usually call Subscriber check and if not a sub call moderators would be the preferred order).
 
+This flow is demonstrated in `server_subscriber.js`
+
+So:
+
+- `server.js` - a Moderator only Portal
+- `server_subscriber.js` - a Subscriber or Moderator only Portal
+
 ## Reference Documentation
 
 - [Get User oAuth Token](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-authorization-code-flow)
 - [Get Moderators](https://dev.twitch.tv/docs/api/reference#get-moderators)
+- [Get Broadcaster Subscriptions](https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions)
 
 ## Setting up the config
 

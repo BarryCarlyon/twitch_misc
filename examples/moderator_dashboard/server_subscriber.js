@@ -347,7 +347,7 @@ app.use((req,res,next) => {
 
 function accessChecks(user_id, req, res, next) {
     got({
-        url: 'https://api.twitch.tv/helix/moderation/moderators',
+        url: 'https://api.twitch.tv/helix/subscriptions',
         method: 'GET',
         headers: {
             'Client-ID': config.twitch.client_id,
@@ -361,12 +361,29 @@ function accessChecks(user_id, req, res, next) {
     })
     .then(resp => {
         if (resp.body.data && resp.body.data.length == 1) {
+            req.session.permitted = true;
+            req.session.subscriber = true;
+        }
+
+        return got({
+            url: 'https://api.twitch.tv/helix/moderation/moderators',
+            method: 'GET',
+            headers: {
+                'Client-ID': config.twitch.client_id,
+                'Authorization': 'Bearer ' + keystate
+            },
+            searchParams: {
+                broadcaster_id: config.twitch.broadcaster_id,
+                user_id
+            },
+            responseType: 'json'
+        })
+    })
+    .then(resp => {
+        if (resp.body.data && resp.body.data.length == 1) {
             // yay
             req.session.permitted = true;
-            // consider next() instead?
-            // but redirect to clear query params
-        } else {
-            req.session.error = 'You are not a moderator, access denied';
+            req.session.moderator = true;
         }
     })
     .catch(err => {
@@ -375,6 +392,9 @@ function accessChecks(user_id, req, res, next) {
         req.session.error = 'An Error occured: ' + ((err.response && err.response.body.message) ? err.response.body.message : 'Unknown');
     })
     .finally(() => {
+        if (!req.session.permitted) {
+            req.session.error = 'You are not a subscriber or moderator, access denied';
+        }
         res.redirect('/');
     });
 }
@@ -403,7 +423,7 @@ app.use((req,res,next) => {
             + '?client_id=' + config.twitch.client_id
             + '&redirect_uri=' + encodeURIComponent(config.twitch.redirect_uri)
             + '&response_type=code'
-            + '&scope=moderation:read'
+            + '&scope=moderation:read+channel:read:subscriptions'
             + '&state=' + encodeURIComponent(req.session.state);
 
         res.render('broadcaster_keys_needed', {
