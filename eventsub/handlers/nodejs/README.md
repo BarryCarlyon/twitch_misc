@@ -26,4 +26,5 @@ In a console/terminal, run these commands:
 
 This should be run on a server thats web accessable, but this example is designed as an example on how to read and validate the data from a Twitch webhook rather than be used in production directly.
 
-This example doesn't cover how to SSL termiante which you should do in production
+This example doesn't cover how to SSL termiante. Usually in prodiction NGINX/Apache/other in front of your NodeJS process would handle this, rather than NodeJS itself.
+SSL termiantion is _required_ for EventSub, as only SSL/HTTPS URLs are supported for the Webhook transport.

@@ -20,13 +20,23 @@ Check the EventSub folder for a "rough" example of a Server to setup and recieve
 
 ## Reference Documentation
 
-- [Channel Points Endpoints](https://dev.twitch.tv/docs/api/reference#create-custom-rewardse)
+- [Channel Points Endpoints](https://dev.twitch.tv/docs/api/reference#create-custom-rewards)
+- [User Authentication](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-authorization-code-flow)
+- [Server/Server Authentication](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow)
+
+# Authentication Notes
+
+This example uses a "dual authentication" token method.
+As EventSub _only_ uses App Access Tokens (aka Server to Server tokens)
+But in order to subscribe to the Channel Points Topics, you need to have authenticated the Broadcaster (aka User Tokens) at least once to your application (Client ID) with the relevant scopes. (You could even have no "valid" access tokens on file (just valid refresh tokens)).
+
+IE if you can call the Helix API endpoints (with a User Access Token), so you can catch up when your app is down/restarting, then you can subscribe to the same topics on EventSub (with your App Access Token)
 
 ## Running the example
 
 Copy the sample jsons to the same name but remove `_sample` and populate them.
 
-For the access token (`config_user.json`) you will need an access token with the following scopes
+For the access token (`config_user.json`) you will need a [User access token](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-authorization-code-flow) with the following scopes
 
 - `channel:manage:redemptions`
 - `channel:read:redemptions`
