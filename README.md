@@ -24,6 +24,12 @@ There are some useful bits for Twitch Extensions in this repo, mainly for the [A
 
 If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
 
+## Practical Examples
+
+Most of the code in this repository is various bits and pieces for your to copy/paste in other projects.
+
+However the [examples](tree/master/examples) folder will contain self contained examples that demonstrate a more full "product".
+
 ## Further Help
 
 Some options
