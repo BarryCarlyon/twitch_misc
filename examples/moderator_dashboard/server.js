@@ -58,8 +58,14 @@ var secret = crypto.randomBytes(64).toString('hex');
 /* Session */
 const sess = require('express-session');
 const RedisStore = require('connect-redis')(sess);
-// for nginx/nrgok
-app.set('trust proxy', 1) // trust first proxy
+// Usually you'll put the node process
+// behind a proxy such as nginx
+// so that proxy will handle the SSL Certs
+// trust proxy will tell the session handler to trust the SSL ness of the cookie
+// see also https://expressjs.com/en/guide/behind-proxies.html
+// for other options you may want to use something more specific than a true
+app.set('trust proxy', 1);
+
 const session = sess({
     store: new RedisStore({
         client: redis_client
@@ -69,13 +75,19 @@ const session = sess({
     saveUninitialized: false,
     saveUninitialized: true,
     cookie: {
-        secure: true,
         secure: false
     },
     rolling: true
 });
+
+// you can set the cookie max age
 //cookie: {
 //        maxAge: (30 * 60 * 1000)
+
+// this example sets the cookie to secure false
+// you should set to true when hosting over SSL
+// it's false for the http://localhost/ testing of this example.
+
 app.use(session);
 
 /*
