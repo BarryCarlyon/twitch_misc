@@ -28,3 +28,8 @@ stream = requests.get('https://api.twitch.tv/helix/streams?user_login=' + stream
 stream_data = stream.json();
 
 print(stream_data);
+
+if len(stream_data['data']) == 1:
+    print(streamer_name + ' is live: ' + stream_data['data'][0]['title'] + ' playing ' + stream_data['data'][0]['game_name']);
+else:
+    print(streamer_name + ' is not live');
