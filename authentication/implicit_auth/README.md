@@ -30,3 +30,7 @@ If you have PHP installed
 > sudo php -S 127.0.0.1:80
 
 Will get you going real quick
+
+## Disconnecting the App
+
+If you use the GitHub Live example to test, you can Disconnect the "Barry's GitHub Examples" Application on the [Connections page](https://www.twitch.tv/settings/connections)
