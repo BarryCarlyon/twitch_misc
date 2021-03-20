@@ -4,8 +4,8 @@
   "description": "",
   "main": "get_global.js",
   "dependencies": {
-    "jsonwebtoken": "^8.5.1",
-    "got": "^11.8.1"
+    "got": "^11.8.2",
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {},
   "scripts": {
