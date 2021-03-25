@@ -28,3 +28,7 @@ This should be run on a server thats web accessable, but this example is designe
 
 This example doesn't cover how to SSL termiante. Usually in prodiction NGINX/Apache/other in front of your NodeJS process would handle this, rather than NodeJS itself.
 SSL termiantion is _required_ for EventSub, as only SSL/HTTPS URLs are supported for the Webhook transport.
+
+## Testing
+
+You can use the Twitch-cli to test your Eventsub callback see https://github.com/twitchdev/twitch-cli/ and look under Events
