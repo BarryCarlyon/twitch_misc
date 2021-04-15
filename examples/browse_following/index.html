@@ -173,6 +173,10 @@
                         var d = document.createElement('p');
                         d.textContent = resp.data[x].viewer_count + ' viewers';
                         div.append(d);
+
+                        var d = document.createElement('p');
+                        d.textContent = resp.data[x].is_mature ? 'Mature!' : 'Not Mature'';
+                        div.append(d);
                     }
                 } else {
                     el.textContent += ' got no data';
