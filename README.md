@@ -12,16 +12,16 @@ Aside from that the dependencies are supposed to be as lightweight as possible.
 
 These examples are testable on GitHub pages, and will prompt for implicit authentication to run the code.
 
-- [How to Implicit auth](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/authentication/implicit_auth/)
-- [Building a clone of the Directory view](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/examples/browse_categories)
-- [Building a clone of the Live Following view](https://barrycarlyon.github.io/twitch_misc/examples/browse_following/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/examples/browse_following)
-- [A VOD Player that Skips Muted Segements](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/examples/vod_player)
+- [How to Implicit auth](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth/)
+- [Building a clone of the Directory view](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/browse_categories)
+- [Building a clone of the Live Following view](https://barrycarlyon.github.io/twitch_misc/examples/browse_following/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/browse_following)
+- [A VOD Player that Skips Muted Segements](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/vod_player)
 - [Twitch Player/parent](https://barrycarlyon.github.io/twitch_misc/player/html/) - [Source](https://github.com/BarryCarlyon/twitch_misc/player/html/)
-- [Twitch Player on Google Sites](https://sites.google.com/view/barry-twitch-embed-test/home) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/master/player/googlesites)
+- [Twitch Player on Google Sites](https://sites.google.com/view/barry-twitch-embed-test/home) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/player/googlesites)
 
 ## Twitch Extensions
 
-There are some useful bits for Twitch Extensions in this repo, mainly for the [API side of things](https://github.com/BarryCarlyon/twitch_misc/tree/master/extensions).
+There are some useful bits for Twitch Extensions in this repo, mainly for the [API side of things](https://github.com/BarryCarlyon/twitch_misc/tree/main/extensions).
 
 If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
 
