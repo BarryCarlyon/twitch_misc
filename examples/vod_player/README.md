@@ -1,6 +1,6 @@
 ## What is this example
 
-This is an example of a VOD player that will skip muted segements, now that the Get Videos API returns this data
+This is an example of a VOD player that will skip muted segments, now that the Get Videos API returns this data
 
 It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/).
 
