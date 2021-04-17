@@ -4,7 +4,7 @@ This is an example of a VOD player that will skip muted segements, now that the 
 
 It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/).
 
-If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data. But you would need to have a way to get the users username (or ID) from the user (input field) or prompt the user to login and use a user access token, like this demo does with Implict auth.
+If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data.
 
 ## TRY THIS EXAMPLE NOW!
 
