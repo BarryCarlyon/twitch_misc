@@ -17,6 +17,7 @@
         "user:edit:broadcast":          "Edit your channel’s broadcast configuration, including extension configuration. (This scope implies user:read:broadcast capability.)",
         "user:read:broadcast":          "View your broadcasting configuration, including extension configurations.",
         "user:edit:follows":            "Manage follows on a channel/user",
+        "user:read:follows":            "View the list of channels a user follows.",
         "user:read:blocked_users":      "View the block list of a user.",
         "user:read:subscriptions":      "Get the details of the users subscription to a channel.",
         "user:manage:blocked_users":    "Manage the block list of a user.",
