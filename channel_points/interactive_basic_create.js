@@ -88,6 +88,7 @@ function go() {
         title: '',
         cost: 0,
         is_enabled: false,
+        is_enabled: true,
         background_color: '#000000'
     }
     rl.question('Title> ', (dat) => {
@@ -103,7 +104,11 @@ function go() {
                 rl.question('Color> no #/hex ', (c) => {
                     item.background_color = '#' + c;
 
+                rl.question('Pause> 0/1 ', (c) => {
+                    item.is_paused = (c == "1" ? true : false);
+
                     create(item);
+                });
                 });
             });
         })
@@ -122,6 +127,7 @@ function create(item) {
     })
     .then(resp => {
         console.log(resp.body.data[0]);
+console.log('send', item);
         return got({
             url: 'https://api.twitch.tv/helix/channel_points/custom_rewards',
             method: 'POST',

@@ -15,7 +15,7 @@
     "express-session": "^1.17.1",
     "got": "^11.8.2",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^2.0.2",
+    "jwks-rsa": "^2.0.3",
     "pug": "^3.0.2"
   }
 }
