@@ -416,26 +416,28 @@
 
             if (!is_seeking) {
                 for (var x=0;x<muted_segments.length;x++) {
-                    var start = muted_segments[x].offset;
-                    var end = muted_segments[x].offset + muted_segments[x].duration;
-                    if (t >= start && t <= end) {
-                        // skip segment
-                        document.getElementById('loading').textContent = 'Skipping segment no ' + x + '! Seeking ' + end;
-                        //player.pause();
-                        is_seeking = true;
-                        player.seek(end);
-                        //player.play();
-                        document.getElementById('muted_segments_' + x).classList.add('cleared');
-                     } else if (t < start) {
-                        var left = Math.floor(start - t);
-                        if (!next_segment || left < next_segment) {
-                            next_segment = left;
-                        }
+                    if (document.getElementById('muted_segments_' + x)) {
+                        var start = muted_segments[x].offset;
+                        var end = muted_segments[x].offset + muted_segments[x].duration;
+                        if (t >= start && t <= end) {
+                            // skip segment
+                            document.getElementById('loading').textContent = 'Skipping segment no ' + x + '! Seeking ' + end;
+                            //player.pause();
+                            is_seeking = true;
+                            player.seek(end);
+                            //player.play();
+                            document.getElementById('muted_segments_' + x).classList.add('cleared');
+                         } else if (t < start) {
+                            var left = Math.floor(start - t);
+                            if (!next_segment || left < next_segment) {
+                                next_segment = left;
+                            }
 
-                        document.getElementById('muted_segments_' + x).classList.remove('cleared');
-                     } else if (t > end) {
-                        document.getElementById('muted_segments_' + x).classList.add('cleared');
-                     }
+                            document.getElementById('muted_segments_' + x).classList.remove('cleared');
+                         } else if (t > end) {
+                            document.getElementById('muted_segments_' + x).classList.add('cleared');
+                         }
+                    }
                 }
             }
 
