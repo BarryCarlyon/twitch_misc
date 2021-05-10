@@ -226,7 +226,10 @@
                 })
                 player.addEventListener(Twitch.Player.PAUSE, (e) => {
                     console.log('pause');
-                    is_seeking = true;
+                    // hack fix needs revist
+                    setTimeout(() => {
+                        is_seeking = true;
+                    }, 100);
                 })
             }
 
@@ -282,6 +285,9 @@
                             }
                         }
                     }
+                    
+                    document.getElementById('playhead').textContent = '';
+                    muted_segments = [];
 
                     var sp = document.createElement('span');
                     document.getElementById('playhead').append(sp);
@@ -362,11 +368,11 @@
                                 offset: resp.data[0].muted_segments[x].offset
                             });
                         }
-
-                        tickTimer();
                     } else {
                         document.getElementById('player_muted').textContent = 'No Muted Segments. Yay';
                     }
+                    
+                    tickTimer();
                 } else {
                     document.getElementById('player_muted').textContent = 'Failed to load muted';
                     document.getElementById('loading').textContent = 'An Error Occured loading Muted for ' + video_id + ': No data';
@@ -410,26 +416,28 @@
 
             if (!is_seeking) {
                 for (var x=0;x<muted_segments.length;x++) {
-                    var start = muted_segments[x].offset;
-                    var end = muted_segments[x].offset + muted_segments[x].duration;
-                    if (t >= start && t <= end) {
-                        // skip segment
-                        document.getElementById('loading').textContent = 'Skipping segment no ' + x + '! Seeking ' + end;
-                        //player.pause();
-                        is_seeking = true;
-                        player.seek(end);
-                        //player.play();
-                        document.getElementById('muted_segments_' + x).classList.add('cleared');
-                     } else if (t < start) {
-                        var left = Math.floor(start - t);
-                        if (!next_segment || left < next_segment) {
-                            next_segment = left;
-                        }
+                    if (document.getElementById('muted_segments_' + x)) {
+                        var start = muted_segments[x].offset;
+                        var end = muted_segments[x].offset + muted_segments[x].duration;
+                        if (t >= start && t <= end) {
+                            // skip segment
+                            document.getElementById('loading').textContent = 'Skipping segment no ' + x + '! Seeking ' + end;
+                            //player.pause();
+                            is_seeking = true;
+                            player.seek(end);
+                            //player.play();
+                            document.getElementById('muted_segments_' + x).classList.add('cleared');
+                         } else if (t < start) {
+                            var left = Math.floor(start - t);
+                            if (!next_segment || left < next_segment) {
+                                next_segment = left;
+                            }
 
-                        document.getElementById('muted_segments_' + x).classList.remove('cleared');
-                     } else if (t > end) {
-                        document.getElementById('muted_segments_' + x).classList.add('cleared');
-                     }
+                            document.getElementById('muted_segments_' + x).classList.remove('cleared');
+                         } else if (t > end) {
+                            document.getElementById('muted_segments_' + x).classList.add('cleared');
+                         }
+                    }
                 }
             }
 
