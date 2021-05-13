@@ -17,6 +17,7 @@
         "channel:read:subscriptions":   "Get a list of all subscribers to your channel and check if a user is subscribed to your channel",
         "clips:edit":                   "Manage a clip object.",
         "moderation:read":              "Get Moderators/Banned users (and mod/ban events) for a channel and perform AutoMod checks",
+        "moderator:manage:automod"      "Manage messages held for review by AutoMod in channels where you are a moderator.",
         "user:edit":                    "Manage a user object.",
         "user:edit:broadcast":          "Edit your channel’s broadcast configuration, including extension configuration. (This scope implies user:read:broadcast capability.)",
         "user:read:broadcast":          "View your broadcasting configuration, including extension configurations.",
