@@ -25,7 +25,7 @@ It uses [Firebase JWT](https://github.com/firebase/php-jwt) to handle Encoding.
 
 Run componser install in this directory.
 
-If you don't have Composer, refer to (GetComposer)[https://getcomposer.org/]
+If you don't have Composer, refer to [GetComposer](https://getcomposer.org/)
 
 - `composer install`
 - `php send_pubsub_message.php`
