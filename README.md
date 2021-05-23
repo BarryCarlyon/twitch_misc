@@ -40,6 +40,8 @@ Some options
 - [TwitchDev Discord](https://link.twitch.tv/devchat)
 - [TwitchDev Other Help](https://dev.twitch.tv/support)
 
+[![TwitchDev Discord](https://discordapp.com/api/guilds/504015559252377601/embed.png?style=banner2)](https://link.twitch.tv/devchat)
+
 ## OMGLIEKWUT OHMYGOODNESS U SO MUCH HELP
 
 Thank you for the help I want to give you beer/coffee money -> Check the Funding/Sponsor details
