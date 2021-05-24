@@ -56,13 +56,13 @@ if ($generate_token) {
     curl_close($ch);
 
     if ($i['http_code'] == 200) {
-        $data = json_decode($r);
+        $keys = json_decode($r);
         if (json_last_error() == JSON_ERROR_NONE) {
             echo 'Got token';
-            print_r($data);
+            print_r($keys);
 
             // store the token for next run
-            file_put_contents(__DIR__ . '/auth.json', $r, JSON_PRETTY_PRINT);
+            file_put_contents(__DIR__ . '/auth.json', $r);
         } else {
             echo 'Failed to parse JSON';
         }
@@ -73,3 +73,6 @@ if ($generate_token) {
     echo 'Token OK';
     print_r($keys);
 }
+
+// you can then go on and use $keys to make public data calls
+// of load __DIR__ . '/auth.json' in another file.
