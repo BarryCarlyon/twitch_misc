@@ -35,16 +35,16 @@ http.listen(config.port, function() {
 app.use(express.json({
     verify: function(req, res, buf, encoding) {
         // is there a hub to verify against
-        req.twitch_hub = false;
+        req.twitch_eventsub = false;
         if (req.headers && req.headers.hasOwnProperty('twitch-eventsub-message-signature')) {
-            req.twitch_hub = true;
+            req.twitch_eventsub = true;
 
             // id for dedupe
             var id = req.headers['twitch-eventsub-message-id'];
             // check age
             var timestamp = req.headers['twitch-eventsub-message-timestamp'];
 
-            var xHub = req.headers['twitch-eventsub-message-signature'].split('=');
+            var signature = req.headers['twitch-eventsub-message-signature'].split('=');
 
             // you could do
             // req.twitch_hex = crypto.createHmac(xHub[0], config.hook_secret)
@@ -52,7 +52,7 @@ app.use(express.json({
             req.twitch_hex = crypto.createHmac('sha256', config.hook_secret)
                 .update(id + timestamp + buf)
                 .digest('hex');
-            req.twitch_signature = xHub[1];
+            req.twitch_signature = signature[1];
 
             if (req.twitch_signature != req.twitch_hex) {
                 console.error('Signature Mismatch');
@@ -76,7 +76,7 @@ app
         // the middleware above ran
         // and it prepared the tests for us
         // so check if we event generated a twitch_hub
-        if (req.twitch_hub) {
+        if (req.twitch_eventsub) {
             // is it a verification request
             if (req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
                 // it's a another check for if it's a challenge request
