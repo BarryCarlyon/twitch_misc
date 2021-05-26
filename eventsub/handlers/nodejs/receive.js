@@ -44,7 +44,7 @@ app.use(express.json({
             // check age
             let timestamp = req.headers['twitch-eventsub-message-timestamp'];
             // extract algo and signature for comparison
-            let [ algo, signature ] = req.headers['twitch-eventsub-message-signature'].split('=', 1);
+            let [ algo, signature ] = req.headers['twitch-eventsub-message-signature'].split('=');
 
             // you could do
             // req.twitch_hex = crypto.createHmac(algo, config.hook_secret)
