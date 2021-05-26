@@ -19,8 +19,6 @@ const config = JSON.parse(fs.readFileSync(path.join(
 // Require depedancies
 // express is used for handling incoming HTTP requests "like a webserver"
 const express = require('express');
-// bodyparser is for reading incoming data
-const bodyParser = require('body-parser');
 // cypto handles Crpytographic functions, sorta like passwords (for a bad example)
 const crypto = require('crypto');
 
@@ -34,7 +32,7 @@ http.listen(config.port, function() {
 // Middleware!
 // Express allows whats called middle ware
 // it runs before (or after) other parts of the route runs
-app.use(bodyParser.json({
+app.use(express.json({
     verify: function(req, res, buf, encoding) {
         // is there a hub to verify against
         req.twitch_hub = false;
