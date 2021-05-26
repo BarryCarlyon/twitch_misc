@@ -40,19 +40,19 @@ app.use(express.json({
             req.twitch_eventsub = true;
 
             // id for dedupe
-            var id = req.headers['twitch-eventsub-message-id'];
+            let id = req.headers['twitch-eventsub-message-id'];
             // check age
-            var timestamp = req.headers['twitch-eventsub-message-timestamp'];
-
-            var signature = req.headers['twitch-eventsub-message-signature'].split('=');
+            let timestamp = req.headers['twitch-eventsub-message-timestamp'];
+            // extract algo and signature for comparison
+            let [ algo, signature ] = req.headers['twitch-eventsub-message-signature'].split('=');
 
             // you could do
-            // req.twitch_hex = crypto.createHmac(xHub[0], config.hook_secret)
-            // but we know Twitch always uses sha256
+            // req.twitch_hex = crypto.createHmac(algo, config.hook_secret)
+            // but we know Twitch should always use sha256
             req.twitch_hex = crypto.createHmac('sha256', config.hook_secret)
                 .update(id + timestamp + buf)
                 .digest('hex');
-            req.twitch_signature = signature[1];
+            req.twitch_signature = signature;
 
             if (req.twitch_signature != req.twitch_hex) {
                 console.error('Signature Mismatch');
