@@ -14,7 +14,7 @@ The primary intent here is to demonstrate a basic handler and how to handle the 
 
 - Open `config_sample.json` in a text editor
 - Change the 8000 to whatever port you want, or leave it be
-- Change the `""` of `hub_secret` to whatever you want. it's suggested to keep it between a-z (any case) and 0-9. Just for ease of use
+- Change the `""` of `HUB_SECRET` to whatever you want. it's suggested to keep it between a-z (any case) and 0-9. Just for ease of use
 - Save your modified file as `config.json`
 
 ## Running the example
