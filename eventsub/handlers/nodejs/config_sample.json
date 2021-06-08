@@ -1,5 +1,5 @@
 {
     "port": 8000,
-    "hub_secret": ""
+    "hook_secret": ""
 }
 

@@ -14,8 +14,12 @@ The primary intent here is to demonstrate a basic handler and how to handle the 
 
 - Open `config_sample.json` in a text editor
 - Change the 8000 to whatever port you want, or leave it be
-- Change the `""` of `HUB_SECRET` to whatever you want. it's suggested to keep it between a-z (any case) and 0-9. Just for ease of use
+- Change the `""` of `hook_secret` to whatever you want. it's suggested to keep it between a-z (any case) and 0-9.
 - Save your modified file as `config.json`
+
+Twitch suggests that 
+
+> The secret is a string between 10 and 100 characters that your application will define and send to Twitch in the subscription creation process. As a result, this secret should not be your Client Secret or Extension secret.
 
 ## Running the example
 
@@ -32,3 +36,7 @@ SSL termiantion is _required_ for EventSub, as only SSL/HTTPS URLs are supported
 ## Testing
 
 You can use the Twitch-cli to test your Eventsub callback see https://github.com/twitchdev/twitch-cli/ and look under Events
+
+Example:
+
+> twitch event verify-subscription cheer -s THESECRET -F https://yoururl/
