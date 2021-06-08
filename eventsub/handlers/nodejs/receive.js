@@ -131,6 +131,7 @@ app
                 console.log('Invalid hook sent to me');
                 // probably should error here as an invalid hook payload
                 res.send('Ok');
+            }
         } else {
             console.log('It didn\'t seem to be a Twitch Hook');
             // again, not normally called
