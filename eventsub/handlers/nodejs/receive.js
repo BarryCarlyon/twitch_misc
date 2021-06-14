@@ -71,7 +71,7 @@ app
         res.send('There is no GET Handler');
     })
     .post((req, res) => {
-        console.log('Incoming Post request on /');
+        console.log('Incoming Post request on /', req.body);
 
         // the middleware above ran
         // and it prepared the tests for us
