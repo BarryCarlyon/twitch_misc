@@ -14,7 +14,6 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
 
 - [How to Implicit auth](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth/)
 - [Building a clone of the Directory view](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/browse_categories)
-- [Building a clone of the Live Following view](https://barrycarlyon.github.io/twitch_misc/examples/browse_following/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/browse_following)
 - [A VOD Player that Skips Muted Segments](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/vod_player)
 - [Twitch Player/parent](https://barrycarlyon.github.io/twitch_misc/player/html/) - [Source](https://github.com/BarryCarlyon/twitch_misc/player/html/)
 - [Twitch Player on Google Sites](https://sites.google.com/view/barry-twitch-embed-test/home) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/player/googlesites)
