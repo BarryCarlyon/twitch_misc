@@ -1,6 +1,6 @@
 ## What is this example
 
-This is an example for just poking the[ ]Calendar/Schedule](https://dev.twitch.tv/docs/api/reference#get-channel-stream-schedule) part of the Twitch API
+This is an example for just poking the [Calendar/Schedule](https://dev.twitch.tv/docs/api/reference#get-channel-stream-schedule) part of the Twitch API
 
 It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/calendar/).
 
