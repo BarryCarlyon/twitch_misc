@@ -136,12 +136,13 @@
                 document.getElementById('segments').textContent = '';
 
                 for (var x=0;x<resp.data.segments.length;x++) {
-                    let row = document.createElement('tr');
-                    document.getElementById('segments').append(row);
-
                     let { start_time, end_time, title, category } = resp.data.segments[x];
 
                     if (end_week.getTime() > new Date(start_time).getTime()) {
+
+                        let row = document.createElement('tr');
+                        document.getElementById('segments').append(row);
+
                         makecell(row, start_time);
                         makecell(row, end_time);
                         makecell(row, title);
