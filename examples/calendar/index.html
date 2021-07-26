@@ -107,6 +107,11 @@
 
                 // load the schedule since last monday if today is not monday
                 start_week = new Date();
+                // reset to start of day
+                start_week.setHours(0);
+                start_week.setMinutes(0);
+                start_week.setSeconds(0);
+
                 let today = start_week.getDay();
                 if (today < 1) {
                     start_week.setDate(start_week.getDate() - 6);
