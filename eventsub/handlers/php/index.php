@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = json_decode($raw_data);
             // and check the data parse
             if (json_last_error() == JSON_ERROR_NONE) {
-                mylog('Returning the challenge: ' . $data['challenge']); 
-                echo rawurlencode($data['challenge']);
+                mylog('Returning the challenge: ' . $data->challenge);
+                echo rawurlencode($data->challenge);
                 exit;
             }
             mylog('Failed to parse the JSON to vierification');
