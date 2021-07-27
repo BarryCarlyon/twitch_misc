@@ -28,7 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     mylog('Starting a POST processing');
 
-    $headers = getallheaders();
+    $input_headers = getallheaders();
+    // save our soul headers
+    // HTTP Spec suggests they should be lower case always
+    // so we'll convert to save some sanity
+    $headers = [];
+    foreach ($input_headers as $header => $value) {
+        $headers[strtolower($header)] = $value;
+    }
+    // save our soul headers
+    
     // next lets validate the Signature
     if (!isset($headers['twitch-eventsub-message-signature'])) {
         // the security header is missing
@@ -65,7 +74,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
             // it's a verification request
-            echo rawurlencode($_GET['hub_challenge']);
+            $data = json_decode($raw_data);
+            // and check the data parse
+            if (json_last_error() == JSON_ERROR_NONE) {
+                mylog('Returning the challenge: ' . $data['challenge']); 
+                echo rawurlencode($data['challenge']);
+                exit;
+            }
+            mylog('Failed to parse the JSON to vierification'):
+            echo 'Failed to parse JSON';
             exit;
         }
         if ($headers['twitch-eventsub-message-type'] == 'revocation') {
