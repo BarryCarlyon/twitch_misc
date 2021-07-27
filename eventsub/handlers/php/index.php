@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo rawurlencode($data['challenge']);
                 exit;
             }
-            mylog('Failed to parse the JSON to vierification'):
+            mylog('Failed to parse the JSON to vierification');
             echo 'Failed to parse JSON';
             exit;
         }
