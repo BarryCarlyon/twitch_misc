@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
     // grab the other headers we need
     $twitch_message_id = $headers['twitch-eventsub-message-id'];
-    $twitch_event_timestamp = $headers['twitch-eventsub-message-timestam'];
+    $twitch_event_timestamp = $headers['twitch-eventsub-message-timestamp'];
 
     $our_signature = hash_hmac($protocol, $twitch_message_id . $twitch_event_timestamp . $raw_data, EVENTSUB_SECRET);
 
