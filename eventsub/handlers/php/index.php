@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
     // grab the other headers we need
     $twitch_message_id = $headers['twitch-eventsub-message-id'];
-    $twitch_event_timestamp = $headers['twitch-eventsub-message-timestam'];
+    $twitch_event_timestamp = $headers['twitch-eventsub-message-timestamp'];
 
     $our_signature = hash_hmac($protocol, $twitch_message_id . $twitch_event_timestamp . $raw_data, EVENTSUB_SECRET);
 
@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = json_decode($raw_data);
             // and check the data parse
             if (json_last_error() == JSON_ERROR_NONE) {
-                mylog('Returning the challenge: ' . $data['challenge']); 
-                echo rawurlencode($data['challenge']);
+                mylog('Returning the challenge: ' . $data->challenge);
+                echo rawurlencode($data->challenge);
                 exit;
             }
             mylog('Failed to parse the JSON to vierification');
