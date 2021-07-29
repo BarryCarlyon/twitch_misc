@@ -11,7 +11,7 @@
             <a href="" id="authorize_public">Authorize and get Public data</a>
         </li>
         <li>
-            <a href="" id="authorize_email">Authorize and get public data + email</a>
+            <a href="" id="authorize_email">Authorize and get Public data + email</a>
         </li>
     </ul>
     <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
@@ -48,7 +48,7 @@
                 )
                 .then(resp => resp.json())
                 .then(resp => {
-                    document.getElementById('user_data').innerHTML = '<p>Your Public Twitch Profile from Helix:</p>';
+                    document.getElementById('user_data').innerHTML = '<p>Your Twitch Profile from Helix:</p>';
                     var table = document.createElement('table');
                     document.getElementById('user_data').append(table);
                     for (var key in resp.data[0]) {
