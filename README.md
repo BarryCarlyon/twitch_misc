@@ -13,6 +13,7 @@ Aside from that the dependencies are supposed to be as lightweight as possible.
 These examples are testable on GitHub pages, and will prompt for implicit authentication to run the code.
 
 - [How to Implicit auth](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth/)
+- [Token Checker and Killer](https://barrycarlyon.github.io/twitch_misc/examples/token_checker/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/token_checker)
 - [Building a clone of the Directory view](https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/browse_categories)
 - [A VOD Player that Skips Muted Segments](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/vod_player)
 - [Twitch Player/parent](https://barrycarlyon.github.io/twitch_misc/player/html/) - [Source](https://github.com/BarryCarlyon/twitch_misc/player/html/)
