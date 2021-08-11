@@ -12,10 +12,10 @@ if ($keys) {
     // validate the token
 
     $ch = curl_init('https://id.twitch.tv/oauth2/validate');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Authorization: OAuth ' . $keys->access_token
     ));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     $r = curl_exec($ch);
     $i = curl_getinfo($ch);
@@ -43,7 +43,7 @@ if ($keys) {
 
 if ($generate_token) {
     $ch = curl_init('https://id.twitch.tv/oauth2/token');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, array(
         'client_id' => CLIENT_ID,
