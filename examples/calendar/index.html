@@ -3,6 +3,9 @@
     <title>Twitch Calendar Stuff</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
     <script type="text/javascript" src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style type="text/css">
+        .half_div { width: 50%; box-sizing: border-box; display: inline-block; }
+    </style>
 </head>
 <body>
     <p>This example will first ask you to login with <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get an API Token to use. It'll then fetch your iCalendar URL, generate a QR Code for that URL and display you schedule segments. You can then also lookup another streamer.</p>
@@ -24,13 +27,13 @@
             </fieldset>
         </form>
         <div>
-            <div style="width: 40%;">
+            <div class="half_div">
                 <p>Calendar URL</p>
                 <div id="ical_url"></div>
                 <p>QR Code for iCal URL</p>
                 <div id="ical_qr"></div>
             </div>
-            <div style="width: 40%;">
+            <div class="half_div">
                 <p>WebCal URL: should invoke default calendar program</p>
                 <div id="webcal_url"></div>
                 <p>QR Code for WebCal URL</p>
