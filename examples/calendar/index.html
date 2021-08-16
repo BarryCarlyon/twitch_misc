@@ -23,9 +23,15 @@
                 <input type="submit" value="Lookup" />
             </fieldset>
         </form>
+        <p>Calendar URL</p>
         <div id="ical_url"></div>
         <p>QR Code for iCal URL</p>
         <div id="ical_qr"></div>
+        <p>WebCal URL: should invoke default calendar program</p>
+        <div id="webcal_url"></div>
+        <p>QR Code for WebCal URL</p>
+        <div id="webcal_qr"></div>
+        <br />
         <p>Schedule segments for this Streamer, for this Week only</p>
         <table>
             <thead>
@@ -99,12 +105,23 @@
                 a.textContent = 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id;
                 document.getElementById('ical_url').textContent = 'iCalendar URL: ';
                 document.getElementById('ical_url').append(a);
-
+                
                 document.getElementById('ical_qr').textContent = '';
                 new QRCode("ical_qr", {
                     text: 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id
                 });
 
+                let wa = document.createElement('a');
+                wa.setAttribute('href', 'webcal://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id);
+                wa.textContent = 'webcal://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id;
+                document.getElementById('webcal_url').textContent = 'WebCal URL: ';
+                document.getElementById('webcal_url').append(wa);
+
+                document.getElementById('webcal_qr').textContent = '';
+                new QRCode("webcal_qr", {
+                    text: 'webcal://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id
+                });
+                
                 // load the schedule since last monday if today is not monday
                 start_week = new Date();
                 // reset to start of day
