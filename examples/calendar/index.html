@@ -4,7 +4,8 @@
     <link rel="stylesheet" href="/twitch_misc/style.css" />
     <script type="text/javascript" src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <style type="text/css">
-        .half_div { width: 50%; box-sizing: border-box; display: inline-block; }
+        .main_div { display: flex; }
+        .half_div { width: 50%; }
     </style>
 </head>
 <body>
@@ -26,7 +27,7 @@
                 <input type="submit" value="Lookup" />
             </fieldset>
         </form>
-        <div>
+        <div class="main_div">
             <div class="half_div">
                 <p>Calendar URL</p>
                 <div id="ical_url"></div>
