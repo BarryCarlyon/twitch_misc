@@ -47,7 +47,7 @@ got({
     // console log out the useful information
     // keeping track of rate limits is important
     // you can only set the config 12 times a minute per segment
-    console.error('Store Config OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
+    console.error('Send Chat OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
 
     // we don't care too much about the statusCode here
     // but you should test it for a 204
