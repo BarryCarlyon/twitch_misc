@@ -25,6 +25,7 @@
     </form>
 
     <h2>Output</h2>
+    <div id="revoke_output"></div>
     <div id="output"></div>
 
     <script type="text/javascript">
@@ -171,14 +172,14 @@
             )
             .then(resp => {
                 if (resp.status != 200) {
-                    document.getElementById('output').textContent = 'Token Revoke Error: ' + resp.status;
+                    document.getElementById('revoke_output').textContent = 'Token Revoke Error: ' + resp.status;
                 } else {
-                    document.getElementById('output').textContent = 'Token Revoked';
+                    document.getElementById('revoke_output').textContent = 'Token Revoked';
                 }
             })
             .catch(err => {
                 console.log(err);
-                document.getElementById('output').textContent = 'Something went wrong revoking the token';
+                document.getElementById('revoke_output').textContent = 'Something went wrong revoking the token';
             });
         }
     </script>
