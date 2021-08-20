@@ -33,17 +33,16 @@ const jwt = require('jsonwebtoken');
 const ext_secret = Buffer.from(config.extension_secret, 'base64');
 
 // Lets prepare the signatures for saving config and sending to PubSub
-// The EXP is being set to 60 seconds in the future
-// which is a bit long but it suffices
+// The EXP is being set to 4 seconds in the future
 const sigConfigPayload = {
-  "exp": Math.floor(new Date().getTime() / 1000) + 60,
-  "user_id": config.owner,
-  "role": "external",
+    "exp": Math.floor(new Date().getTime() / 1000) + 4,
+    "user_id": config.owner,
+    "role": "external",
 }
 const sigConfig = jwt.sign(sigConfigPayload, ext_secret);
 
 const sigPubSubPayload = {
-    "exp": Math.floor(new Date().getTime() / 1000) + 60,
+    "exp": Math.floor(new Date().getTime() / 1000) + 4,
     "user_id": config.owner,
     "role": "external",
     "channel_id": "all",
@@ -58,7 +57,7 @@ const sigPubSub = jwt.sign(sigPubSubPayload, ext_secret);
 // Payload we are storing in config
 // it needs to be a JSON string
 // Also remember about the 5kb limit for config segements and pubsub
-var data = JSON.stringify({
+var content = JSON.stringify({
     "config_key_1": "config_value_1",
     "config_key_2": "config_value_2",
     "config_key_3": "config_value_3"
@@ -70,26 +69,24 @@ var data = JSON.stringify({
 // an instance is a channel the extension is installed upon
 
 got({
-    url: "https://api.twitch.tv/extensions/"
-        + config.client_id
-        + "/configurations/",
+    url: "https://api.twitch.tv/helix/extensions/configurations",
     method: "PUT",
     headers: {
         "Client-ID": config.client_id,
-        "Content-Type": "application/json",
         "Authorization": "Bearer " + sigConfig
     },
-    body: JSON.stringify({
+    json: {
+        extension_id: config.client_id,
         segment: "global",
-        content: data
-    }),
-    gzip: true
+        content
+    },
+    responseType: 'json'
 })
 .then(resp => {
     // console log out the useful information
     // keeping track of rate limits is important
     // you can only set the config 12 times a minute per segment
-    console.error('Store Config OK', resp.statusCode, resp.headers['ratelimit-ratelimiterextensionsetconfiguration-remaining'], '/', resp.headers['ratelimit-ratelimiterextensionsetconfiguration-limit']);
+    console.error('Store Config OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
 
     // we don't care too much about the statusCode here
     // but you should test it for a 204
@@ -97,32 +94,33 @@ got({
     // lets also send the same information to pubsub
     // so running instances get the update
 
-    // we'll pubsub to the all/global message line
+    // we'll pubsub to the all/global message feed
     return got({
-        url: "https://api.twitch.tv/extensions/message/all",
+        url: "https://api.twitch.tv/helix/extensions/pubsub",
         method: "POST",
         headers: {
             "Client-ID": config.client_id,
-            "Content-Type": "application/json",
             "Authorization": "Bearer " + sigPubSub
         },
-        body: JSON.stringify({
-            "message": JSON.stringify({
+        json: {
+            target: sigPubSubPayload.pubsub_perms.send,
+            is_global_broadcast: true,
+            message: JSON.stringify({
                 event: "configure",
-                data
-            }),
-            "content_type": "application/json",
-            "targets": [
-                "global"
-            ]
-        }),
-        gzip: true
+                data: content
+            })
+        },
+        responseType: 'json'
     })
 })
 .then(resp => {
     // Same story here with the rate limit its around 60 per minute per topic
-    console.error('Relay PubSub OK', resp.statusCode, resp.headers['ratelimit-ratelimitermessagesbychannel-remaining'], '/', resp.headers['ratelimit-ratelimitermessagesbychannel-limit']);
+    console.error('Relay PubSub OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
 })
 .catch(err => {
-    console.error(err, err.response.body);
+    if (err.response) {
+        console.error('Errored', err.response.statusCode, err.response.body);
+        return;
+    }
+    console.error(err);
 });

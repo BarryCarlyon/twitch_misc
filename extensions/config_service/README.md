@@ -6,10 +6,11 @@ Specifically covers setting configuration for _all_ channels the extension is ac
 
 ## Reference Documentation
 
-- [Set Extension Configuration Segment](https://dev.twitch.tv/docs/extensions/reference#set-extension-configuration-segment)
-- [Send Extension PubSub Message](https://dev.twitch.tv/docs/extensions/reference#send-extension-pubsub-message)
+- [Set Extension Configuration Segment](https://dev.twitch.tv/docs/api/reference#set-extension-configuration-segment)
+- [Send Extension PubSub Message](https://dev.twitch.tv/docs/api/reference#send-extension-pubsub-message)
 - [Helper: Configuration](https://dev.twitch.tv/docs/extensions/reference#helper-configuration)
 - [Helper: Extensions - Listen](https://dev.twitch.tv/docs/extensions/reference#helper-extensions)
+- [Get Extension Configuration Segment](https://dev.twitch.tv/docs/api/reference#get-extension-configuration-segment);
 
 ## Setting up the config
 
@@ -38,3 +39,7 @@ In a console/terminal, run these commands:
 
 - `npm install`
 - `node set_n_publish.js`
+
+## Utility
+
+Included is a utility script for Fetching the current Global Configuration

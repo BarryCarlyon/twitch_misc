@@ -6,7 +6,7 @@ window.Twitch.ext.onAuthorized(auth => {
 // but only when first called/extension is loaded
 window.Twitch.ext.configuration.onChanged(() => {
     var global_config = window.Twitch.ext.configuration.global;
-    if (global_config) {
+    if (global_config && global_config.content) {
         try {
             global_config.content = JSON.parse(global_config.content);
             configureExtension(global_config.content);
@@ -27,7 +27,7 @@ window.Twitch.ext.listen('global', function (topic, contentType, message) {
         return;
     }
 
-    // check that it's the exepected event
+    // check that it's the expected event
     if (message.event == 'configure') {
         configureExtension(message.data);
     }
