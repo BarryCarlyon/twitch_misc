@@ -77,6 +77,8 @@ app
             // probably logged in
             // and will suffice for this example
 
+            console.log(`The server has a token: ${req.session.token.access_token}`);
+
             // validate and return the token details
             got({
                 url: 'https://id.twitch.tv/oauth2/validate',

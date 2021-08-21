@@ -22,6 +22,7 @@
         "moderation:read":              "Get Moderators/Banned users (and mod/ban events) for a channel and perform AutoMod checks",
         "moderator:manage:automod":     "Manage messages held for review by AutoMod in channels where you are a moderator.",
         "user:edit":                    "Manage a user object.",
+        "user:edit:broadcast":          "Edit broadcast (Extensions)",
         "user:manage:blocked_users":    "Manage the block list of a user.",
         "user:read:blocked_users":      "View the block list of a user.",
         "user:read:broadcast":          "View a user’s broadcasting configuration, including Extension configurations.",
