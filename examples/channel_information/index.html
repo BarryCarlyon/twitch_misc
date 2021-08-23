@@ -182,6 +182,25 @@
                 }
 
                 return fetch(
+                    'https://api.twitch.tv/helix/teams/channel?broadcaster_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    message('Did get at least one channel team');
+                    tabulate('Channel Teams', resp.data);
+                } else {
+                    message('Did not get any channel team');
+                }
+
+                return fetch(
                     'https://api.twitch.tv/helix/streams?user_id=' + user_id,
                     {
                         "headers": {
@@ -289,6 +308,7 @@
         document.getElementById('form').addEventListener('submit', (e) => {
             e.preventDefault();
 
+            message(`Running a lookup for: ${document.getElementById('streamer').value}`);
             getInformation(document.getElementById('streamer').value, true);
         });
     </script>

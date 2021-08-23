@@ -16,6 +16,7 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/chann
 
 - [Get Users](https://dev.twitch.tv/docs/api/reference#get-users)
 - [Get Channel Information](https://dev.twitch.tv/docs/api/reference#get-channel-information)
+- [Get Channel Teams](https://dev.twitch.tv/docs/api/reference#get-channel-teams)
 - [Get Streams](https://dev.twitch.tv/docs/api/reference#get-streams)
 - [Get User Active Extensions](https://dev.twitch.tv/docs/api/reference#get-user-active-extensions)
 - [Get Channel Emotes](https://dev.twitch.tv/docs/api/reference#get-channel-emotes)
