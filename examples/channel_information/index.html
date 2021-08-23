@@ -224,6 +224,25 @@
                 }
 
                 return fetch(
+                    'https://api.twitch.tv/helix/videos?user_id=' + user_id + '&type=archive',
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    message('Did get at least one past broadcasts');
+                    tabulate('Past Broadcast', resp.data);
+                } else {
+                    message('Did not get any past broadcasts');
+                }
+
+                return fetch(
                     'https://api.twitch.tv/helix/users/extensions?user_id=' + user_id,
                     {
                         "headers": {
