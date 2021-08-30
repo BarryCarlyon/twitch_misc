@@ -193,7 +193,7 @@
             })
             .then(resp => resp.json())
             .then(resp => {
-                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                if (resp.hasOwnProperty('data') && resp.data && resp.data.length > 0) {
                     message('Did get at least one channel team');
                     tabulate('Channel Teams', resp.data);
                 } else {
