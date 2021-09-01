@@ -31,7 +31,7 @@
         <fieldset>
             <label for="streamer">Streamer</label>
             <input type="text" name="streamer" id="streamer" />
-            <input type="submit" value="Lookup" />
+            <input type="submit" value="Lookup" id="streamer_lookup" />
         </fieldset>
     </form>
 
@@ -47,6 +47,9 @@
         var user_id = '';
 
         var output = document.getElementById('output');
+        
+        document.getElementById('streamer').setAttribute('disabled', 'disabled');
+        document.getElementById('streamer_lookup').setAttribute('disabled', 'disabled');
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
 
@@ -137,6 +140,9 @@
         function getInformation(user_id, is_not_id) {
             output.textContent = '';
 
+            document.getElementById('streamer').setAttribute('disabled', 'disabled');
+            document.getElementById('streamer_lookup').setAttribute('disabled', 'disabled');
+            
             var lookup = 'id=' + user_id;
             if (is_not_id) {
                 lookup = 'login=' + user_id;
@@ -193,7 +199,7 @@
             })
             .then(resp => resp.json())
             .then(resp => {
-                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                if (resp.hasOwnProperty('data') && resp.data && resp.data.length > 0) {
                     message('Did get at least one channel team');
                     tabulate('Channel Teams', resp.data);
                 } else {
@@ -321,6 +327,10 @@
             .catch(err => {
                 console.log(err);
                 document.getElementById('loading').textContent = 'Something went wrong';
+            })
+            .finally(() => {
+                document.getElementById('streamer').removeAttribute('disabled');
+                document.getElementById('streamer_lookup').removeAttribute('disabled');
             })
         }
 
