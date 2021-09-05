@@ -74,7 +74,7 @@ const start = function() {
 
         socket.send('JOIN #twitch');
     }).on('message', (raw_data) => {
-        let message = raw_data.split('\n');
+        let message = raw_data.toString().split('\n');
         // uncomment this line to log all inbounc messages
         //console.log(message);
 
