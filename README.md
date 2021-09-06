@@ -26,6 +26,8 @@ There are some useful bits for Twitch Extensions in this repo, mainly for the [A
 
 If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
 
+Looking to get started wtih JWT auth, but you just want to start making requests. Try this [insomnia](https://insomnia.rest) plugin: ["twitch extension"](https://github.com/BarryCarlyon/insomnia-plugin-twitch-extension-barrycarlyon) which includes a "predefined" request collection to import too!
+
 ## Practical Examples
 
 Most of the code in this repository is various bits and pieces for your to copy/paste in other projects.
