@@ -6,6 +6,19 @@ It uses Implicit auth to obtain a token, but this is just for the [GitHub pages 
 
 If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data.
 
+## Notes
+
+This example is a bit long winded as it's designed for fronend/no server usage.
+
+Normally you would use an App Access Token on a server.
+And on that server you would use server side caching on a number of end points.
+
+Periodically load [The Team](https://dev.twitch.tv/docs/api/reference#get-teams) from the API and store the information about the team and the users currently in the team in a databaes table/cache.
+
+Periodically load from the cache the users in the team and then load their streams from the [Streams API](https://dev.twitch.tv/docs/api/reference#get-streams). Alternatively since you are buildin a Teams Product, you would use [EventSub](https://dev.twitch.tv/docs/eventsub) and utilise the [Steam Online](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamonline), [Steam Offline](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamoffline), and [Channel Update](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelupdate), topics to get updates when they happen instead of polling the API.
+
+So with EventSub you only poke [Get Teams](https://dev.twitch.tv/docs/api/reference#get-teams) periodically. And add/remove [EventSub Subscriptions](https://dev.twitch.tv/docs/api/reference#create-eventsub-subscription) as needed.
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via GitHub Pages!
