@@ -19,6 +19,8 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
 - [Twitch Player/parent](https://barrycarlyon.github.io/twitch_misc/player/html/) - [Source](https://github.com/BarryCarlyon/twitch_misc/player/html/)
 - [Twitch Player on Google Sites](https://sites.google.com/view/barry-twitch-embed-test/home) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/player/googlesites)
 - [Some Calendar/Schedule Stuff](https://barrycarlyon.github.io/twitch_misc/examples/calendar/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/calendar)
+- [Channel Information Widget](https://barrycarlyon.github.io/twitch_misc/examples/channel_information/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_information)
+- [Teams Page](https://barrycarlyon.github.io/twitch_misc/examples/team/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/team)
 
 ## Twitch Extensions
 
