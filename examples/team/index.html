@@ -308,7 +308,7 @@
                         user.profile_image_url = '';
                     });
 
-                    console.log(users);
+                    //console.log(users);
 
                     let offset = 0;
                     let offset_end = 0;
@@ -335,7 +335,7 @@
                             ids.push(['id', user.user_id]);
                         });
 
-                        console.log('Run IDS', user_ids);
+                        //console.log('Run IDS', user_ids);
 
                         status.textContent = `Load a page of streams ${offset}/${offset_end}/${users.length}`;
                         await getStreams(user_ids)
@@ -390,7 +390,7 @@
                         offset_end += limit;
                         group = users.slice(offset,offset_end);
                     }
-                    console.log(team.users);
+                    //console.log(team.users);
 
                     status.textContent = 'Go for Build';
                     console.log('Go for build');
@@ -412,9 +412,10 @@
 
             document.getElementById('logo').style.backgroundImage = `url('${team.thumbnail_url}')`;
 
+                document.getElementById('team_members_list').textContent = '';
                 document.getElementById('team_count').textContent = team.users.length;
                 // build team UI
-                console.log(team.users);
+                //console.log(team.users);
 
                 // sort users by view count
                 team.users.sort((b,a) => {
