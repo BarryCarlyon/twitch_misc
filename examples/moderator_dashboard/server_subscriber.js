@@ -109,7 +109,7 @@ function loadKeys() {
                     url: 'https://id.twitch.tv/oauth2/validate',
                     method: 'GET',
                     headers: {
-                        'Authorization': 'OAuth ' + access_token
+                        'Authorization': 'Bearer ' + access_token
                     },
                     responseType: 'json'
                 })
