@@ -30,7 +30,7 @@ got({
     url: 'https://id.twitch.tv/oauth2/validate',
     method: 'GET',
     headers: {
-        'Authorization': 'OAuth ' + app_access_token.access_token
+        'Authorization': 'Bearer ' + app_access_token.access_token
     },
     responseType: 'json'
 })
@@ -87,7 +87,7 @@ function goUser() {
         url: 'https://id.twitch.tv/oauth2/validate',
         method: 'GET',
         headers: {
-            'Authorization': 'OAuth ' + account_config.access_token
+            'Authorization': 'Bearer ' + account_config.access_token
         },
         responseType: 'json'
     })

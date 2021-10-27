@@ -20,7 +20,7 @@ $keys = json_decode(file_get_contents(__DIR__ . '/auth.json'));
 // check validity
 $ch = curl_init('https://id.twitch.tv/oauth2/validate');
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Authorization: OAuth ' . $keys->access_token
+    'Authorization: Bearer ' . $keys->access_token
 ));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 

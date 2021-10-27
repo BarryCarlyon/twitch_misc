@@ -26,7 +26,7 @@ module.exports = function(config) {
                 url: "https://id.twitch.tv/oauth2/validate",
                 method: "GET",
                 headers: {
-                    Authorization: "OAuth " + twitch.client.access_token
+                    Authorization: "Bearer " + twitch.client.access_token
                 },
                 responseType: "json"
             })

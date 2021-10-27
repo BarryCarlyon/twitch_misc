@@ -83,7 +83,7 @@ app
             got({
                 url: 'https://id.twitch.tv/oauth2/validate',
                 headers: {
-                    Authorization: 'OAuth ' + req.session.token.access_token
+                    Authorization: 'Bearer ' + req.session.token.access_token
                 },
                 responseType: 'json'
             })
