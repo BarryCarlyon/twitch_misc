@@ -31,15 +31,20 @@ module.exports = function(config) {
                 responseType: "json"
             })
             .then(resp => {
-                console.log("Ok", resp.body);
                 if (resp.body.expires_in <= 3600) {
+                    console.log('Token is Ok but less than an hour left on it, will remake');
                     twitch.makeClientCred();
                 } else {
                     // it"s ok
+                    console.log('Token is Ok!');
                 }
             })
             .catch(err => {
-                console.error(err);
+                if (err.response) {
+                    console.log('Token Validate Error', err.response.statusCode, err.response.body);
+                } else {
+                    console.error('Token Validate Bar Error', err);
+                }
                 twitch.makeClientCred();
             });
         },
@@ -75,7 +80,11 @@ module.exports = function(config) {
                 );
             })
             .catch(err => {
-                console.error("Failed to get a clientCred", (err.body ? err.body : err));
+                if (err.response) {
+                    console.log("Failed to get a clientCred", err.response.statusCode, err.response.body);
+                } else {
+                    console.error("Failed to get a clientCred", err);
+                }
             });
         }
     }
@@ -85,9 +94,8 @@ module.exports = function(config) {
     // and recreate a new token if needed
     setInterval(() => {
         twitch.maintain();
-    }, 5 * 60 * 1000);
-    // maintain twitch
-    // 5 minutes might be a bit quick really
+    }, 15 * 60 * 1000);
+    // maintain twitch token every 15 minutes
 
     return twitch;
 }
