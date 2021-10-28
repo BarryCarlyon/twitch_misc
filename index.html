@@ -39,7 +39,7 @@
         if (document.location.search && document.location.search != '') {
             var parsedParams = new URLSearchParams(window.location.search);
             if (parsedParams.get('error_description')) {
-                document.getElementById('status').classList('show');
+                document.getElementById('status').classList.add('show');
                 document.getElementById('status').textContent = 'Looks like you Tried to oAuth Authenticate and Somethibg went wrong: ' + parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
             }
         }
