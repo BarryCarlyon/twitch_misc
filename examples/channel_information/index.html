@@ -25,7 +25,7 @@
 
     <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_information">Github</a> or just View the source instead</p>
 
-    <a href="" id="authorize">Authorize</a>
+    <a href="" id="authorize" target="_blank">Authorize</a>
 
     <form action="" method="post" id="form">
         <fieldset>
@@ -41,7 +41,7 @@
     <script type="text/javascript">
         // go populate this with a client_id
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
-        var redirect = 'https://barrycarlyon.github.io/twitch_misc/examples/channel_information/';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
         // setup a memory space for the token/userID
         var access_token = '';
         var user_id = '';
@@ -53,37 +53,34 @@
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
 
-        if (document.location.hash) {
-            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
-            if (parsedHash.get('access_token')) {
-                access_token = parsedHash.get('access_token');
+        function processToken(token) {
+            access_token = token;
 
-                document.getElementById('loading').textContent = 'Loading Profile';
+            document.getElementById('loading').textContent = 'Loading Profile';
 
-                fetch(
-                    'https://api.twitch.tv/helix/users',
-                    {
-                        "headers": {
-                            "Client-ID": client_id,
-                            "Authorization": "Bearer " + access_token
-                        }
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
                     }
-                )
-                .then(resp => resp.json())
-                .then(resp => {
-                    if (resp.data.length == 1) {
-                        user_id = resp.data[0].id;
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.data.length == 1) {
+                    user_id = resp.data[0].id;
 
-                        getInformation(user_id);
-                    } else {
-                        document.getElementById('loading').textContent = 'An Error Occured loading Profile: not returned';
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    document.getElementById('loading').textContent = 'An Error Occured loading Profile: error';
-                });
-            }
+                    getInformation(user_id);
+                } else {
+                    document.getElementById('loading').textContent = 'An Error Occured loading Profile: not returned';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'An Error Occured loading Profile: error';
+            });
         }
 
         function message(words) {
