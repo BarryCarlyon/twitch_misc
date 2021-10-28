@@ -18,3 +18,12 @@ th, td {
 input[disabled] {
     background: #3e0000;
 }
+
+#status {
+    display: none;
+    background: red;
+    padding: 5px;
+}
+#status.show {
+    display: block;
+}

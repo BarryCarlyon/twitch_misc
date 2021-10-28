@@ -8,7 +8,7 @@
 
     <p>Here are some Twitch API examples you can try. And the source for those examples</p>
     <p>Most of this examples will prompt for Twitch Auth to get a Token to use to call the API with</p>
-    <p>Generally those Authentication Kinks will open a new window, which oAuth Redirect URI's to this window, which will extract the oAuth Access Token from the URL and magic pass it to the original window</p>
+    <p>Generally those Authentication Links will open a new window, which oAuth Redirect URI's to this window, which will extract the oAuth Access Token from the URL and magic pass it to the original window</p>
 
     <table>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/">How to Implicit auth</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth/">Source</a></td></tr>
@@ -39,6 +39,7 @@
         if (document.location.search && document.location.search != '') {
             var parsedParams = new URLSearchParams(window.location.search);
             if (parsedParams.get('error_description')) {
+                document.getElementById('status').classList('show');
                 document.getElementById('status').textContent = 'Looks like you Tried to oAuth Authenticate and Somethibg went wrong: ' + parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
             }
         }
