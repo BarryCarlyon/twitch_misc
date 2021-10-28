@@ -2,6 +2,20 @@
 <head>
     <title>Barry's Live/Testable Twitch examples</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <!-- The examples will borrow this function to handled the implicit access token -->
+    <!-- Then I don't need to add eleventy bajillion redirect URI's to the project -->
+    <script type="text/javascript">
+        if (document.location.hash && document.location.hash != '') {
+            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
+            if (parsedHash.get('access_token')) {
+                if (window.opener) {
+                    window.opener.processToken(parsedHash.get('access_token'));
+                    window.close();
+                }
+            }
+        }
+    </script>
 </head>
 <body>
     <p>Here are some Twitch API examples you can try</p>
