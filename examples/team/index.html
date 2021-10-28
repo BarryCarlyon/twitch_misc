@@ -179,7 +179,7 @@
         <tr><td>ths</td><td>The Hammer Squad</td></tr>
     </table>
 
-    <a href="" id="authorize">Authorize</a>
+    <a href="" id="authorize" target="_blank">Authorize</a>
     <div id="different_team">
         <form action="" method="post" id="different_team_form">
             <input type="text" name="different_team_field" id="different_team_field" placeholder="Different Team (Hit Enter)" disabled />
@@ -223,17 +223,14 @@
         // setuo authorise link
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
 
-        if (document.location.hash) {
-            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
-            if (parsedHash.get('access_token')) {
-                access_token = parsedHash.get('access_token');
+        function processToken(token) {
+            access_token = token;
 
-                status.textContent = 'Got Token. Loading Things';
+            status.textContent = 'Got Token. Loading Things';
 
-                loadATeam('loadedllc');
+            loadATeam('loadedllc');
 
-                document.getElementById('different_team_field').removeAttribute('disabled');
-            }
+            document.getElementById('different_team_field').removeAttribute('disabled');
         }
 
         // split out as a function

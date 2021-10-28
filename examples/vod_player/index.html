@@ -62,7 +62,7 @@
 
     <p>This example uses the following API's <a href="https://dev.twitch.tv/docs/embed/everything" target="_blank">Embed Everything</a>, <a href="https://dev.twitch.tv/docs/embed/video-and-clips#interactive-frames-for-live-streams-and-vods" target="_blank">Player JS API</a>, <a href="https://dev.twitch.tv/docs/api/reference#get-videos" target="_blank">Get Videos</a>, <a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get users (for user Lookup)</a>. Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/vod_player/">Github</a> or just View the source instead</p>
 
-    <a href="" id="authorize">Authorize</a>
+    <a href="" id="authorize" target="_blank">Authorize</a>
 
     <div id="different_channel">
         <form action="" method="post" id="different_channel_form">
@@ -85,50 +85,47 @@
     <script type="text/javascript">
         // go populate this with a client_id
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
-        var redirect = 'https://barrycarlyon.github.io/twitch_misc/examples/vod_player/';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
         // setup a memory space for the token/userID
         var access_token = '';
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
 
-        if (document.location.hash) {
-            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
-            if (parsedHash.get('access_token')) {
-                access_token = parsedHash.get('access_token');
+        function processToken(token) {
+            access_token = token;
 
-                loadChannel('501041739', 'GabrielAndDresden');
+            loadChannel('501041739', 'GabrielAndDresden');
 
-                document.getElementById('different_channel_form').addEventListener('submit', (e) => {
-                    e.preventDefault();
+            document.getElementById('different_channel_form').addEventListener('submit', (e) => {
+                e.preventDefault();
 
-                    var chan = document.getElementById('different_channel_field').value;
-                    document.getElementById('loading').textContent = 'Loading ' + chan;
-                    document.getElementById('different_channel_field').value = '';//reset
+                var chan = document.getElementById('different_channel_field').value;
+                document.getElementById('loading').textContent = 'Loading ' + chan;
+                document.getElementById('different_channel_field').value = '';//reset
 
-                    fetch(
-                        'https://api.twitch.tv/helix/users?login=' + chan,
-                        {
-                            "headers": {
-                                "Client-ID": client_id,
-                                "Authorization": "Bearer " + access_token
-                            }
+                fetch(
+                    'https://api.twitch.tv/helix/users?login=' + chan,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
                         }
-                    )
-                    .then(resp => resp.json())
-                    .then(resp => {
-                        if (resp.data.length == 1) {
-                            console.log('Load', resp.data[0].id, resp.data[0].display_name);
-                            loadChannel(resp.data[0].id, resp.data[0].display_name);
-                        } else {
-                            document.getElementById('loading').textContent = 'Channel Not Found?!';
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        document.getElementById('loading').textContent = 'An Error Occured loading Channel: error';
-                    });
+                    }
+                )
+                .then(resp => resp.json())
+                .then(resp => {
+                    if (resp.data.length == 1) {
+                        console.log('Load', resp.data[0].id, resp.data[0].display_name);
+                        loadChannel(resp.data[0].id, resp.data[0].display_name);
+                    } else {
+                        document.getElementById('loading').textContent = 'Channel Not Found?!';
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    document.getElementById('loading').textContent = 'An Error Occured loading Channel: error';
                 });
-            }
+            });
         }
 
         function loadChannel(channel_id, name) {

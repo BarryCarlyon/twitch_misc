@@ -13,7 +13,7 @@
     <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/calendar">Github</a> or just View the source instead</p>
     <ul>
         <li>
-            <a href="" id="authorize_public">Authorize with Twitch</a>
+            <a href="" id="authorize_public" target="_blank">Authorize with Twitch</a>
         </li>
     </ul>
     <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
@@ -60,26 +60,18 @@
         // These are set for the GitHub Pages Example
         // Substitute as needed
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
-        var redirect = 'https://barrycarlyon.github.io/twitch_misc/examples/calendar/';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
         var access_token = '';
 
         document.getElementById('authorize_public').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token');
 
-        if (document.location.hash && document.location.hash != '') {
-            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
-            if (parsedHash.get('access_token')) {
-                access_token = parsedHash.get('access_token');
+        function processToken(token) {
+            access_token = token;
 
-                document.getElementById('status').textContent = 'Loading';
+            document.getElementById('status').textContent = 'Loading';
 
-                // call API
-                runLookup();
-            }
-        } else if (document.location.search && document.location.search != '') {
-            var parsedParams = new URLSearchParams(window.location.search);
-            if (parsedParams.get('error_description')) {
-                document.getElementById('status').textContent = parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
-            }
+            // call API
+            runLookup();
         }
 
         function runLookup(username) {
