@@ -14,7 +14,7 @@
     "connect-redis": "^6.0.0",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
-    "got": "^11.8.2",
+    "got": "^11.8.3",
     "pug": "^3.0.2",
     "redis": "^3.1.2"
   }
