@@ -17,7 +17,7 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/token
 
 ## Reference Documentation
 
-- [Validate a request](https://dev.twitch.tv/docs/authentication#validating-requests) - note `OAuth` in the header
+- [Validate a request](https://dev.twitch.tv/docs/authentication#validating-requests)
 - [Obtaining a User by Access Token](https://dev.twitch.tv/docs/api/reference#get-users)
 - [Revoking a token](https://dev.twitch.tv/docs/authentication#revoking-access-tokens)
 
