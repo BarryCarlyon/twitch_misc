@@ -24,9 +24,17 @@ http.listen(config.port, function() {
     console.log('Server raised on', config.port);
 });
 
+/* Session */
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+
+// For production see the node in the README.md
+// ## Nginx and Cookie Security
+// https://expressjs.com/en/advanced/best-practice-security.html#use-cookies-securely
+
 // Setup a session manager
-var esess = require('express-session');
-var session = esess({
+var session = require('express-session');
+app.use(session({
     secret: crypto.randomBytes(4).toString('base64'),
     resave: true,
     saveUninitialized: false,
@@ -35,8 +43,7 @@ var session = esess({
         maxAge: (30 * 60 * 1000)
     },
     rolling: true
-});
-app.use(session);
+}));
 
 // Using Pug to make rendering easier
 app.set('views', path.join(__dirname, 'views'));

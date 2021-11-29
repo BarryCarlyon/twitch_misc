@@ -46,3 +46,67 @@ An oAuth example such as this, will work for most services that provide oAuth, y
 And
 
 - https://id.twitch.tv/oauth2/validate - where to validate a token, if the service supports it
+
+## Nginx and Cookie Security
+
+This is an example, so doesn't contain all the _best_ security practices.
+Since this uses cookies to manage logins you should change the session code to something like
+
+```
+app.use(session({
+    store: new RedisStore({
+        client: redis_client
+    }),
+    secret,
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+        secure: true,
+        maxAge: something
+    },
+    rolling: true
+}));
+```
+
+See also [Production Best Practices: Security](https://expressjs.com/en/advanced/best-practice-security.html#use-cookies-securely)
+
+If you are putting this nodeJS HTTP server beind NGINX, your NGINX declartion for the location will need additional fields:
+
+```
+server {
+    listen IPv4:443;
+    listen [::]:443;
+
+    server_name example.com;
+    root /some/path/to/files;
+
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    location / {
+        # Cookie Flags
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Cookie Flags
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+        # Other
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+
+        proxy_pass http://this_server_relay;
+    }
+}
+
+upstream this_server_relay {
+    server 127.0.0.1:5000;
+    keepalive 8;
+}
+
+```

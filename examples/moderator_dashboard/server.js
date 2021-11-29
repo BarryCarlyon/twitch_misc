@@ -56,8 +56,8 @@ This means when the server restarts, it'll generate a new string
 var secret = crypto.randomBytes(64).toString('hex');
 
 /* Session */
-const sess = require('express-session');
-const RedisStore = require('connect-redis')(sess);
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
 // Usually you'll put the node process
 // behind a proxy such as nginx
 // so that proxy will handle the SSL Certs
@@ -66,29 +66,26 @@ const RedisStore = require('connect-redis')(sess);
 // for other options you may want to use something more specific than a true
 app.set('trust proxy', 1);
 
-const session = sess({
+// you can set the cookie max age
+//cookie: {
+//        maxAge: (30 * 60 * 1000)
+
+// For production see the node in the README.md
+// ## Nginx and Cookie Security
+// https://expressjs.com/en/advanced/best-practice-security.html#use-cookies-securely
+
+app.use(session({
     store: new RedisStore({
         client: redis_client
     }),
     secret,
     resave: true,
     saveUninitialized: false,
-    saveUninitialized: true,
     cookie: {
         secure: false
     },
     rolling: true
-});
-
-// you can set the cookie max age
-//cookie: {
-//        maxAge: (30 * 60 * 1000)
-
-// this example sets the cookie to secure false
-// you should set to true when hosting over SSL
-// it's false for the http://localhost/ testing of this example.
-
-app.use(session);
+}));
 
 /*
 Generic Error logger

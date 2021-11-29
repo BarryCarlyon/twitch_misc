@@ -71,19 +71,22 @@ http.listen(config.port, function() {
     console.log('Server raised on', config.port);
 });
 
+// For production see the node in the README.md
+// ## Nginx and Cookie Security
+// https://expressjs.com/en/advanced/best-practice-security.html#use-cookies-securely
+
 // Setup a session manager
-var esess = require('express-session');
-var session = esess({
+var session = require('express-session');
+app.use(session({
     secret: crypto.randomBytes(4).toString('base64'),
     resave: true,
     saveUninitialized: false,
     cookie: {
         secure: false,
-        maxAge: (30 * 60 * 1000)
+        maxAge: (15 * 60 * 1000)
     },
     rolling: true
-});
-app.use(session);
+}));
 
 // Using Pug to make rendering easier
 app.set('views', path.join(__dirname, 'views'));
