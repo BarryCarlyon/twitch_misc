@@ -1,8 +1,8 @@
 ## What is this example
 
-This is an example of using the API to do some things with "Team" data. In this example it's a royught copy of a Team Page from Twitch.
+This is an example of using the API to do some things with "Team" data. In this example it's a rough copy of a Team Page from Twitch.
 
-It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/vod_player/).
+It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/team/).
 
 If you are building this yourself and as a "server" application, you can use any kind of token as it's all public data.
 
