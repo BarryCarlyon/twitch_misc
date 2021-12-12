@@ -164,6 +164,7 @@ function regenerateKey() {
 
             got({
                 url: 'https://id.twitch.tv/oauth2/token',
+                method: 'POST',
                 searchParams: {
                     grant_type: 'refresh',
                     refresh_token,
