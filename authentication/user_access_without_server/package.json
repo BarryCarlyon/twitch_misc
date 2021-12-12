@@ -1,0 +1,16 @@
+{
+  "name": "user_access_without_server",
+  "version": "1.0.0",
+  "description": "A Interactive script to getting a user token for Twitch API access, without a web server. Similar to Google API's node Example",
+  "main": "example_task.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Barry Carlyon",
+  "license": "WTFPL",
+  "type": "module",
+  "dependencies": {
+    "got": "^12.0.0"
+  }
+}

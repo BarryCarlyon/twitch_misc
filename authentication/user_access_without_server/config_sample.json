@@ -1,0 +1,5 @@
+{
+    "client_id": "",
+    "client_secret": "",
+    "redirect_uri": "https://barrycarlyon.github.io/twitch_misc/examples/auth_code_no_server/"
+}
