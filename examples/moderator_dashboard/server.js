@@ -164,12 +164,14 @@ function regenerateKey() {
 
             got({
                 url: 'https://id.twitch.tv/oauth2/token',
+                method: 'POST',
                 searchParams: {
                     grant_type: 'refresh',
                     refresh_token,
                     client_id: config.twitch.client_id,
                     client_secret: config.twitch.client_secret
-                }
+                },
+                responseType: 'json'
             })
             .then(resp => {
                 storeKeys(resp.body.access_token, resp.body.refresh_token);
