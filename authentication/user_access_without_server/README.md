@@ -1,6 +1,16 @@
 ## What is this example
 
-A User Token Generator/refresher for Server Interactive Scripts
+A User Token Generator/refresher for Server Interactive Scripts.
+
+This is similar to how the Google NodeJS API's examples work.
+
+- You start a script, it shows a URL to open.
+- You Google oAuth
+- A code is displayed
+- User/You copy and paste the code back into the interactive script
+- Away we go
+
+When you (re)start the script again, it will validate the token, refresh if it can and if needed prompt for a fresh set of keys/tokens.
 
 ## Reference Documentation
 
