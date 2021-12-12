@@ -148,8 +148,14 @@ function writeAuthFile() {
 
 
 function doMainThing() {
+    // the main thing here
+    // is an example that just calls get users
+    // but normally it would be say,
+    // connect to pubsub and do stuff
+    // connect to the API and poll for data periodically auto refreshign the token
+    // etc
     got({
-        url: 'https://id.twitch.tv/oauth2/validate',
+        url: 'https://api.twitch.tv/helix/users',
         headers: {
             'Client-ID': config.client_id,
             Authorization: `Bearer ${auth_data.access_token}`
@@ -166,4 +172,7 @@ function doMainThing() {
             console.error('doMainThing Bad Error', err);
         }
     })
+    .finally(() => {
+        process.exit();
+    });
 }
