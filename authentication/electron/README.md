@@ -9,6 +9,8 @@ This example covers a method to do Twitch Authentication inside a Desktop Applic
 
 ## Running the example
 
+This electron application uses a "dual package.json" layout. So you will need to npm install twice, once in the main folder and once in the `app` folder
+
 In a console/terminal, run these commands:
 
 - `npm install`
