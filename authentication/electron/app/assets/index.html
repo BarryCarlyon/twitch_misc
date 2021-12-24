@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title>Twitch Electron example</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <p>This example is essentially a clone of the Implict Auth Example.</p>
+    <p>Electron just intercepts the return and extracts the #access_token from the URL, and passed it to an internal fetch call to get the user for that token</p>
+    <p><a href="https://id.twitch.tv/oauth2/authorize?client_id=hozgh446gdilj5knsrsxxz8tahr3koz&redirect_uri=https%3A%2F%2Fbarrycarlyon.github.io%2Ftwitch_misc%2Fauthentication%2Fimplicit_auth%2F&response_type=token" target="_blank">Click to Login with Twitch</a></p>
+    <table id="user"></table>
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>

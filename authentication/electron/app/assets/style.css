@@ -1,0 +1,29 @@
+* {
+    background: rgb(14, 14, 16);
+    color: rgb(239, 239, 241);
+    font-family: Roobert, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+a {
+    color: rgb(169, 112, 255);
+}
+table {
+    border-top: 1px solid rgb(239, 239, 241);
+    border-left: 1px solid rgb(239, 239, 241);
+}
+th, td {
+    border-right: 1px solid rgb(239, 239, 241);
+    border-bottom: 1px solid rgb(239, 239, 241);
+    padding: 5px 10px;
+}
+input[disabled] {
+    background: #3e0000;
+}
+
+#status {
+    display: none;
+    background: red;
+    padding: 5px;
+}
+#status.show {
+    display: block;
+}
