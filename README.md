@@ -21,6 +21,7 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
 - [Some Calendar/Schedule Stuff](https://barrycarlyon.github.io/twitch_misc/examples/calendar/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/calendar)
 - [Channel Information Widget](https://barrycarlyon.github.io/twitch_misc/examples/channel_information/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_information)
 - [Teams Page](https://barrycarlyon.github.io/twitch_misc/examples/team/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/team)
+- [Extensions Config Tool](https://barrycarlyon.github.io/twitch_misc/examples/extension_config/) - [Source](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/extension_config)
 
 ## Twitch Extensions
 
