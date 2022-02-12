@@ -14,3 +14,7 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/exten
 
 - [Get Extension Configuration Segment](https://dev.twitch.tv/docs/api/reference#get-extension-configuration-segment)
 - [Set Extension Configuration Segment](https://dev.twitch.tv/docs/api/reference#set-extension-configuration-segment)
+
+## Desktop Alternative
+
+Checkout: https://github.com/BarryCarlyon/twitch_extension_tools
