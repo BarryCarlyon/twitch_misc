@@ -22,7 +22,7 @@ const ext_secret = Buffer.from(config.extension_secret, 'base64');
 const sigChatPayload = {
     "exp": Math.floor(new Date().getTime() / 1000) + 4,
     "user_id": config.owner,
-    "role": "external",
+    "role": "external"
 }
 const sigChat = jwt.sign(sigChatPayload, ext_secret);
 
