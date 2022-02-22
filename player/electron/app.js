@@ -29,6 +29,7 @@ function createWindow () {
   // works for dumb iFrames
   session.defaultSession.webRequest.onHeadersReceived({
     urls: [
+      'https://www.twitch.tv/*',
       'https://player.twitch.tv/*',
       'https://embed.twitch.tv/*'
     ]
