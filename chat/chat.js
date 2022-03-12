@@ -49,7 +49,8 @@ const badgesRegex = /([^,]+)\/([^,]*)/g;
 const emotesRegex = /([^\/]+):([^\/]*)/g;
 const emoteIndexRegex = /([^,]+)-([^,]*)/g;
 const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
-const hostRegex = /([a-z_0-9]+)!([a-z_0-9]+)@([a-z._0-9]+)/;
+//const hostRegex = /([a-z_0-9]+)!([a-z_0-9]+)@([a-z._0-9]+)/;
+const hostRegex = /([a-z_0-9]{3,30})!([a-z_0-9]{3,30})@([a-z._0-9]{3,60})/;
 
 let socket;
 const start = function() {
@@ -74,7 +75,7 @@ const start = function() {
 
         socket.send('JOIN #twitch');
     }).on('message', (raw_data) => {
-        let message = raw_data.toString().split('\n');
+        let message = raw_data.toString().trim().split(/\r?\n/);
         // uncomment this line to log all inbounc messages
         //console.log(message);
 
@@ -253,6 +254,7 @@ const start = function() {
 
                 case 'PRIVMSG':
                     // heres where the magic happens
+                    console.log(`${payload.user} wrote ${payload.message}`);
                     break;
                 case 'WHISPER':
                     // you received a whisper, good luck replying!
