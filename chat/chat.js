@@ -49,8 +49,10 @@ const badgesRegex = /([^,]+)\/([^,]*)/g;
 const emotesRegex = /([^\/]+):([^\/]*)/g;
 const emoteIndexRegex = /([^,]+)-([^,]*)/g;
 const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
-// can't do a username.tmi.twithc.tv since the latter part of the host could changed
+// can't do a username.tmi.twitch.tv since the latter part of the host could change at any point
+// course this is just a relately standard IRC parser anyway.
 // but this will trip a ReDoS scanner since >= 10
+// A Twitch username is up to 25 letters, we'll leave some wiggle room
 const hostRegex = /([a-z_0-9]{3,30})!([a-z_0-9]{3,30})@([a-z._0-9]{3,60})/;
 
 let socket;
