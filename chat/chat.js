@@ -53,7 +53,7 @@ const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
 // course this is just a relately standard IRC parser anyway.
 // but this will trip a ReDoS scanner since >= 10
 // A Twitch username is up to 25 letters, we'll leave some wiggle room
-const hostRegex = /([a-z_0-9]{3,30})!([a-z_0-9]{3,30})@([a-z._0-9]{3,60})/;
+const hostRegex = /([a-z_0-9]{1,30})!([a-z_0-9]{1,30})@([a-z._0-9]{1,60})/;
 
 let socket;
 const start = function() {
@@ -76,7 +76,7 @@ const start = function() {
         socket.send('CAP REQ :twitch.tv/commands');
         socket.send('CAP REQ :twitch.tv/tags');
 
-        socket.send('JOIN #twitch');
+        socket.send('JOIN #barrycarlyon');
     }).on('message', (raw_data) => {
         let message = raw_data.toString().trim().split(/\r?\n/);
         // uncomment this line to log all inbounc messages
