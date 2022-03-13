@@ -29,7 +29,7 @@
         document.getElementById('access_token').textContent = '';
 
         if (document.location.hash && document.location.hash != '') {
-            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
+            var parsedHash = new URLSearchParams(window.location.hash.slice(1));
             if (parsedHash.get('access_token')) {
                 var access_token = parsedHash.get('access_token');
                 document.getElementById('access_token').textContent = 'Your Access Key from the #url: ' + access_token;

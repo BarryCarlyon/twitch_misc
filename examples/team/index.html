@@ -669,11 +669,11 @@ function commaify (num) {
 
 
   if (remainders != 0) {
-    threes.push(num_string.substr(0, remainders));
+    threes.push(num_string.slice(0, remainders));
   }
 
   for (i = remainders; i < len; i += 3) {
-    threes.push(num_string.substr(i, 3));
+    threes.push(num_string.slice(i, i + 3));
   }
 
   return threes.join();
