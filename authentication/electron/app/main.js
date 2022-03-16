@@ -39,7 +39,7 @@ app.on('ready', () => {
         new_window.webContents.on('did-navigate', (e, frame_url, httpResponseCode, httpStatusText) => {
             console.log('child url', frame_url);
             let url = new URL(frame_url);
-            let params = new URLSearchParams(url.hash.substr(1));
+            let params = new URLSearchParams(url.hash.slice(1));
             console.log(params);
             if (params.get('access_token')) {
                 // we got a token to use
