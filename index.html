@@ -29,7 +29,7 @@
     <!-- Then I don't need to add eleventy bajillion redirect URI's to the project -->
     <script type="text/javascript">
         if (document.location.hash && document.location.hash != '') {
-            var parsedHash = new URLSearchParams(window.location.hash.substr(1));
+            var parsedHash = new URLSearchParams(window.location.hash.slice(1));
             if (parsedHash.get('access_token')) {
                 if (window.opener) {
                     window.opener.processToken(parsedHash.get('access_token'));
