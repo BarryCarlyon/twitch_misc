@@ -35,7 +35,7 @@ const pinger = {
     pingtimeout: false,
     awaitPong: () => {
         pinger.pingtimeout = setTimeout(() => {
-            console.log('WS Pong Timeout');
+            //console.log('WS Pong Timeout');
             socket.close();
         }, 10000)
     },
@@ -63,7 +63,6 @@ const chatbot = function(noreconnect) {
     socket = new WebSocket('wss://irc-ws.chat.twitch.tv');
 
     socket.on('close', () => {
-        console.log('Closed restarting');
         // reconnect
         self.emit('close');
 
@@ -71,7 +70,6 @@ const chatbot = function(noreconnect) {
             socket.connect('wss://irc-ws.chat.twitch.tv');
         }
     }).on('open', () => {
-        console.log('Opened');
         // pinger
         pinger.start();
 
@@ -206,11 +204,17 @@ const chatbot = function(noreconnect) {
             }
 
             // https://tools.ietf.org/html/rfc1459
+            // commands the template needs to reply
             switch (payload.command) {
+                case 'PING':
+                    // Twitch sent a "R U STILL THERE?"
+                    socket.send('PONG :' + payload.message);
                 case 'PONG':
-                    //console.log('Pong');
                     pinger.gotPong();
                     break;
+            }
+
+            switch (payload.command) {
                 case '001':
                 case '002':
                 case '003':
@@ -218,13 +222,13 @@ const chatbot = function(noreconnect) {
                     // do nothing
                     break;
                 case 'CAP':
-                    console.log('CAP ACK', payload.raw);
+                    self.emit('CAP ACK', payload.raw);
                     break;
                 case '372':
                 case '375':
                 case '376':
                     // motd
-                    //console.log('Hello', payload.room);
+                    self.emit('MOTD', payload.raw);
                     break;
                 case '353':
                 case '366':
@@ -232,89 +236,44 @@ const chatbot = function(noreconnect) {
                     break;
 
                 case 'PING':
-                    // Twitch sent a "R U STILL THERE?"
-                    socket.send('PONG :' + payload.message);
-                    break;
+                case 'PONG':
 
                 case 'JOIN':
                     // You joined a room
-                    console.log('Joined', payload.room);
-                    break;
                 case 'PART':
                     // as the result of a PART command
                     // you left a room
-                    break;
 
                 case 'GLOBALUSERSTATE':
                     // You connected to the server
                     // here is some info about the user
-                    break;
                 case 'USERSTATE':
                     // Often sent when you send a PRIVMSG to a room
-                    break;
                 case 'ROOMSTATE':
                     // You joined a room here is the intial state (followers only etc)
                     // The Room state was changed, on change only sends what changed, not the whole settings blob
-                    break;
 
-                case 'PRIVMSG':
-                    // heres where the magic happens
-                    break;
                 case 'WHISPER':
                     // you received a whisper, good luck replying!
-                    break;
+                case 'PRIVMSG':
+                    // heres where the magic happens
 
                 case 'USERNOTICE':
                     // see https://dev.twitch.tv/docs/irc/tags#usernotice-twitch-tags
                     // An "Twitch event" occured, like a subscription or raid
-                    break;
                 case 'NOTICE':
                     // General notices about Twitch/rooms you are in
                     // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
-                    break;
-                case 'RECONNECT':
-                    // The server you are connected to is restarted
-                    // you should restart the bot and reconnect
-
-                    // close the socket and let the close handler grab it
-                    socket.close();
-                    break;
 
                 // moderationy stuff
                 case 'CLEARCHAT':
                     // A users message is to be removed
                     // as the result of a ban or timeout
-                    break;
                 case 'CLEARMSG':
                     // a single users message was deleted
-                    break;
                 case 'HOSTTARGET':
                     // the room you are in, is now hosting someone or has ended the host
-                    break;
 
-                default:
-                    console.log('No Process', payload.command, payload);
-            }
-
-            switch (payload.command) {
-                case 'PING':
-                case 'PONG':
-                case 'JOIN':
-                case 'PART':
-
-                case 'GLOBALUSERSTATE':
-                case 'USERSTATE':
-                case 'ROOMSTATE':
-
-                case 'WHISPER':
-                case 'PRIVMSG':
-
-                case 'USERNOTICE':
-                case 'NOTICE':
-
-                case 'CLEARCHAT':
-                case 'CLEARMSG':
-                case 'HOSTTARGET':
                     self.emit(
                         payload.command,
                         payload
@@ -324,18 +283,27 @@ const chatbot = function(noreconnect) {
                         payload
                     );
                     break;
+
+                case 'RECONNECT':
+                    // The server you are connected to is restarted
+                    // you should restart the bot and reconnect
+
+                    // close the socket and let the close handler grab it
+                    socket.close();
+                    break;
+
+                default:
+                    console.log('No Process', payload.command, payload);
             }
         }
     });
 
-    this.login = function(username, password, rooms) {
+    this.login = function(username, user_token, rooms) {
         if (typeof rooms == 'string') {
             rooms = [rooms];
         }
 
-        console.log('Attempt login', username, password, rooms);
-
-        socket.send(`PASS ${password}`);
+        socket.send(`PASS oauth:${user_token}`);
         socket.send(`NICK ${username}`);
         for (let x=0;x<rooms.length;x++) {
             if (!rooms[x].startsWith('#')) {

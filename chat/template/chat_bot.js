@@ -9,7 +9,12 @@ try {
 }
 bot.on('open', () => {
     console.log('opening');
-    bot.login('justinfan123', `asdasdasdasd`, [
+    bot.login('justinfan123', 'asdasdasdasd', [
+        'barrycarlyon'
+    ]);
+    // using a user account
+    // the library will add the oauth: prefix
+    bot.login('someusername', 'someuserstoken', [
         'barrycarlyon'
     ]);
 });
