@@ -1,6 +1,6 @@
 ## What is this example
 
-This example covers a bad way to make a Twitch Chat client in nodeJS
+This example covers a way to make a Twitch Chat client in nodeJS
 
 It's basically identical to the [pubsub client](https://github.com/BarryCarlyon/twitch_misc/tree/master/pubsub) as it uses the same Connectivity logic, and both PubSub and this Chat example connect over Websockets (as apposed to the Twitch IRC ports, and IRC logic)
 
@@ -28,10 +28,16 @@ In a console/terminal, run these commands:
 - `npm install`
 - `node chat.js`
 
-Send messages in `#twitch` and see what happens
+Send messages in `#barrycarlyon` and see what happens
 
 ## A note
 
 It's just a simple/bad example on how to connect to Twitch Chat and maintain a Ping Pong.
 
 It uses the oft used but undocumented justinfan connection method, so the "bot" is readonly
+
+## Another Notes
+
+Technically the Host Parsing regex, is suspecitable to [ReDoS](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS) but there is a level of trust attached to the input text to a script connected to Twitch Chat.
+
+So if a given `host` in a Twitch Chat message can trigger a ReDoS there are bigger issues afoot than killing some chat bots connected to chat.
