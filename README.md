@@ -31,6 +31,8 @@ If you are after a demo of a Twitch Extension with an EBS that talks to the Twit
 
 Looking to get started wtih JWT auth, but you just want to start making requests. Try this [insomnia](https://insomnia.rest) plugin: ["twitch extension"](https://github.com/BarryCarlyon/insomnia-plugin-twitch-extension-barrycarlyon) which includes a "predefined" request collection to import too!
 
+Or looking to get started with Extension Development and the various API calls outside of a Rest client in a Desktop Application Similar to the Developer Rig? Check out [BarryCarlyon's Twitch Extension Tools](https://github.com/barrycarlyon/twitch_extension_tools).
+
 ## Practical Examples
 
 Most of the code in this repository is various bits and pieces for your to copy/paste in other projects.
