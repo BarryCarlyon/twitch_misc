@@ -299,7 +299,9 @@ const chatbot = function(noreconnect) {
     });
 
     this.login = function(username, user_token, rooms) {
-        if (typeof rooms == 'string') {
+        if (typeof rooms == 'undefined') {
+            rooms = [];
+        } else if (typeof rooms == 'string') {
             rooms = [rooms];
         }
 
