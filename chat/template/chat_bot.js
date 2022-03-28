@@ -1,9 +1,9 @@
 const path = require('path');
 
-const chatbot = require(path.join(process.env.PWD, 'chat_template.js'))({})
+const ChatBot = require(path.join(process.env.PWD, 'chatbot_template.js'));
 
 try {
-    bot = new chatbot();
+    bot = new ChatBot();
 } catch (err) {
     console.log(err);
 }
@@ -31,3 +31,5 @@ bot.on('privmsg', (payload) => {
     //console.log('Recv', payload.tags.emotes);
     console.log('Recv', payload.message);
 });
+
+bot.connect();
