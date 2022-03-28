@@ -31,8 +31,8 @@ class ChatBot extends EventEmitter {
                 }
                 this.pinger.sendPing();
 
-                this.pinger.clock = setInterval(function() {
-                    setTimeout(function() {
+                this.pinger.clock = setInterval(() => {
+                    setTimeout(() => {
                         this.pinger.sendPing();
                         //jitter
                     }, Math.floor((Math.random() * 1000) + 1));
