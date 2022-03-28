@@ -5,6 +5,6 @@
   },
   "license": "WTFPL",
   "devDependencies": {
-    "electron": "^17.1.2"
+    "electron": "^17.2.0"
   }
 }
