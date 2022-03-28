@@ -5,45 +5,6 @@ const EventEmitter = require('events').EventEmitter;
 
 const WebSocket = require('ws');
 
-const pinger = {
-    clock: false,
-    start: () => {
-        if (pinger.clock) {
-            clearInterval(pinger.clock);
-        }
-        pinger.sendPing();
-
-        pinger.clock = setInterval(function() {
-            setTimeout(function() {
-                pinger.sendPing();
-                //jitter
-            }, Math.floor((Math.random() * 1000) + 1));
-        }, (4 * 60 * 1000));
-        // at least ever 5 minutes
-    },
-    sendPing: () => {
-        try {
-            socket.send('PING');
-            pinger.awaitPong();
-        } catch (e) {
-            console.log(e);
-
-            socket.close();
-        }
-    },
-
-    pingtimeout: false,
-    awaitPong: () => {
-        pinger.pingtimeout = setTimeout(() => {
-            //console.log('WS Pong Timeout');
-            socket.close();
-        }, 10000)
-    },
-    gotPong: () => {
-        clearTimeout(pinger.pingtimeout);
-    }
-}
-
 const ircRegex = /^(?:@([^ ]+) )?(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$/;
 const tagsRegex = /([^=;]+)=([^;]*)/g;
 const badgesRegex = /([^,]+)\/([^,]*)/g;
@@ -56,29 +17,97 @@ const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
 // A Twitch username is up to 25 letters, we'll leave some wiggle room
 const hostRegex = /([a-z_0-9]{1,30})!([a-z_0-9]{1,30})@([a-z._0-9]{1,60})/;
 
-let socket;
-const chatbot = function(noreconnect) {
-    var self = this;
+class ChatBot extends EventEmitter {
+    constructor(opts) {
+        super();
 
-    socket = new WebSocket('wss://irc-ws.chat.twitch.tv');
+        this.reconnect = true;
+        this.ws = null;
+        this.pinger = {
+            clock: false,
+            start: () => {
+                if (this.pinger.clock) {
+                    clearInterval(this.pinger.clock);
+                }
+                this.pinger.sendPing();
 
-    socket.on('close', () => {
-        // reconnect
-        self.emit('close');
+                this.pinger.clock = setInterval(function() {
+                    setTimeout(function() {
+                        this.pinger.sendPing();
+                        //jitter
+                    }, Math.floor((Math.random() * 1000) + 1));
+                }, (4 * 60 * 1000));
+                // at least ever 5 minutes
+            },
+            sendPing: () => {
+                try {
+                    this.ws.send('PING');
+                    this.pinger.awaitPong();
+                } catch (e) {
+                    console.log(e);
 
-        if (!noreconnect) {
-            socket.connect('wss://irc-ws.chat.twitch.tv');
+                    this.ws.close();
+                }
+            },
+
+            pingtimeout: false,
+            awaitPong: () => {
+                this.pinger.pingtimeout = setTimeout(() => {
+                    //console.log('WS Pong Timeout');
+                    this.ws.close();
+                }, 10000)
+            },
+            gotPong: () => {
+                clearTimeout(this.pinger.pingtimeout);
+            }
         }
-    }).on('open', () => {
+    }
+
+    connect() {
+        console.log('init');
+        this.ws = new WebSocket('wss://irc-ws.chat.twitch.tv');
+
+        this.ws.onmessage = this._onMessage.bind(this);
+        this.ws.onerror = this._onError.bind(this);
+        this.ws.onclose = this._onClose.bind(this);
+        this.ws.onopen = this._onOpen.bind(this);
+    }
+    _reconnect() {
+        this.ws = null;
+        this.connect();
+    }
+
+    _onError() {
+        console.log('Got Error');
+        // reconnect
+        this.emit('close');
+
+        if (this.reconnect) {
+            console.log('Reconnecting');
+            this._reconnect();
+        }
+    }
+    _onClose() {
+        console.log('Got Close');
+        // reconnect
+        this.emit('close');
+
+        if (this.reconnect) {
+            console.log('Reconnecting');
+            this._reconnect();
+        }
+    }
+    _onOpen() {
         // pinger
-        pinger.start();
+        this.pinger.start();
 
-        socket.send('CAP REQ :twitch.tv/commands');
-        socket.send('CAP REQ :twitch.tv/tags');
+        this.ws.send('CAP REQ :twitch.tv/commands');
+        this.ws.send('CAP REQ :twitch.tv/tags');
 
-        self.emit('open');
-    }).on('message', (raw_data) => {
-        let message = raw_data.toString().trim().split(/\r?\n/);
+        this.emit('open');
+    }
+    _onMessage(event) {
+        let message = event.data.toString().trim().split(/\r?\n/);
         // uncomment this line to log all inbounc messages
         //console.log(message);
 
@@ -208,9 +237,9 @@ const chatbot = function(noreconnect) {
             switch (payload.command) {
                 case 'PING':
                     // Twitch sent a "R U STILL THERE?"
-                    socket.send('PONG :' + payload.message);
+                    this.ws.send('PONG :' + payload.message);
                 case 'PONG':
-                    pinger.gotPong();
+                    this.pinger.gotPong();
                     break;
             }
 
@@ -222,13 +251,13 @@ const chatbot = function(noreconnect) {
                     // do nothing
                     break;
                 case 'CAP':
-                    self.emit('CAP ACK', payload.raw);
+                    this.emit('CAP ACK', payload.raw);
                     break;
                 case '372':
                 case '375':
                 case '376':
                     // motd
-                    self.emit('MOTD', payload.raw);
+                    this.emit('MOTD', payload.raw);
                     break;
                 case '353':
                 case '366':
@@ -258,9 +287,30 @@ const chatbot = function(noreconnect) {
                 case 'PRIVMSG':
                     // heres where the magic happens
 
+                    if (payload.hasOwnProperty('tags')) {
+                        if (payload.tags.hasOwnProperty('bits')) {
+                            // it's a cheer message
+                            // but it's also a privmsg
+                            this.emit(
+                                'cheer',
+                                payload
+                            );
+                        }
+                    }
+
                 case 'USERNOTICE':
                     // see https://dev.twitch.tv/docs/irc/tags#usernotice-twitch-tags
                     // An "Twitch event" occured, like a subscription or raid
+
+                    if (payload.hasOwnProperty('tags')) {
+                        if (payload.tags.hasOwnProperty('msg-id')) {
+                            this.emit(
+                                payload.tags['msg-id'],
+                                payload
+                            );
+                        }
+                    }
+
                 case 'NOTICE':
                     // General notices about Twitch/rooms you are in
                     // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
@@ -274,11 +324,11 @@ const chatbot = function(noreconnect) {
                 case 'HOSTTARGET':
                     // the room you are in, is now hosting someone or has ended the host
 
-                    self.emit(
+                    this.emit(
                         payload.command,
                         payload
                     );
-                    self.emit(
+                    this.emit(
                         payload.command.toLowerCase(),
                         payload
                     );
@@ -289,56 +339,51 @@ const chatbot = function(noreconnect) {
                     // you should restart the bot and reconnect
 
                     // close the socket and let the close handler grab it
-                    socket.close();
+                    this.ws.close();
                     break;
 
                 default:
                     console.log('No Process', payload.command, payload);
             }
         }
-    });
+    }
 
-    this.login = function(username, user_token, rooms) {
+    login = function(username, user_token, rooms) {
+        this.ws.send(`PASS oauth:${user_token}`);
+        this.ws.send(`NICK ${username}`);
+
         if (typeof rooms == 'undefined') {
             rooms = [];
         } else if (typeof rooms == 'string') {
             rooms = [rooms];
         }
-
-        socket.send(`PASS oauth:${user_token}`);
-        socket.send(`NICK ${username}`);
+        // could also concat joins....
         for (let x=0;x<rooms.length;x++) {
             if (!rooms[x].startsWith('#')) {
                 rooms[x] = `#${rooms[x]}`;
             }
-            socket.send(`JOIN ${rooms[x]}`);
+            this.ws.send(`JOIN ${rooms[x]}`);
         }
     }
-    this.send = function(room, message) {
+    send = function(room, message) {
         if (!room.startsWith('#')) {
             room = '#'+room;
         }
         console.log('>' + `PRIVMSG ${room} :${message}`);
-        socket.send(`PRIVMSG ${room} :${message}`);
+        this.ws.send(`PRIVMSG ${room} :${message}`);
     }
-    this.reply = function(room, id, message) {
+    reply = function(room, id, message) {
         console.log(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
-        socket.send(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
+        this.ws.send(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
     }
 
-    this.close = function(noreconnect) {
+    close = function() {
         try {
-            socket.close(noreconnect);
+            this.ws.close();
         } catch (err) {
             console.log(err);
         }
     }
-
-    EventEmitter.call(this);
 }
 
-util.inherits(chatbot, EventEmitter);
-
-module.exports = function(lib) {
-    return chatbot;
-}
+module.exports = ChatBot;
