@@ -88,6 +88,7 @@
         var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
         // setup a memory space for the token/userID
         var access_token = '';
+        var next_after = '';
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
 
@@ -128,11 +129,16 @@
             });
         }
 
-        function loadChannel(channel_id, name) {
-            document.getElementById('loading').textContent = 'Loading ' + name + ' Videos';
+        function loadChannel(channel_id, name, after) {
+            document.getElementById('loading').textContent = `Loading ${name} Videos`;
+            
+            let url = `https://api.twitch.tv/helix/videos?user_id=${channel_id}&type=archive&first=100`;
+            if (after) {
+                url = `${url}&after=${after}`;
+            }
 
             fetch(
-                'https://api.twitch.tv/helix/videos?user_id=' + channel_id + '&type=archive&first=100',
+                url,
                 {
                     "headers": {
                         "Client-ID": client_id,
@@ -175,8 +181,11 @@
                             play(e.currentTarget);
                         });
                     }
+                    if (resp.data.hasOwnProperty('pagination') && resp.data.pagination.hasOwnProperty('cursor')) {
+                        next_after = resp.data.pagination.cursor;
+                    }
 
-                    document.getElementById('loading').textContent = 'Loaded ' + name + ' Videos';
+                    document.getElementById('loading').textContent = `Loaded ${resp.data.length} Videos from ${name}`;
 
                     var p = document.createElement('p');
                     document.getElementById('player_zone').append(p);
