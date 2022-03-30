@@ -181,8 +181,8 @@
                             play(e.currentTarget);
                         });
                     }
-                    if (resp.data.hasOwnProperty('pagination') && resp.data.pagination.hasOwnProperty('cursor')) {
-                        next_after = resp.data.pagination.cursor;
+                    if (resp.hasOwnProperty('pagination') && resp.pagination.hasOwnProperty('cursor')) {
+                        next_after = resp.pagination.cursor;
                     }
 
                     document.getElementById('loading').textContent = `Loaded ${resp.data.length} Videos from ${name}`;
