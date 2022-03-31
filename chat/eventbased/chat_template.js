@@ -198,14 +198,15 @@ class ChatBot extends EventEmitter {
                                 break;
                             default:
                                 payload.tags[key] = val.replace(/\\s/g, ' ').trim();// for \s (space)
-                                //// dupe - keys for ease
-                                //if (key.indexOf('-') >= 0) {
-                                //    let dupeKey = key.replace(/-/g, '_');
-                                //    payload.tags[dupeKey] = val.replace(/\\s/g, ' ').trim();// for \s (space)
-                                //}
                         }
                     }
                 } while (m);
+
+                // Javascript magic helper
+                for (let key in payload.tags) {
+                    ley new_key = key.replace(/-/g, '_');
+                    payload.tags[new_key] = payload[key];
+                }
             }
 
             // 2 host
@@ -305,7 +306,7 @@ class ChatBot extends EventEmitter {
                     if (payload.hasOwnProperty('tags')) {
                         if (payload.tags.hasOwnProperty('msg-id')) {
                             this.emit(
-                                payload.tags['msg-id'],
+                                `usernotice_${payload.tags['msg-id']}`,
                                 payload
                             );
                         }
