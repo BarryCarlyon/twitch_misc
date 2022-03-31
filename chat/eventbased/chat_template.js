@@ -204,7 +204,7 @@ class ChatBot extends EventEmitter {
 
                 // Javascript magic helper
                 for (let key in payload.tags) {
-                    ley new_key = key.replace(/-/g, '_');
+                    let new_key = key.replace(/-/g, '_');
                     payload.tags[new_key] = payload[key];
                 }
             }

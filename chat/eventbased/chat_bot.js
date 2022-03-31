@@ -1,6 +1,6 @@
 const path = require('path');
 
-const ChatBot = require(path.join(process.env.PWD, 'chatbot_template.js'));
+const ChatBot = require(path.join(process.env.PWD, 'chat_template.js'));
 
 try {
     bot = new ChatBot();
