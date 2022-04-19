@@ -206,6 +206,9 @@ class ChatBot extends EventEmitter {
                 for (let key in payload.tags) {
                     let new_key = key.replace(/-/g, '_');
                     payload.tags[new_key] = payload.tags[key];
+                    // optionally nailed the bad keys with `-` in the name
+                    if (new_key != key)
+                        delete payload.tags[key];
                 }
             }
 
