@@ -366,8 +366,11 @@ class ChatBot extends EventEmitter {
             if (!rooms[x].startsWith('#')) {
                 rooms[x] = `#${rooms[x]}`;
             }
-            this.ws.send(`JOIN ${rooms[x]}`);
         }
+        this.join(rooms);
+    }
+    join = function(rooms) {
+        this.ws.send(`JOIN ${rooms.join(',')}`);
     }
     send = function(room, message) {
         if (!room.startsWith('#')) {
