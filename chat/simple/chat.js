@@ -45,7 +45,7 @@ const pinger = {
 
 const ircRegex = /^(?:@([^ ]+) )?(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$/;
 const tagsRegex = /([^=;]+)=([^;]*)/g;
-const badgesRegex = /([^,]+)\/([^,]*)/g;
+const badgesRegex = /([^,\/]+)\/([^,]*)/g;
 const emotesRegex = /([^\/]+):([^\/]*)/g;
 const emoteIndexRegex = /([^,]+)-([^,]*)/g;
 const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
