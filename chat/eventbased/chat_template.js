@@ -7,7 +7,7 @@ const WebSocket = require('ws');
 
 const ircRegex = /^(?:@([^ ]+) )?(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$/;
 const tagsRegex = /([^=;]+)=([^;]*)/g;
-const badgesRegex = /([^,]+)\/([^,]*)/g;
+const badgesRegex = /([^,\/]+)\/([^,]*)/g;
 const emotesRegex = /([^\/]+):([^\/]*)/g;
 const emoteIndexRegex = /([^,]+)-([^,]*)/g;
 const actionRegex = /^\u0001ACTION (.*)\u0001$/g;
@@ -366,8 +366,11 @@ class ChatBot extends EventEmitter {
             if (!rooms[x].startsWith('#')) {
                 rooms[x] = `#${rooms[x]}`;
             }
-            this.ws.send(`JOIN ${rooms[x]}`);
         }
+        this.join(rooms);
+    }
+    join = function(rooms) {
+        this.ws.send(`JOIN ${rooms.join(',')}`);
     }
     send = function(room, message) {
         if (!room.startsWith('#')) {
