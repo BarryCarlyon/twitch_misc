@@ -21,6 +21,7 @@ const config = JSON.parse(fs.readFileSync(path.join(
 const express = require('express');
 // cypto handles Crpytographic functions, sorta like passwords (for a bad example)
 const crypto = require('crypto');
+const tsscmp = require('tsscmp');
 
 // Express basics
 const app = express();
@@ -40,24 +41,32 @@ app.use(express.json({
             req.twitch_eventsub = true;
 
             // id for dedupe
-            let id = req.headers['twitch-eventsub-message-id'];
+            let message_id = req.headers['twitch-eventsub-message-id'];
             // check age
             let timestamp = req.headers['twitch-eventsub-message-timestamp'];
             // extract algo and signature for comparison
-            let [ algo, signature ] = req.headers['twitch-eventsub-message-signature'].split('=');
+            let [ signatureAlgo, signatureHash ] = req.headers['twitch-eventsub-message-signature'].split('=');
 
             // you could do
             // req.twitch_hex = crypto.createHmac(algo, config.hook_secret)
             // but we know Twitch should always use sha256
-            req.twitch_hex = crypto.createHmac('sha256', config.hook_secret)
-                .update(id + timestamp + buf)
-                .digest('hex');
-            req.twitch_signature = signature;
 
-            if (req.twitch_signature != req.twitch_hex) {
-                console.error('Signature Mismatch');
-            } else {
-                console.log('Signature OK');
+            // so validate that
+
+            if (signatureAlgo !== 'sha256') {
+                console.log('Signature algo not matched');
+                res.status(500).send('Invalid signature algo');
+                return;
+            }
+
+            const ourSignatureHash = crypto.createHmac('sha256', config.hook_secret)
+                .update(`${message_id}${timestamp}${buf}`)
+                .digest('hex');
+
+            if (!signatureHash || !tsscmp(signatureHash, ourSignatureHash)) {
+                console.log('Signature not matched');
+                res.status(500).send('Signature not matched');
+                return;
             }
             
             // as an API style/EventSub handler
@@ -86,12 +95,9 @@ app
             if (req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
                 // it's a another check for if it's a challenge request
                 if (req.body.hasOwnProperty('challenge')) {
-                // we can validate the signature here so we'll do that
-                    if (req.twitch_hex == req.twitch_signature) {
-                        console.log('Got a challenge, return the challenge');
-                        res.send(encodeURIComponent(req.body.challenge));
-                        return;
-                    }
+                    console.log('Got a challenge, return the challenge');
+                    res.send(encodeURIComponent(req.body.challenge));
+                    return;
                 }
                 // unexpected hook request
                 res.status(403).send('Denied');
@@ -101,37 +107,30 @@ app
                 // than this example does
                 res.send('Ok');
             } else if (req.headers['twitch-eventsub-message-type'] == 'notification') {
-                if (req.twitch_hex == req.twitch_signature) {
-                    console.log('The signature matched');
-                    // the signature passed so it should be a valid payload from Twitch
-                    // we ok as quickly as possible
-                    res.send('Ok');
+                console.log('The signature matched');
+                // the signature passed so it should be a valid payload from Twitch
+                // we ok as quickly as possible
+                res.send('Ok');
 
-                    // you can do whatever you want with the data
-                    // it's in req.body
+                // you can do whatever you want with the data
+                // it's in req.body
 
-                    // write out the data to a log for now
-                    fs.appendFileSync(path.join(
-                        __dirname,
-                        'webhooks.log'
-                    ), JSON.stringify({
-                        body: req.body,
-                        headers: req.headers
-                    }) + "\n");
-                    // pretty print the last webhook to a file
-                    fs.appendFileSync(path.join(
-                        __dirname,
-                        'last_webhooks.log'
-                    ), JSON.stringify({
-                        body: req.body,
-                        headers: req.headers
-                    }, null, 4));
-                } else {
-                    console.log('The Signature did not match');
-                    // the signature was invalid
-                    res.send('Ok');
-                    // we'll ok for now but there are other options
-                }
+                // write out the data to a log for now
+                fs.appendFileSync(path.join(
+                    __dirname,
+                    'webhooks.log'
+                ), JSON.stringify({
+                    body: req.body,
+                    headers: req.headers
+                }) + "\n");
+                // pretty print the last webhook to a file
+                fs.appendFileSync(path.join(
+                    __dirname,
+                    'last_webhooks.log'
+                ), JSON.stringify({
+                    body: req.body,
+                    headers: req.headers
+                }, null, 4));
             } else {
                 console.log('Invalid hook sent to me');
                 // probably should error here as an invalid hook payload
