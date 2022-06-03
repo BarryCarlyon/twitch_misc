@@ -88,6 +88,11 @@ app
     .post((req, res) => {
         console.log('Incoming Post request on /', req.body);
 
+        // poor man cop out from the json verify function above
+        if (res.headersSent) {
+            return;
+        }
+    
         // the middleware above ran
         // and it prepared the tests for us
         // so check if we event generated a twitch_hub
