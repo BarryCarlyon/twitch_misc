@@ -39,4 +39,4 @@ You can use the Twitch-cli to test your Eventsub callback see https://github.com
 
 Example:
 
-> twitch event verify-subscription cheer -s THESECRET -F https://yoururl/
+    twitch event verify-subscription cheer -s "THESECRET" -F "https://yoururl/"

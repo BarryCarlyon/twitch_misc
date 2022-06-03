@@ -73,6 +73,7 @@ app.use(express.json({
             // force set a/ensure a correct content type header
             // for all event sub routes
             res.set('Content-Type', 'text/plain');
+            console.log('Signature matched');
         }
     }
 }));
