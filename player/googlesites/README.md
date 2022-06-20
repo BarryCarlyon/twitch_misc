@@ -40,6 +40,35 @@ If you are using a custom domain, same `https://www.mycoolwebsite.com/` then you
   var parent = ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host];
 ```
 
+## Just give me something to copy paste
+
+- Add an "Embed from the web"
+- Change `www.mycoolwebsite.com` to your domain name
+- Change `monstercat` to your login/the Twitch channel you want to embed
+
+```html
+<html>
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'">
+    <script type="text/javascript" src="https://embed.twitch.tv/embed/v1.js"></script>
+  </head>
+  <body>
+    <div id="mytwitch"></div>
+    <script type="text/javascript">
+      new Twitch.Embed("mytwitch", {
+        width: 800,
+        height: 500,
+        channel: "monstercat",
+        allowfullscreen: false,
+        layout: "video-with-chat",
+        muted: true,
+        parent: ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host]
+      });
+    </script>
+  </body>
+</html>
+```
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via Google Pages/Sites!
