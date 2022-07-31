@@ -2,12 +2,13 @@ const { app, BrowserWindow, session } = require('electron')
 const { URL, URLSearchParams } = require('url');
 const path = require('path');
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = require('electron-fetch').default
 
 app.on('window-all-closed', () => {
     app.quit()
 });
 app.on('ready', () => {
+    /*
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         callback({
             responseHeaders: {
@@ -16,6 +17,7 @@ app.on('ready', () => {
           }
         })
     });
+    */
 
     const win = new BrowserWindow({
         width: 800,
