@@ -1,41 +1,75 @@
 {
-    "helix": {
-        "analytics:read:extensions":    "View analytics data for your extensions.",
-        "analytics:read:games":         "View analytics data for your games.",
-        "bits:read":                    "View Bits information for your channel.",
-        "channel:edit:commercial":      "Run commercials on a channel",
-        "channel:manage:broadcast":      "Manage a channel’s broadcast configuration, including updating channel configuration and managing stream markers and stream tags.",
-        "channel:manage:extensions":    "Manage a channel’s Extension configuration, including activating Extensions.",
-        "channel:manage:polls":         "Manage a channel’s polls",
-        "channel:manage:predictions":   "Manage of channel’s Channel Points Predictions",
-        "channel:manage:redemptions":   "Manage Channel Points custom rewards and their redemptions on a channel.",
-        "channel:manage:schedule":      "Manage a channel’s stream schedule.",
-        "channel:manage:videos":        "Manage a channel’s videos, including deleting videos.",
-        "channel:read:editors":         "View a list of users with the editor role for a channel.",
-        "channel:read:goals":           "View Creator Goals for a channel.",
-        "channel:read:hype_train":      "Read Hype Train information on a channel",
-        "channel:read:polls":           "Read a channel's Polls",
-        "channel:read:predictions":     "Read a channel's Predictions",
-        "channel:read:redemptions":     "View your channel points custom reward redemptions",
-        "channel:read:stream_key":      "Read the Stream Key for the channel",
-        "channel:read:subscriptions":   "Get a list of all subscribers to your channel and check if a user is subscribed to your channel",
-        "clips:edit":                   "Manage a clip object.",
-        "moderation:read":              "Get Moderators/Banned users (and mod/ban events) for a channel and perform AutoMod checks",
-        "moderator:manage:automod":     "Manage messages held for review by AutoMod in channels where you are a moderator.",
-        "user:edit":                    "Manage a user object.",
-        "user:edit:broadcast":          "Edit broadcast (Extensions)",
-        "user:manage:blocked_users":    "Manage the block list of a user.",
-        "user:read:blocked_users":      "View the block list of a user.",
-        "user:read:broadcast":          "View a user’s broadcasting configuration, including Extension configurations.",
-        "user:read:email":              "Read authorized user's email address.",
-        "user:read:follows":            "View the list of channels a user follows.",
-        "user:read:subscriptions":      "Get the details of the users subscription to a channel."
+    "analytics": {
+        "analytics:read:extensions":            "View analytics data for your extensions.",
+        "analytics:read:games":                 "View analytics data for your games."
+    },
+    "channel read": {
+        "bits:read":                            "View Bits information for your channel.",
+
+        "channel:read:editors":                 "View a list of users with the editor role for a channel.",
+        "channel:read:goals":                   "View Creator Goals for a channel.",
+        "channel:read:hype_train":              "Read Hype Train information on a channel",
+        "channel:read:polls":                   "Read a channel's Polls",
+        "channel:read:predictions":             "Read a channel's Predictions",
+        "channel:read:redemptions":             "View your channel points custom reward redemptions",
+
+        "channel:read:stream_key":              "Read the Stream Key for the channel",
+        "channel:read:subscriptions":           "Get a list of all subscribers to your channel and check if a user is subscribed to your channel",
+
+        "channel:read:vips":                    "Read the list of VIPs in your channel.",
+
+        "moderation:read":                      "View a channel’s moderation data including Moderators, Bans, Timeouts, and Automod settings."
+    },
+    "channel write": {
+        "channel:edit:commercial":              "Run commercials on a channel",
+        "channel:manage:broadcast":             "Manage a channel’s broadcast configuration, including updating channel configuration and managing stream markers and stream tags.",
+        "channel:manage:extensions":            "Manage a channel’s Extension configuration, including activating Extensions.",
+        "channel:manage:moderators":            "Add or remove the moderator role from users in your channel.",
+        "channel:manage:polls":                 "Manage a channel’s polls",
+        "channel:manage:predictions":           "Manage of channel’s Channel Points Predictions",
+        "channel:manage:raids":                 "Manage a channel raiding another channel.",
+        "channel:manage:redemptions":           "Manage Channel Points custom rewards and their redemptions on a channel.",
+        "channel:manage:schedule":              "Manage a channel’s stream schedule.",
+        "channel:manage:videos":                "Manage a channel’s videos, including deleting videos.",
+        "channel:manage:vips":                  "Add or remove the VIP role from users in your channel."
+    },
+    "moderator": {
+        "moderator:manage:announcements":       "Send announcements in channels where you have the moderator role.",
+        "moderator:manage:automod":             "Manage messages held for review by AutoMod in channels where you are a moderator.",
+        "moderator:read:automod_settings":      "Manage a broadcaster’s AutoMod settings.",
+        "moderator:manage:banned_users":        "Ban and unban users.",
+        "moderator:read:blocked_terms":         "View a broadcaster’s list of blocked terms.",
+        "moderator:manage:blocked_terms":       "Manage a broadcaster’s list of blocked terms.",
+        "moderator:manage:chat_messages":       "Delete chat messages in channels where you have the moderator role",
+        "moderator:read:chat_settings":         "View a broadcaster’s chat room settings.",
+        "moderator:manage:chat_settings":       "Manage a broadcaster’s chat room settings."
+    },
+
+    "user": {
+        "clips:edit":                           "Manage a clip object.",
+
+        "user:edit":                            "Manage a user object.",
+        "user:manage:blocked_users":            "Manage the block list of a user.",
+        "user:read:blocked_users":              "View the block list of a user.",
+
+        "user:read:broadcast":                  "View a user’s broadcasting configuration, including Extension configurations.",
+
+        "user:manage:chat_color":               "Update the color used for the user’s name in chat.",
+
+        "user:read:email":                      "Read authorized user's email address.",
+        "user:read:follows":                    "View the list of channels a user follows.",
+        "user:read:subscriptions":              "Get the details of the users subscription to a channel.",
+        "user:manage:whispers":                 "Read whispers that you send and receive, and send whispers on your behalf.",
+
+        "user:edit:broadcast":                  "Edit broadcast (Extensions)"
     },
     "chat": {
-        "channel:moderate":             "Perform moderation actions in a channel. The user requesting the scope must be a moderator in the channel.",
-        "chat:edit":                    "Send live stream chat and rooms messages.",
-        "chat:read":                    "View live stream chat and rooms messages.",
-        "whispers:read":                "View your whisper messages.",
-        "whispers:edit":                "Send whisper messages."
+        "channel:moderate":                     "Perform moderation actions in a channel. The user requesting the scope must be a moderator in the channel.",
+
+        "chat:edit":                            "Send live stream chat and rooms messages.",
+        "chat:read":                            "View live stream chat and rooms messages.",
+
+        "whispers:read":                        "View your whisper messages.",
+        "whispers:edit":                        "Send whisper messages."
     }
 }
