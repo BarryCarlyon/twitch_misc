@@ -23,6 +23,9 @@ It's relatively in progess/incomplete....
 ## Reference Documentation
 
 - [Chat Guide](https://dev.twitch.tv/docs/irc/guide)
+- [Refresh Token](https://dev.twitch.tv/docs/authentication/refresh-tokens)
+- [Validate Token](https://dev.twitch.tv/docs/authentication/validate-tokens)
+- [Chat Command Migration Guide](https://dev.twitch.tv/docs/irc/chat-commands#migration-guide)
 
 ## General Notes/Usage
 
