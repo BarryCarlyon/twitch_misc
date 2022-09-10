@@ -1,0 +1,20 @@
+{
+  "name": "eventbased",
+  "version": "1.0.0",
+  "description": "This example covers a way to make a Twitch Chat client/bot in nodeJS",
+  "main": "chat_bot.js",
+  "scripts": {
+    "start": "node chat_bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.2",
+    "ws": "^8.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

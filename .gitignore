@@ -2,6 +2,7 @@
 node_modules
 config.json
 config.php
+.env
 auth.json
 config_client.json
 config_user.json
