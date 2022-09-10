@@ -24,12 +24,12 @@ app.on('ready', () => {
         height: 600,
         show: false,
         webPreferences: {
-            preload: path.join(app.getAppPath(), '/preload.js')
+            preload: path.join(app.getAppPath(), '/app/preload.js')
         }
     });
 
     // and load the index.html of the app.
-    win.loadFile('assets/index.html')
+    win.loadFile(path.join(app.getAppPath(), '/app/assets/index.html'));
 
     win.once('ready-to-show', () => {
         win.show()

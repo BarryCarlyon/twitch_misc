@@ -17,12 +17,9 @@ This URL is hardcoded (along with the clientID) in the Electron View (index.html
 
 ## Running the example
 
-This electron application uses a "dual package.json" layout. So you will need to npm install twice, once in the main folder and once in the `app` folder
+This electron application uses a "single package.json" layout.
 
 In a console/terminal, run these commands:
 
-- `cd app`
-- `npm install`
-- `cd ..`
 - `npm install`
 - `npm start`
