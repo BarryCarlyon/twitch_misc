@@ -35,11 +35,26 @@ bot.on('notice', (n) => {
 let my_command_prefix = '!';
 bot.on('privmsg', (payload) => {
     let [ channel, message ] = payload.params;
+
+    let room_id = payload.tags['room-id'];
     let message_id = payload.tags.id;
 
     if (message.startsWith(my_command_prefix)) {
-        let [ command_word, word_two ] = message.split(' ', 2);
-        console.log(command_word, word_two);
+        let space = message.indexOf(' ');
+        if (space == -1) {
+            space = message.length;
+        }
+
+        let command_word = message.slice(0, space);
+        let rest = message.slice(space + 1);
+        console.log('Word, rest', command_word, rest);
+
+        let word_two = '';
+
+        if (rest !== undefined) {
+            [ word_two ] = rest.split(' ', 1);
+            console.log('Word, two', command_word, word_two);
+        }
 
         switch (command_word) {
             case '!dice':
@@ -49,6 +64,10 @@ bot.on('privmsg', (payload) => {
             case '!word':
                 bot.reply(channel, message_id, `You said: ${word_two}`);
                 return;
+            case '!announce':
+                console.log(`Trigger announcement to ${room_id}`);
+                bot.announcement(room_id, 'This is a test announcement');
+                break;
         }
     }
 });

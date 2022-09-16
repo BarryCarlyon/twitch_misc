@@ -671,7 +671,8 @@ class ChatBot extends EventEmitter {
                 method: 'POST',
                 headers: {
                     'Client-ID': this.client_id,
-                    'Authorization': `Bearer ${this.access_token}`
+                    'Authorization': `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             }
@@ -717,8 +718,10 @@ class ChatBot extends EventEmitter {
     announcement = async function(room_id, message, color) {
         color = color || 'primary';
 
+        console.debug('Go token maintaince')
         await this._tokenMaintainece();
 
+        console.debug('Cleared token maintaince')
         let url = new URL('https://api.twitch.tv/helix/chat/announcements');
         url.search = new URLSearchParams([
             [ 'broadcaster_id', room_id ],
@@ -731,7 +734,8 @@ class ChatBot extends EventEmitter {
                 method: 'POST',
                 headers: {
                     'Client-ID': this.client_id,
-                    'Authorization': `Bearer ${this.access_token}`
+                    'Authorization': `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     message,
@@ -739,6 +743,7 @@ class ChatBot extends EventEmitter {
                 })
             }
         );
+        //console.debug('announcement_response', announcement_response.status, await announcement_response.text());
         this.emit('announcement_response', announcement_response.status);
     }
 
@@ -824,7 +829,8 @@ class ChatBot extends EventEmitter {
                 method: 'POST',
                 headers: {
                     'Client-ID': this.client_id,
-                    'Authorization': `Bearer ${this.access_token}`
+                    'Authorization': `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             }
