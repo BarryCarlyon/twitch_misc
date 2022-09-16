@@ -92,7 +92,7 @@ Reply to/create a thread in a chat room
 
 Note that PRIVMSG based stuff above uses `#channelname` and `usernames` but all the Chat Command stuff uses `channel_id` and `user_id` instead.
 
-See [COMMANDS.md](COMMANDS.MD)
+See [COMMANDS.md](COMMANDS.md)
 
 ## Generating a token
 
