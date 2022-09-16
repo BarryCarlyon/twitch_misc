@@ -547,6 +547,11 @@ class ChatBot extends EventEmitter {
                 if (message.hasOwnProperty('tags')) {
                     if (message.tags.hasOwnProperty('msg-id')) {
                         this.emit(
+                            message.tags['msg-id'],
+                            message
+                        );
+
+                        this.emit(
                             `usernotice_${message.tags['msg-id']}`,
                             message
                         );

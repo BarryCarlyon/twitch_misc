@@ -72,4 +72,14 @@ bot.on('privmsg', (payload) => {
     }
 });
 
+bot.on('raid', (payload) => {
+    console.log('Got a raid', payload);
+
+    bot.announcement(
+        payload.tags['room-id'],
+        `WE HAVE BEEN RAIDED BY ${payload.tags['msg-param-displayName']}`
+    );
+});
+
+
 bot.connect();
