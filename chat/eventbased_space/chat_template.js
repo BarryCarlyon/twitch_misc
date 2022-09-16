@@ -24,6 +24,11 @@ class ChatBot extends EventEmitter {
 
         this.channels = opts.channels || [];
 
+        // check if string/convert to an array
+        if (typeof this.channels == 'string') {
+            this.channels = this.channels.split(',');
+        }
+
         if (this.access_token != '') {
             this._anonymous = false;
             console.debug('Bot will boot with access token');

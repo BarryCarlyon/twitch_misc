@@ -32,10 +32,25 @@ bot.on('notice', (n) => {
     }
 });
 
+let my_command_prefix = '!';
 bot.on('privmsg', (payload) => {
-    //console.log('Recv', payload.tags.emotes);
-    //console.log('Recv', payload);
-    //console.log('Recv', payload.tags.emotes);
+    let [ channel, message ] = payload.params;
+    let message_id = payload.tags.id;
+
+    if (message.startsWith(my_command_prefix)) {
+        let [ command_word, word_two ] = message.split(' ', 2);
+        console.log(command_word, word_two);
+
+        switch (command_word) {
+            case '!dice':
+                let n = Math.floor(Math.random() * 6) + 1;
+                bot.send(channel, `The number ${n} has been rolled`);
+                return;
+            case '!word':
+                bot.reply(channel, message_id, `You said: ${word_two}`);
+                return;
+        }
+    }
 });
 
 bot.connect();
