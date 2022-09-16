@@ -595,23 +595,28 @@ class ChatBot extends EventEmitter {
         }
     }
 
+    _roomHash = function(room) {
+        if (!room.startsWith('#')) {
+            room = '#'+room
+        }
+        room.toLowerCase();
+
+        return room;
+    }
+
     join = function(rooms) {
         rooms.forEach((room, index, rooms) => {
-            if (!room.startsWith('#')) {
-                rooms[index] = '#'+room
-            }
-            rooms[index] = rooms[index].toLowerCase();
+            rooms[index] = this._roomHash(room);
         })
         this.ws.send(`JOIN ${rooms.join(',')}`);
     }
     send = function(room, message) {
-        if (!room.startsWith('#')) {
-            room = '#'+room;
-        }
+        room = this._roomHash(room);
         console.log('>' + `PRIVMSG ${room} :${message}`);
         this.ws.send(`PRIVMSG ${room} :${message}`);
     }
     reply = function(room, id, message) {
+        room = this._roomHash(room);
         //console.log(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
         this.ws.send(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
     }
@@ -733,78 +738,78 @@ class ChatBot extends EventEmitter {
     }
 
     // kinda dumb util...
-    emoteOnly = function(emote_mode) {
-        this._updateChatSettings({
+    emoteOnly = function(room_id, emote_mode) {
+        this._updateChatSettings(room_id, {
             emote_mode
         });
     }
-    emoteOnlyOn = function() {
-        this._updateChatSettings({
+    emoteOnlyOn = function(room_id) {
+        this._updateChatSettings(room_id, {
             emote_mode: true
         });
     }
-    emoteOnlyOff = function() {
-        this._updateChatSettings({
+    emoteOnlyOff = function(room_id) {
+        this._updateChatSettings(room_id, {
             emote_mode: false
         });
     }
 
-    followersOn = function(follower_mode_duration) {
-        this._updateChatSettings({
+    followersOn = function(room_id, follower_mode_duration) {
+        this._updateChatSettings(room_id, {
             follower_mode: true,
             follower_mode_duration
         });
     }
-    followersOff = function() {
-        this._updateChatSettings({
+    followersOff = function(room_id) {
+        this._updateChatSettings(room_id, {
             follower_mode: false
         });
     }
 
-    slowOn = function(slow_mode_wait_time) {
+    slowOn = function(room_id, slow_mode_wait_time) {
         if (slow_mode_wait_time < 3 || slow_mode_wait_time > 120) {
             throw new Error('Slow Mode Duration must be between 3 and 120 seconds');
         }
 
-        this._updateChatSettings({
+        this._updateChatSettings(room_id, {
             slow_mode: true,
             slow_mode_wait_time
         });
     }
-    slowOff = function() {
-        this._updateChatSettings({
+    slowOff = function(room_id) {
+        this._updateChatSettings(room_id, {
             slow_mode: false
         });
     }
 
-    subscribersOn = function(follower_mode_duration) {
-        this._updateChatSettings({
+    subscribersOn = function(room_id) {
+        this._updateChatSettings(room_id, {
             subscriber_mode: true
         });
     }
-    subscribersOff = function() {
-        this._updateChatSettings({
+    subscribersOff = function(room_id) {
+        this._updateChatSettings(room_id, {
             subscriber_mode: false
         });
     }
 
-    uniqueOn = function(follower_mode_duration) {
-        this._updateChatSettings({
+    uniqueOn = function(room_id) {
+        this._updateChatSettings(room_id, {
             unique_chat_mode: true
         });
     }
-    uniqueOff = function() {
-        this._updateChatSettings({
+    uniqueOff = function(room_id) {
+        this._updateChatSettings(room_id, {
             unique_chat_mode: false
         });
     }
 
-    _updateChatSettings = async function(payload) {
+    _updateChatSettings = async function(room_id, payload) {
         await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/chat/settings');
         url.search = new URLSearchParams([
-            [ 'broadcaster_id', broadcaster_id ],
+            [ 'broadcaster_id', room_id ],
             [ 'moderator_id', this._userId ]
         ]).toString();
 
