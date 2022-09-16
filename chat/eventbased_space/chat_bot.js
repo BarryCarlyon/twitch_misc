@@ -66,7 +66,8 @@ bot.on('privmsg', (payload) => {
                 return;
             case '!announce':
                 console.log(`Trigger announcement to ${room_id}`);
-                bot.announcement(room_id, 'This is a test announcement');
+                bot.send(channel, '.announce This is a test announcement COMMAND');
+                bot.announcement(room_id, 'This is a test announcement API');
                 break;
         }
     }

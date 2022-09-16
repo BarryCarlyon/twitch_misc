@@ -161,6 +161,12 @@ class ChatBot extends EventEmitter {
                 console.error('An Error Occured during token validation');
                 return;
             }
+
+            // auto token every 15 minutes
+            setInterval(async () => {
+                await this._tokenMaintainece();
+                console.log('Token cleared auto Maintainece');
+            }, (15 * 60 * 1000));
         }
 
         // go do it
@@ -662,7 +668,7 @@ class ChatBot extends EventEmitter {
         });
     }
     _banUser = async function(broadcaster_id, payload) {
-        await this._tokenMaintainece();
+        //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/moderation/bans');
         url.search = new URLSearchParams([
@@ -704,7 +710,7 @@ class ChatBot extends EventEmitter {
         this._delete(url);
     }
     _delete = async function(url) {
-        await this._tokenMaintainece();
+        //await this._tokenMaintainece();
 
         let delete_response = await fetch(
             url,
@@ -723,10 +729,8 @@ class ChatBot extends EventEmitter {
     announcement = async function(room_id, message, color) {
         color = color || 'primary';
 
-        console.debug('Go token maintaince')
-        await this._tokenMaintainece();
+        //await this._tokenMaintainece();
 
-        console.debug('Cleared token maintaince')
         let url = new URL('https://api.twitch.tv/helix/chat/announcements');
         url.search = new URLSearchParams([
             [ 'broadcaster_id', room_id ],
@@ -820,7 +824,7 @@ class ChatBot extends EventEmitter {
     }
 
     _updateChatSettings = async function(room_id, payload) {
-        await this._tokenMaintainece();
+        //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/chat/settings');
         url.search = new URLSearchParams([
