@@ -67,7 +67,7 @@ If you were to provide an implict token, or a token without refresh. When the to
 Tells the bot to join channel(s)
 
 #### Arguments
-- rooms - an array (or string) of rooms to join.
+- `rooms` - an array (or string) of rooms to join.
 
 The function will auto add `#` and auto convert to lowercase
 
@@ -76,17 +76,17 @@ The function will auto add `#` and auto convert to lowercase
 Send messages to a chat root
 
 #### Arguments
-- room - the room to PRIVMSG in (will auto append `#` if ommited)
-- message - words to send
+- `room` - the room to PRIVMSG in (will auto append `#` if ommited)
+- `message` - words to send
 
 ### reply
 
 Reply to/create a thread in a chat room
 
 #### Arguments
-- room - the room to PRIVMSG in (will auto append `#` if ommited)
-- id - the ID to reply thread against
-- messaage - the message to send
+- `room` - the room to PRIVMSG in (will auto append `#` if ommited)
+- `id` - the ID to reply thread against
+- `messaage` - the message to send
 
 ## Chat Command Helper Functions
 
