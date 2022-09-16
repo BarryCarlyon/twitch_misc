@@ -114,6 +114,8 @@ Notably we do not ask for `channel:moderate` which will be a dead scope when the
 
 ## Sources
 
+Utilises the Performant stuff from [osslate](https://github.com/osslate)
+
 - [IRC "Space based" Parser](https://github.com/osslate/irc-message/blob/master/index.js)
 - [IRC Prefix Parser](https://github.com/osslate/irc-prefix-parser/blob/master/index.js)
 
