@@ -27,7 +27,7 @@ The `.env` file is populated as follows
 - `access_token` - a Twitch access token with a _BUNCH_ of Twitch Scopes needed for the bot to function
 - `channels` - a CSV of channels to initially connect to
 
-The `.env` items are passed to the ChatBot constructore as the options.
+The `.env` items are passed to the ChatBot constructor as the options.
 
 At bot start, the bot calls the Twitch API to validate the token, and determine the `client_id` of that token, the `client_id` is needed for Chat Command calls.
 
@@ -66,7 +66,7 @@ If you were to provide an implict token, or a token without refresh. When the to
 
 Tells the bot to join channel(s)
 
-#### Arguments:
+#### Arguments
 - rooms - an array (or string) of rooms to join.
 
 The function will auto add `#` and auto convert to lowercase
@@ -75,7 +75,7 @@ The function will auto add `#` and auto convert to lowercase
 
 Send messages to a chat root
 
-#### Arguments:
+#### Arguments
 - room - the room to PRIVMSG in (will auto append `#` if ommited)
 - message - words to send
 
@@ -83,124 +83,16 @@ Send messages to a chat root
 
 Reply to/create a thread in a chat room
 
-#### Arguments:
+#### Arguments
 - room - the room to PRIVMSG in (will auto append `#` if ommited)
 - id - the ID to reply thread against
 - messaage - the message to send
 
 ## Chat Command Helper Functions
 
-Not that PRIVMSG based stuff above uses `#channelname` and `usernames` but all the Chat Command stuff uses `channel_id` and `user_id` instead
+Note that PRIVMSG based stuff above uses `#channelname` and `usernames` but all the Chat Command stuff uses `channel_id` and `user_id` instead.
 
-### timeout
-
-Timeout a user in a chat
-
-#### Arguments:
-- room_id
-- user_id
-- duration - in seconds
-- reason
-
-### ban
-
-Ban a user from a chat
-
-#### Arguments:
-- room_id
-- user_id
-- reason
-
-
-### delete
-
-Delete a single message fomr a chat
-
-#### Arguments:
-- room_id
-- message_id
-
-### clear
-
-Clears a whole channel chat
-
-#### Arguments:
-- room_id
-
-### announcement
-
-Send an announcement to a chat
-
-#### Arguments:
-- room_id
-- message
-- color - defaults to `primary` which will match the `room_id` accent channel color.
-
-
-
-### emoteOnly
-
-Set emote only on or off based on var
-
-#### Arguments:
-- room_id
-- emote_mode - boolean true/false
-
-### emoteOn
-### emoteOff
-
-Set emote only on or off based on function name called
-
-#### Arguments:
-- room_id
-
-
-
-### followersOn
-
-Enable followers only mode
-
-#### Arguments:
-- room_id
-- follower_mode_duration - in seconds
-
-### followersOff
-
-Disable followers only mode
-
-#### Arguments:
-- room_id
-
-
-### slowOn
-
-Enable followers only mode
-
-#### Arguments:
-- room_id
-- slow_mode_wait_time - in seconds
-
-### slowOff
-
-Disable followers only mode
-
-#### Arguments:
-- room_id
-
-
-### subscribersOn
-### subscribersOff
-### uniqueOn
-### uniqueOff
-
-Set subscribers or unique chat (aka [R9k](https://blog.xkcd.com/2008/01/14/robot9000-and-xkcd-signal-attacking-noise-in-chat/)) on or off based on function name called
-
-#### Arguments:
-- room_id
-
-### Custom
-
-An operatior/devloper could call `_updateChatSettings` directly with a `room_id` and `payload` to update whatever rules in one go. See [Update Chat Settings](https://dev.twitch.tv/docs/api/reference#update-chat-settings) for the full possible payload.
+See [COMMANDS.md](COMMANDS.MD)
 
 ## Generating a token
 
