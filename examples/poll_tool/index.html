@@ -37,16 +37,21 @@
                 <div>
                     <label for="poll_title">Title</label>
                     <input type="text" name="poll_title" id="poll_title" />
+                    <p>Max 60 Characters</p>
                 </div>
                 <div>
                     <label for="poll_duration">Duration</label>
                     <input type="number" name="poll_duration" id="poll_duration" min="15" max="1800" step="1" value="60" />
+                    <p>Between 15s and 1800s (30 minutes)</p>
                 </div>
             </fieldset>
-            <fieldset id="poll_choices">
+            <fieldset>
                 <legend>Choices</legend>
-                <input type="text" name="poll_choice[]" />
-                <input type="text" name="poll_choice[]" />
+                <div id="poll_choices">
+                    <input type="text" name="poll_choice[]" />
+                    <input type="text" name="poll_choice[]" />
+                </div>
+                <p>Max 25 Characters</p>
             </fieldset>
             <fieldset>
                 <input type="button" id="add_choice" value="Add Choice (2-5)" />
