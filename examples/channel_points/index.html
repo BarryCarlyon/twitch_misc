@@ -1,0 +1,430 @@
+<html>
+<head>
+    <title>Channel Points | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style>
+        #loading {
+            height: 200px;
+            overflow: scroll;
+        }
+        #loading p {
+            margin: 2px;
+        }
+
+        #left, #right {
+            box-sizing: border-box;
+            width: 49vw;
+            display: inline-block;
+            vertical-align: top;
+        }
+        form {
+            width: 50%;
+        }
+        form>fieldset>div {
+            width: 100%;
+        }
+        form>fieldset>div>div {
+            display: inline-block;
+            width: 49%;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+        }
+        input[type="button"], input[type="submit"] {
+            width: 30%;
+            background: green;
+            cursor: pointer;
+        }
+        input[type="button"]:hover, input[type="submit"]:hover {
+            background: red;
+        }
+
+        .delete_reward {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will Various endpoints and permission to read YOUR data</p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_points">Github</a> or just View the source instead</p>
+
+    <p>Generates a page that shows simiar stuff to <a href="https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards">Rewards Dashboard</a></p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+
+    <div id="loading"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Can Control</th>
+                <th>Reward ID</th>
+                <th>Custom Image</th>
+                <th>Reward Title</th>
+                <th>Cost</th>
+                <th>Visible</th>
+                <th>Paused</th>
+                <th>Skip Queue</th>
+                <th>Prompt</th>
+                <th>User Input Req.</th>
+                <th>X</th>
+            </tr>
+        </thead>
+        <tbody id="output"></tbody>
+    </table>
+
+    <form id="reward_create_form" action="" method="post">
+        <fieldset>
+            <div>
+                <label for="reward_title">Reward Title</label>
+                <input type="text" name="reward_title" id="reward_title" />
+            </div>
+            <div>
+                <div>
+                    <label for="reward_cost">Reward Cost</label>
+                    <input type="number" name="reward_cost" id="reward_cost" min="1" step="1" value="50" />
+                </div>
+                <div>
+                    <label for="reward_prompt">Reward Prompt</label>
+                    <input type="text" name="reward_prompt" id="reward_prompt" />
+                </div>
+            </div>
+            <div>
+                <label for="reward_background_color">Background Color</label>
+                <input type="color" name="reward_background_color" id="reward_background_color" />
+            </div>
+            <div>
+                <div>
+                    <label for="reward_is_enabled">Enabled</label>
+                    <input type="checkbox" name="reward_is_enabled" id="reward_is_enabled" />
+                </div>
+                <div>
+                    <label for="reward_is_user_input_required">User Input Required</label>
+                    <input type="checkbox" name="reward_is_user_input_required" id="reward_is_user_input_required" />
+                </div>
+            </div>
+            <div>
+                <div>
+                    <label for="reward_should_redemptions_skip_request_queue">Skip Queue</label>
+                    <input type="checkbox" name="reward_should_redemptions_skip_request_queue" id="reward_should_redemptions_skip_request_queue" />
+                </div>
+            </div>
+
+            <div>
+                <input type="submit" value="Create" />
+            </div>
+        </fieldset>
+    </form>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        // setup a memory space for the token/userID
+        var access_token = '';
+        var user_id = '';
+
+        var loading = document.getElementById('loading');
+        var output = document.getElementById('output');
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:read:redemptions+channel:manage:redemptions')
+
+        function processToken(token) {
+            access_token = token;
+
+            message('Got Token');
+            message('Loading User from Token');
+
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.data.length == 1) {
+                    message('Got User ID');
+
+                    user_id = resp.data[0].id;
+
+                    getRewards();
+                } else {
+                    document.getElementById('loading').textContent = 'An Error Occured loading Profile: not returned';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'An Error Occured loading Profile: error';
+            });
+        }
+
+        function message(words) {
+            let p = document.createElement('p');
+            document.getElementById('loading').prepend(p);
+            p.textContent = words;
+        }
+        function tabulate(title, data, override, id_link = false) {
+            let div = document.createElement('div');
+            if (override) {
+                override.append(div);
+            } else {
+                output.append(div);
+                div.classList.add('infoblock');
+            }
+            if (title) {
+                let p = document.createElement('p');
+                div.append(p);
+                p.textContent = title;
+            }
+
+            let table = document.createElement('table');
+            div.append(table);
+            for (var key in data) {
+                let tr = document.createElement('tr');
+                table.append(tr);
+                let th = document.createElement('th');
+                tr.append(th);
+                th.textContent = key;
+
+                let td = document.createElement('td');
+                tr.append(td);
+                if (typeof data[key] == 'object') {
+                    tabulate('', data[key], td, id_link);
+                } else {
+                    if (typeof data[key] == 'string' && data[key].indexOf('https://') == 0) {
+                        let a = document.createElement('a');
+                        a.setAttribute('href', data[key]);
+                        a.textContent = data[key];
+                        a.setAttribute('target', '_blank');
+                        td.append(a);
+                    } else if (key == 'id' && id_link) {
+                        let a = document.createElement('a');
+                        a.setAttribute('href', 'https://dashboard.twitch.tv/extensions/' + data[key]);
+                        a.textContent = data[key];
+                        a.setAttribute('target', '_blank');
+                        td.append(a);
+                    } else {
+                        td.textContent = data[key];
+                    }
+                }
+            }
+        }
+
+        function getRewards() {
+            message('Loading Rewards');
+
+            output.textContent = '';
+
+            let params = [
+                [ 'broadcaster_id', user_id ],
+                [ 'first', 100 ]
+            ];
+
+            let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+            url.search = new URLSearchParams(params).toString();
+
+            fetch(
+                url,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                message(`Obtained ${resp.data.length} rewards`);
+                if (resp.data.length >= 1) {
+
+                    resp.data.forEach(reward => {
+                        let tr = document.createElement('tr');
+                        output.append(tr);
+
+                        tr.setAttribute('id', reward.id);
+                        tr.style.backgroundColor = reward.background_color;
+
+                        cell('Cannot', tr);
+                        cell(reward.id, tr);
+                        cell(reward.image, tr);
+                        cell(reward.title, tr);
+                        cell(reward.cost, tr);
+                        colorCell((reward.is_enabled ? 'Enabled' : 'Disabled'), tr, reward.is_enabled);
+                        colorCell((reward.is_paused ? 'Paused' : 'Running'), tr, !reward.is_paused);
+                        cell((reward.should_redemptions_skip_request_queue ? 'Skips' : 'Need Mod'), tr);
+                        cell(reward.prompt, tr);
+                        colorCell((reward.is_user_input_required ? 'user Input' : ''), tr, reward.is_user_input_required);
+
+                        let del = cell('x', tr);
+                        del.classList.add('delete_reward');
+                        del.setAttribute('data-id', reward.id);
+                    });
+
+                    getRewardsManage();
+                } else {
+                    message('An Error Occured loading Rewards: no rewards');
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                message('An Error Occured loading Rewards: error');
+            });
+        }
+
+        function getRewardsManage() {
+            message('Loading Rewards Can Manage');
+
+            let params = [
+                [ 'broadcaster_id', user_id ],
+                [ 'first', 100 ],
+                [ 'only_manageable_rewards', 'true' ]
+            ];
+
+            let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+            url.search = new URLSearchParams(params).toString();
+
+            fetch(
+                url,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                message(`Obtained ${resp.data.length} manageable rewards`);
+
+                resp.data.forEach((reward) => {
+                    let { id } = reward;
+                    let el = document.getElementById(id);
+                    if (el) {
+                        el.querySelector('td').textContent = 'Can';
+                        el.querySelector('td').style.backgroundColor = 'green';
+                    }
+                });
+            })
+            .catch(err => {
+                console.log(err);
+                message('An Error Occured loading Manageable Rewards: error');
+            });
+        }
+
+        function colorCell(value, row, value) {
+            let td = cell(value, row);
+            if (value) {
+                td.style.backgroundColor = 'green';
+            } else {
+                td.style.backgroundColor = 'red';
+            }
+        }
+
+        function cell(value, row) {
+            let td = document.createElement('td');
+            row.append(td);
+            td.textContent = value;
+            return td;
+        }
+
+
+        document.getElementById('reward_create_form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let payload = {
+                title: document.getElementById('reward_title').value,
+                cost: document.getElementById('reward_cost').value,
+
+                prompt: document.getElementById('reward_prompt').value,
+                is_enabled: document.getElementById('reward_is_enabled') == 'on' ? true : false,
+
+                background_color: document.getElementById('reward_background_color'),
+
+                is_user_input_required: document.getElementById('reward_is_user_input_required') == 'on' ? true : false,
+                should_redemptions_skip_request_queue: document.getElementById('reward_should_redemptions_skip_request_queue') == 'on' ? true : false
+            }
+
+            for (key in payload) {
+                if (payload[key] == '') {
+                    delete payload[key];
+                }
+            }
+
+            let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+            url.search = new URLSearchParams([
+                [ 'broadcaster_id', user_id ]
+            ]).toString();
+
+            message('Attempting to create a reward');
+            fetch(
+                url,
+                {
+                    "method": "POST",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                }
+            )
+            .then(r => r.json().then(data => ({ status: r.status, body: data })))
+            .then(resp => {
+                message(`Reward Create Result: ${resp.status}`);
+                if (resp.status != 204) {
+                    message(`Response: ${resp.body.message}`);
+                }
+                getRewards();
+            })
+            .catch(err => {
+                console.log(err);
+                message('An Error Occured creating a reward: error');
+            });
+        });
+
+        document.getElementById('output').addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete_reward')) {
+                deleteReward(e.target.getAttribute('data-id'));
+            }
+        });
+
+        function deleteReward(id) {
+            message(`Attempt to delete reward ${id}`);
+            let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+            url.search = new URLSearchParams([
+                [ 'broadcaster_id', user_id ],
+                [ 'id', id ]
+            ]).toString();
+
+            fetch(
+                url,
+                {
+                    "method": "DELETE",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`,
+                    }
+                }
+            )
+            .then(async resp => {
+                message(`Reward Delete Result: ${resp.status}`);
+                if (resp.status == 204) {
+                    getRewards();
+                } else {
+                    message(`Reward Delete Result: ${await resp.text()}`);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                message('An Error Occured deleting a reward: error');
+            });
+        }
+    </script>
+</body>
+</html>
