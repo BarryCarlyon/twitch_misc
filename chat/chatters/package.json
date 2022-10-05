@@ -1,0 +1,15 @@
+{
+  "name": "get_chatters",
+  "version": "1.0.0",
+  "description": "",
+  "main": "get_chatters.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Barry Carlyon",
+  "license": "WTFPL",
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  }
+}
