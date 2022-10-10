@@ -651,21 +651,27 @@ class ChatBot extends EventEmitter {
 
 
     timeout = function(romm_id, user_id, duration, reason) {
-        this._banUser({
-            data: {
-                user_id,
-                duration: duration,
-                reason
+        this._banUser(
+            room_id,
+            {
+                data: {
+                    user_id,
+                    duration: duration,
+                    reason
+                }
             }
-        });
+        );
     }
     ban = function(romm_id, user_id, reason) {
-        this._banUser({
-            data: {
-                user_id,
-                reason
+        this._banUser(
+            room_id,
+            {
+                data: {
+                    user_id,
+                    reason
+                }
             }
-        });
+        );
     }
     _banUser = async function(broadcaster_id, payload) {
         //await this._tokenMaintainece();
