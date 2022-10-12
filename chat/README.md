@@ -1,6 +1,6 @@
 # Whats here
 
-- [chatters](chat/chatters/) - this utilises the new Chatters API (in beta) and demonstrates a way to paginate and convert usernames to ID's
+- [chatters](chatters/) - this utilises the new Chatters API (in beta) and demonstrates a way to paginate and convert usernames to ID's
 - chatbot examples - see notes below
 
 ## ChatBot examples
@@ -9,9 +9,9 @@ These are in two groups. Examples that are _pure TMI_ and examples that are _TMI
 
 The following Examples are "somewhat out of date" and are pure TMI (Twitch Messaging Interface) ChatBots Examples
 
-- [eventbased](chat/eventbased/)
-- [simple](chat/simple/)
+- [eventbased](eventbased/)
+- [simple](simple/)
 
 The following Examples are "up to date" and are combination TMI (Twitch Messaging Interface) and Helix Chat API ChatBot Examples
 
-- [eventbased_space](chat/eventbased_space)
+- [eventbased_space](eventbased_space)
