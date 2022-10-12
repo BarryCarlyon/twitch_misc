@@ -1,67 +1,79 @@
 <html>
 <head>
-    <title>Barry's Live/Testable Twitch examples</title>
+    <title>Twitch Implicit Auth Example</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
 </head>
 <body>
-    <div id="status"></div>
+    <p><a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> is a way to get a <a href="https://dev.twitch.tv/docs/authentication#types-of-tokens" target="_blank">User Access Token</a> in a pure front end environment, it needs only a ClientID</p>
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth">Github</a> or just View the source instead</p>
+    <ul>
+        <li>
+            <a href="" id="authorize_public">Authorize and get Public data</a>
+        </li>
+        <li>
+            <a href="" id="authorize_email">Authorize and get Public data + email</a>
+        </li>
+    </ul>
+    <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
+    <div id="access_token"></div>
+    <div id="user_data"></div>
 
-    <p>Here are some Twitch API examples you can try. And the source for those examples</p>
-    <p>Most of this examples will prompt for Twitch Auth to get a Token to use to call the API with</p>
-    <p>Generally those Authentication Links will open a new window, which oAuth Redirect URI's to this window, which will extract the oAuth Access Token from the URL and magic pass it to the original window</p>
-
-    <table>
-        <thead><tr><th colspan="3">Auth Type Things</th></tr></thead>
-        <tbody>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/">How to Implicit auth</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth/">Source</a></td><td>For Client Side apps/websites</td></tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/token_checker/">Token Checker and Killer</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/token_checker">Source</a></td><td>Validate Tokens and revoke then, handy if you find stuff in the wild that shouldn't be there!</tr>
-        </tbody>
-        <thead><tr><th colspan="3">Examply Things</th></tr></thead>
-        <tbody>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/browse_categories/">Building a clone of the Directory view</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/browse_categories">Source</a></td><td>Pretty simple, shows how to "chain" API's together</tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/calendar/">Some Calendar/Schedule Stuff</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/calendar">Source</a></td><td></td></tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/channel_information/">Channel Information Widget</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_information">Source</a></td><td></td></tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/team/">Team Page</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/team">Source</a></td><td>A clone of the team page, rougly, for showing how/where to get various data from</td></tr>
-        </tbody>
-        <thead><tr><th colspan="3">Player Things</th></tr></thead>
-        <tbody>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/vod_player/">A VOD Player that Skips Muted Segments</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/vod_player">Source</a></td><td>Enough Said it plays VOD's</td></tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/player/html/">Twitch Player/parent</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/player/html">Source</a></td><td>Implements most of the Embed JS player functions for test/example purposes</td></tr>
-        </tbody>
-        <thead><tr><th colspan="3">Streamer Tool Type Things</th></tr></thead>
-        <tbody>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/poll_tool/">Simple Poll Tool/Results Display</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/poll_tool">Source</a></td><td>A simple tool to create a poll and monitor the results</td></tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/channel_points/">Simple Channel Points Manager</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_points">Source</a></td><td>A simple tool to manage rewards</td></tr>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/soundtrack/">SoundTrack Now Playing + History</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/soundtrack">Source</a></td><td></td></tr>
-        </tbody>
-        <thead><tr><th colspan="3">Extension Type Things</th></tr></thead>
-        <tbody>
-            <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/extension_config/">Extensions Config Tool</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/extension_config">Source</a></td><td>A replacement for the Rig's tool - <a href="https://github.com/barrycarlyon/twitch_extension_tools">desktop version</a></td></tr>
-        </tbody>
-    </table>
-
-    <p>For further help checkout the <a href="https://github.com/BarryCarlyon/twitch_misc">Repo</a> or <a href="https://link.twitch.tv/devchat">Join us on Discord</a></p>
-
-    <!-- The examples will borrow this function to handled the implicit access token -->
-    <!-- Then I don't need to add eleventy bajillion redirect URI's to the project -->
     <script type="text/javascript">
+        // These are set for the GitHub Pages Example
+        // Substitute as needed
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/';
+
+        document.getElementById('authorize_public').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token');
+        document.getElementById('authorize_email').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:email');
+        document.getElementById('access_token').textContent = '';
+
         if (document.location.hash && document.location.hash != '') {
             var parsedHash = new URLSearchParams(window.location.hash.slice(1));
             if (parsedHash.get('access_token')) {
-                if (window.opener) {
-                    window.opener.processToken(parsedHash.get('access_token'));
-                    window.close();
-                }
-            }
-        }
+                var access_token = parsedHash.get('access_token');
+                document.getElementById('access_token').textContent = 'Your Access Key from the #url: ' + access_token;
 
-        if (document.location.search && document.location.search != '') {
+                document.getElementById('user_data').textContent = 'Loading';
+
+                // call API
+                fetch(
+                    'https://api.twitch.tv/helix/users',
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+                .then(resp => resp.json())
+                .then(resp => {
+                    document.getElementById('user_data').innerHTML = '<p>Your Twitch Profile from Helix:</p>';
+                    var table = document.createElement('table');
+                    document.getElementById('user_data').append(table);
+                    for (var key in resp.data[0]) {
+                        var tr = document.createElement('tr');
+                        table.append(tr);
+                        var td = document.createElement('td');
+                        td.textContent = key;
+                        tr.append(td);
+                        var td = document.createElement('td');
+                        td.textContent = resp.data[0][key];
+                        tr.append(td);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    document.getElementById('user_data').textContent = 'Something went wrong';
+                });
+            }
+        } else if (document.location.search && document.location.search != '') {
             var parsedParams = new URLSearchParams(window.location.search);
             if (parsedParams.get('error_description')) {
-                document.getElementById('status').classList.add('show');
-                document.getElementById('status').textContent = 'Looks like you Tried to oAuth Authenticate and Somethibg went wrong: ' + parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
+                document.getElementById('access_token').textContent = parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
             }
         }
+            
     </script>
 </body>
 </html>
