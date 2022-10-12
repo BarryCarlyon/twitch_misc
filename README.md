@@ -2,7 +2,7 @@
 
 This repo contains a bunch of examples and bits and pieces that might be useful it might not.
 
-[![CodeQL](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/codeql-analysis.yml)
+[![CodeQL](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/codeql.yml/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/codeql.yml)
 [![Deploy statics](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/publish-pages.yml/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/publish-pages.yml)
 [![pages-build-deployment](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/pages/pages-build-deployment)
 
