@@ -1,196 +1,79 @@
 <html>
-  <head>
-    <title>Twitch Embed example</title>
-    <script src= "https://embed.twitch.tv/embed/v1.js"></script>
+<head>
+    <title>Twitch Implicit Auth Example</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
-  </head>
-  <body>
+</head>
+<body>
+    <p><a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> is a way to get a <a href="https://dev.twitch.tv/docs/authentication#types-of-tokens" target="_blank">User Access Token</a> in a pure front end environment, it needs only a ClientID</p>
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/authentication/implicit_auth">Github</a> or just View the source instead</p>
+    <ul>
+        <li>
+            <a href="" id="authorize_public">Authorize and get Public data</a>
+        </li>
+        <li>
+            <a href="" id="authorize_email">Authorize and get Public data + email</a>
+        </li>
+    </ul>
+    <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
+    <div id="access_token"></div>
+    <div id="user_data"></div>
 
-    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/player/html">Github</a> or just View the source instead</p>
+    <script type="text/javascript">
+        // These are set for the GitHub Pages Example
+        // Substitute as needed
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/';
 
+        document.getElementById('authorize_public').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token');
+        document.getElementById('authorize_email').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:email');
+        document.getElementById('access_token').textContent = '';
 
-<div id="test"></div>
+        if (document.location.hash && document.location.hash != '') {
+            var parsedHash = new URLSearchParams(window.location.hash.slice(1));
+            if (parsedHash.get('access_token')) {
+                var access_token = parsedHash.get('access_token');
+                document.getElementById('access_token').textContent = 'Your Access Key from the #url: ' + access_token;
 
-<div id="controls">
-    <div id="status"></div>
+                document.getElementById('user_data').textContent = 'Loading';
 
-    <button id="play">Play</button>
-    <button id="pause">Pause</button>
-
-    <select id="volume_value">
-        <option>0</option>
-        <option>0.1</option>
-        <option>0.2</option>
-        <option>0.3</option>
-        <option>0.4</option>
-        <option>0.5</option>
-        <option>0.6</option>
-        <option>0.7</option>
-        <option>0.8</option>
-        <option>0.9</option>
-        <option>1</option>
-    </select>
-    <button id="volume">Set Volume</button>
-    <button id="volume_get">Get Volume</button>
-
-    <button id="muted">Get Muted</button>
-    <button id="mute">Mute</button>
-    <button id="unmute">Unmute</button>
-
-<br />
-
-    <input type="text" id="channel" value="monstercat" />
-    <button id="change">Change Channel</button>
-
-    <select id="quality"></select>
-    <button id="quality_change">Change Quality</button>
-    <button id="qualities_get">Get Qualities</button>
-    <button id="quality_get">Get Quality</button>
-</div>
-
-<div style="width: 800px; position: relative;">
-  <div id="log"></div>
-  <div id="logb" style="position: absolute; top: 0px; right: 0px;"></div>
-</div>
-
-<script type="text/javascript">
-const urlParams = new URLSearchParams(window.location.search);
-const runtest = urlParams.get('test');
-
-  var options = {
-    width: 800,
-    height: 500,
-    channel: "monstercat",
-    allowfullscreen: false,
-    layout: 'video-with-chat'
-  };
-  var player = new Twitch.Embed("test", options);
-
-  if (runtest) {
-    log('run test');
-    player.addEventListener(Twitch.Embed.VIDEO_READY, function() {
-      log('Attempt volumne and unmute');
-      player.setVolume(0.1);
-      player.setMuted(false);
-    });
-  }
-
-  function log(txt, other) {
-    var sp = document.createElement('div');
-    sp.textContent = new Date().getTime() + ': ' + txt;
-
-    var t = other ? 'logb' : 'log';
-    document.getElementById(t).prepend(sp);
-  }
-
-  player.addEventListener(Twitch.Embed.VIDEO_READY, function() {
-    log('The video is ready');
-  })
-  player.addEventListener(Twitch.Embed.VIDEO_PLAY, function() {
-    log('The video is playing');
-  })
-
-  document.getElementById('play').addEventListener('click', (e) => {
-    log('Attempt Play');
-    player.play();
-  });
-  document.getElementById('pause').addEventListener('click', (e) => {
-    log('Attempt Pause');
-    player.pause();
-  });
-  document.getElementById('volume').addEventListener('click', (e) => {
-    log('Attempt Volume: ' + document.getElementById('volume_value').value);
-    var val = parseFloat(document.getElementById('volume_value').value);
-    player.setVolume(val);
-  });
-  document.getElementById('volume_get').addEventListener('click', (e) => {
-    log('Attempt Get Volume');
-    log('Volume ' + player.getVolume());
-  });
-
-  document.getElementById('mute').addEventListener('click', (e) => {
-    log('Attempt Mute');
-    player.setMuted(true);
-  });
-  document.getElementById('unmute').addEventListener('click', (e) => {
-    log('Attempt UnMute');
-    player.setMuted(false);
-  });
-  document.getElementById('muted').addEventListener('click', (e) => {
-    log('Attempt Get muted');
-    log(player.getMuted());
-  });
-
-  setInterval(() => {
-    var status = '';
-
-    if (player.isPaused()) {
-      status += 'Paused ';
-    } else {
-      status += 'Playing ';
-    }
-
-    if (player.getMuted()) {
-      status += 'Muted ';
-    } else {
-      status += 'UnMuted ';
-    }
-    status += 'Vol: ' + player.getVolume();
-
-    status += ' ' + player.getQuality();
-
-    document.getElementById('status').textContent = status;
-  }, 250);
-
-  document.getElementById('change').addEventListener('click', (e) => {
-    var channel = document.getElementById('channel').value;
-    log('Change channel ' + channel);
-    player.setChannel(channel);
-  });
-
-  document.getElementById('quality_get').addEventListener('click', (e) => {
-    log('Fetch Quality');
-    log(player.getQuality());
-  });
-  document.getElementById('qualities_get').addEventListener('click', (e) => {
-    log('Fetch Qualities');
-
-    var target = document.getElementById('quality');
-    target.textContent = '';
-
-    var qol = player.getQualities()
-    for (var x=0;x<qol.length;x++) {
-      var opt = document.createElement('option');
-      opt.value = qol[x].group;
-      opt.textContent = qol[x].name;
-      target.append(opt);
-    }
-  });
-  document.getElementById('quality_change').addEventListener('click', (e) => {
-    var target = document.getElementById('quality').value;
-    log('Set quality to ' + target);
-    player.setQuality(target);
-  });
-
-  var events = [
-    Twitch.Player.ENDED,
-    Twitch.Player.PAUSE,
-    Twitch.Player.PLAY,
-    Twitch.Player.PLAYBACK_BLOCKED,
-    Twitch.Player.PLAYING,
-    Twitch.Player.OFFLINE,
-    Twitch.Player.ONLINE,
-    Twitch.Player.READY
-  ]
-  for (var x=0;x<events.length;x++) {
-    quickBind(events[x]);
-  }
-  function quickBind(evt) {
-    player.addEventListener(evt, (e) => {
-      log('Captured ' + evt, true);
-    });
-  }
-</script>
-
-  </body>
+                // call API
+                fetch(
+                    'https://api.twitch.tv/helix/users',
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+                .then(resp => resp.json())
+                .then(resp => {
+                    document.getElementById('user_data').innerHTML = '<p>Your Twitch Profile from Helix:</p>';
+                    var table = document.createElement('table');
+                    document.getElementById('user_data').append(table);
+                    for (var key in resp.data[0]) {
+                        var tr = document.createElement('tr');
+                        table.append(tr);
+                        var td = document.createElement('td');
+                        td.textContent = key;
+                        tr.append(td);
+                        var td = document.createElement('td');
+                        td.textContent = resp.data[0][key];
+                        tr.append(td);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    document.getElementById('user_data').textContent = 'Something went wrong';
+                });
+            }
+        } else if (document.location.search && document.location.search != '') {
+            var parsedParams = new URLSearchParams(window.location.search);
+            if (parsedParams.get('error_description')) {
+                document.getElementById('access_token').textContent = parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
+            }
+        }
+            
+    </script>
+</body>
 </html>
