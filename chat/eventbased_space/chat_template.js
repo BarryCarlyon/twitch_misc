@@ -630,7 +630,7 @@ class ChatBot extends EventEmitter {
     }
     send = function(room, message) {
         room = this._roomHash(room);
-        console.log('>' + `PRIVMSG ${room} :${message}`);
+        console.log(`>PRIVMSG ${room} :${message}`);
         this.ws.send(`PRIVMSG ${room} :${message}`);
     }
     reply = function(room, id, message) {
