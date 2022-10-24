@@ -23,3 +23,11 @@ In a console/terminal, run these commands:
 
 - `npm install`
 - `npm start`
+
+## Notes
+
+Twitch recently changed what it supports in terms of browsers.
+
+So this example may or may not continue to work.
+
+https://twitter.com/TwitchSupport/status/1575571090994102272
