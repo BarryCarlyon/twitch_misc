@@ -24,6 +24,18 @@ bot.on('close', () => {
     console.error('Connection Lost/DCed');
 });
 
+// this example will log every TMI sent message to a file
+// this will not log the bots own messages
+// as they are not sent back to the bot
+// if you want to _also_ log the bot then run an anonomous second instance
+// connected to the same channel
+bot.on('raw', (line) => {
+    fs.appendFileSync(path.join(
+        __dirname,
+        'raw.log'
+    ), line + "\n");
+});
+
 bot.on('notice', (n) => {
     console.log('NOTICE', n);
 

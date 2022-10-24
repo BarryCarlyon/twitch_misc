@@ -94,9 +94,6 @@
                 }
             );
 
-            console.log(user_resp);
-            console.log(user_resp.headers('ratelimit-remaining'));
-
             if (user_resp.status != 200) {
                 status.textContent = `Failed to obtain User information ${user_resp.status} - ${await user_resp.text()}`;
                 return;

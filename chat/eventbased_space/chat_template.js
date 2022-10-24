@@ -158,6 +158,7 @@ class ChatBot extends EventEmitter {
                 await this._tokenMaintainece();
                 console.log('Token cleared Maintainece');
             } catch (e) {
+                console.log(e);
                 console.error('An Error Occured during token validation');
                 return;
             }
@@ -484,7 +485,7 @@ class ChatBot extends EventEmitter {
         }
 
         // regular sutff :tm:
-        console.log(message.command);
+        //console.debug(message.command);
 
         switch (message.command) {
             case '001':
@@ -624,11 +625,12 @@ class ChatBot extends EventEmitter {
         rooms.forEach((room, index, rooms) => {
             rooms[index] = this._roomHash(room);
         })
+        //process.exit();
         this.ws.send(`JOIN ${rooms.join(',')}`);
     }
     send = function(room, message) {
         room = this._roomHash(room);
-        console.log('>' + `PRIVMSG ${room} :${message}`);
+        console.log(`>PRIVMSG ${room} :${message}`);
         this.ws.send(`PRIVMSG ${room} :${message}`);
     }
     reply = function(room, id, message) {
@@ -650,22 +652,28 @@ class ChatBot extends EventEmitter {
 
 
 
-    timeout = function(romm_id, user_id, duration, reason) {
-        this._banUser({
-            data: {
-                user_id,
-                duration: duration,
-                reason
+    timeout = function(room_id, user_id, duration, reason) {
+        this._banUser(
+            room_id,
+            {
+                data: {
+                    user_id,
+                    duration: duration,
+                    reason
+                }
             }
-        });
+        );
     }
-    ban = function(romm_id, user_id, reason) {
-        this._banUser({
-            data: {
-                user_id,
-                reason
+    ban = function(room_id, user_id, reason) {
+        this._banUser(
+            room_id,
+            {
+                data: {
+                    user_id,
+                    reason
+                }
             }
-        });
+        );
     }
     _banUser = async function(broadcaster_id, payload) {
         //await this._tokenMaintainece();
@@ -675,6 +683,8 @@ class ChatBot extends EventEmitter {
             [ 'broadcaster_id', broadcaster_id ],
             [ 'moderator_id', this._userId ]
         ]).toString();
+
+        console.log('_banUser', url, payload);
 
         let ban_user_response = await fetch(
             url,
@@ -688,7 +698,7 @@ class ChatBot extends EventEmitter {
                 body: JSON.stringify(payload)
             }
         );
-        this.emit('ban_user_response', ban_user_response.status);
+        this.emit('ban_user_response', ban_user_response);
         // promise return instead
     }
 
@@ -722,7 +732,7 @@ class ChatBot extends EventEmitter {
                 }
             }
         );
-        this.emit('delete_response', delete_response.status);
+        this.emit('delete_response', delete_response);
         // promise return instead
     }
 
@@ -753,7 +763,7 @@ class ChatBot extends EventEmitter {
             }
         );
         //console.debug('announcement_response', announcement_response.status, await announcement_response.text());
-        this.emit('announcement_response', announcement_response.status);
+        this.emit('announcement_response', announcement_response);
     }
 
     // kinda dumb util...
@@ -844,7 +854,7 @@ class ChatBot extends EventEmitter {
                 body: JSON.stringify(payload)
             }
         );
-        this.emit('update_chat_settings_response', chat_settings_response.status);
+        this.emit('update_chat_settings_response', chat_settings_response);
     }
 }
 
