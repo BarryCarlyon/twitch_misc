@@ -38,3 +38,12 @@ jobs:
           folder: player/html
           target-folder: player/html
           clean: true
+
+      - name: Deploy EventSockets 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: eventsub/eventsockets/web
+          target-folder: eventsub/eventsockets/web
+          clean: true
