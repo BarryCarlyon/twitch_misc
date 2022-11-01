@@ -20,6 +20,9 @@
         input[type="button"]:hover, input[type="submit"]:hover {
             background: red;
         }
+
+        table { width: 100%; }
+        .winner { background: green; }
     </style>
 </head>
 <body>
@@ -58,18 +61,21 @@
                 <input type="button" id="poll_end" value="Terminate Poll" />
             </fieldset>
         </form>
+        <div>Last KeepAlive: <span id="keepalive"></span></div>
     </div>
     <div id="right"></div>
 
-
+    <script type="text/javascript" src="eventsub.js"></script>
     <script type="text/javascript">
         // go populate this with a client_id
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
         var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+
         // setup a memory space for the token/userID
         var access_token = '';
         var user_id = '';
         var poll_id = '';
+        var socket_space = false;
 
         let status = document.getElementById('status');
 
@@ -107,6 +113,31 @@
 
             user_id = user_data.data[0].id;
             status.textContent = `Hello ${user_id} - ${user_data.data[0].login}`;
+
+            socket_space = new initSocket(true);
+            socket_space.on('connected', (id) => {
+                log(`Connected to WebSocket with ${id}`);
+                requestHooks(id, user_id);
+            });
+            socket_space.on('session_keepalive', () => {
+                document.getElementById('keepalive').textContent = new Date();
+            });
+
+                socket_space.on('channel.poll.begin', (msg) => {
+                    let { metadata, payload } = msg;
+                    let { event } = payload;
+                    drawNewPoll(event);
+                });
+                socket_space.on('channel.poll.progress', (msg) => {
+                    let { metadata, payload } = msg;
+                    let { event } = payload;
+                    drawUpdatePoll(event);
+                });
+                socket_space.on('channel.poll.end', (msg) => {
+                    let { metadata, payload } = msg;
+                    let { event } = payload;
+                    drawEndPoll(event);
+                });
         }
 
         document.getElementById('add_choice').addEventListener('click', (e) => {
@@ -189,86 +220,126 @@
             if (poll_resp.status == 200) {
                 status.textContent = `Created a poll`;
 
+                // store poll ID so I can kill it
                 let poll_data = await poll_resp.json();
-
                 poll_id = poll_data.data[0].id;
-                // init result timer checker
-                drawResults();
             } else {
                 status.textContent = `Failed to create a poll ${poll_resp.status} - ${await poll_resp.text()}`;
             }
         }
 
-        async function drawResults() {
-            status.textContent = 'Getting Poll';
-            let poll_resp = await fetch(
-                `https://api.twitch.tv/helix/polls?broadcaster_id=${user_id}&id=${poll_id}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Client-ID': client_id,
-                        'Authorization': `Bearer ${access_token}`,
-                        'Accept': 'application/json'
+
+        function requestHooks(session_id, user_id) {
+            let topics = {
+                'channel.poll.begin':       { version: 1, condition: { broadcaster_user_id: user_id } },
+                'channel.poll.progress':    { version: 1, condition: { broadcaster_user_id: user_id } },
+                'channel.poll.end':         { version: 1, condition: { broadcaster_user_id: user_id } },
+            }
+
+            log(`Spawn Topics for ${user_id}`);
+
+            for (let type in topics) {
+                log(`Attempt create ${type} - ${user_id}`);
+                let { version, condition } = topics[type];
+
+                fetch(
+                    'https://api.twitch.tv/helix/eventsub/subscriptions',
+                    {
+                        "method": "POST",
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token,
+                            'Content-Type': 'application/json'
+                        },
+                        "body": JSON.stringify({
+                            type,
+                            version,
+                            condition,
+                            transport: {
+                                method: "websocket",
+                                session_id
+                            }
+                        })
                     }
-                }
-            );
-
-            if (poll_resp.status != 200) {
-                status.textContent = `Failed to get Poll Results ${poll_resp.status} - ${await poll_resp.text()}`;
-                return
+                )
+                .then(resp => resp.json())
+                .then(resp => {
+                    if (resp.error) {
+                        log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
+                    } else {
+                        log(`Created ${type}`);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
+                });
             }
+        }
 
-            let poll_data = await poll_resp.json();
-            if (poll_data.data.length != 1) {
-                status.textContent = 'Failed to get poll data - not 1 record?';
-                return;
-            }
 
-            let { title, choices, duration, started_at } = poll_data.data[0];
+
+        function drawNewPoll(poll) {
+            let { title, choices, started_at, ends_at } = poll;
 
             let right = document.getElementById('right');
             right.textContent = '';
 
-            let tit = document.createElement('h2');
-            right.append(tit);
-            tit.textContent = title;
+            let h2 = document.createElement('h2');
+            h2.textContent = title;
+            right.append(h2);
 
+            let tbl = document.createElement('table');
+            right.append(tbl);
+
+            choices.forEach(choice => {
+                let { id, title } = choice;
+
+                let r = tbl.insertRow();
+                let t = r.insertCell();
+                t.textContent = title;
+                let s = r.insertCell();
+                s.textContent = 0;
+                s.setAttribute('id', `poll_choice_${id}`);
+            });
+        }
+        function drawUpdatePoll(poll) {
+            let { choices } = poll;
 
             let total_votes = 0;
-            let choi = document.createElement('div');
-            right.append(choi);
             choices.forEach(choice => {
-                total_votes += choice.votes;
+                let { id, title, channel_points_votes, votes } = choice;
+                total_votes += channel_points_votes + votes;
 
-                let dsp = document.createElement('div');
-                choi.append(dsp);
-                dsp.textContent = choice.title + ' - ' + choice.votes;
+                let el = document.getElementById(`poll_choice_${id}`);
+                el.textContent = (channel_points_votes + votes);
+            });
+        }
+        function drawEndPoll(poll) {
+            let { status } = poll;
+            if (status == "archived") {
+                return;
+            }
+
+            drawUpdatePoll(poll);
+
+            let winner = { score: 0, id: '', title: '' };
+
+            let { choices } = poll;
+            choices.forEach(choice => {
+                let { id, title, channel_points_votes, votes } = choice;
+                let score = channel_points_votes + votes;
+                if (score > winner.score) {
+                    winner = {
+                        score: score,
+                        id,
+                        title
+                    }
+                }
             });
 
-            let tot = document.createElement('div');
-            right.append(tot);
-            tot.style.borderTop = '1px solid white';
-            tot.textContent = total_votes + ' total';
-
-            let lef = document.createElement('div');
-            right.append(lef);
-            lef.style.borderTop = '1px solid white';
-
-            let ends = new Date(started_at);
-            ends.setSeconds(ends.getSeconds() + duration);
-            let diff = ends.getTime() - new Date().getTime();
-            if (diff < 0) {
-                diff = 0;
-            }
-            lef.textContent = Math.floor(diff / 1000) + 's';
-
-            if (poll_data.data[0].status == 'ACTIVE') {
-                setTimeout(drawResults, 1000);
-
-                status.textContent = `Got Poll`;
-            } else {
-                status.textContent = `Poll is now ${poll_data.data[0].status}`;
-            }
+            let el = document.getElementById(`poll_choice_${winner.id}`);
+            el.classList.add('winner');
         }
     </script>
 </body>
