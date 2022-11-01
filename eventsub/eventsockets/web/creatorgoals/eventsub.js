@@ -142,7 +142,6 @@ class initSocket {
     emit(name, data) {
         if (!this._events[name]) {
             return;
-            throw new Error(`Can't emit an event. Event "${name}" doesn't exits.`);
         }
 
         const fireCallbacks = (callback) => {
