@@ -1,33 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-const got = require('got');
-
 // Load configuation
-const config = JSON.parse(fs.readFileSync(path.join(
-    __dirname,
-    'config.json'
-)));
+import * as dotenv from 'dotenv';
+dotenv.config()
 
-var twitch = require(path.join(
-    __dirname,
-    'twitch.js'
-))(config);
+import { twitch } from './twitch.js';
+new twitch();
 
 // exmaple call
-
 setTimeout(() => {
     // it should return the rate limit as 799/800
-    got({
-        url: "https://api.twitch.tv/helix/users?login=barrycarlyon",
-        method: "GET",
-        headers: {
-            "Client-ID": twitch.client.client_id,
-            "Authorization": "Bearer " + twitch.client.access_token
-        },
-        responseType: "json"
-    })
+    fetch(
+        "https://api.twitch.tv/helix/users?login=barrycarlyon",
+        {
+            method: "GET",
+            headers: {
+                "Client-ID": process.env.client_id,
+                "Authorization": "Bearer " + process.env.access_token
+            }
+        }
+    )
+    .then(r => r.json().then(data => ({ status: r.status, headers: r.headers, body: data })))
     .then(resp => {
-        console.log(resp.body, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
+        if (resp.status != 200) {
+            console.log('Failed with', resp.status, resp.body);
+            return;
+        }
+        console.log(resp.body, resp.headers.get('ratelimit-remaining'), '/', resp.headers.get('ratelimit-limit'));
     })
     .catch(err => {
         console.error(err);

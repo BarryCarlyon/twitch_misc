@@ -4,6 +4,11 @@ This example covers a way to create and maintain an app access token in NodeJS. 
 
 It's written roughly like a node module
 
+## Fetch Notes
+
+This example uses fetch that is inbuilt into Node 18/19+.
+But you can easily drop in [node-fetch](https://github.com/node-fetch/node-fetch)
+
 ## Reference Documentation
 
 - [oAuth Client Credentials Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow)
@@ -11,14 +16,14 @@ It's written roughly like a node module
 
 ## Setting up the config
 
-- Open `config_sample.json` in a text editor
+- Open `.env.sample` in a text editor
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
 - Visit Applications
 - Manage your Application, or create one if you don't have one
 - Copy the Client ID into the `""` of `client_id`
 - Hit `New Secret` and then Ok
 - Then copy the now Displayed Client Secret into the `""` of `client_secret`
-- Save your modified file as `config.json`
+- Save your modified file as `.env`
 
 ## Running the example
 

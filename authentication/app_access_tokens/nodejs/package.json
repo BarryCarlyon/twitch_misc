@@ -10,7 +10,8 @@
   "author": "Barry Carlyon",
   "license": "WTFPL",
   "dependencies": {
-    "got": "^11.8.5",
-    "redis": "^3.1.2"
-  }
+    "dotenv": "^16.0.3",
+    "redis": "^4.3.1"
+  },
+  "type": "module"
 }
