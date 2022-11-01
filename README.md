@@ -43,8 +43,8 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
     </tbody>
     <thead><tr><th colspan="3">EventSocket Type Things</th></tr></thead>
     <tbody>
-        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/eventsockets/web/basic/">Basic EventSockets</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsockets/web/basic/">Source</a></td><td>A basic EventSockets connector</td></tr>
-        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/eventsockets/web/creatorgoals/">Creator Goals EventSockets</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsockets/web/creatorgoals/">Source</a></td><td>A EventSockets CreatorGoals Example</td></tr>
+        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/eventsockets/web/basic/">Basic EventSockets</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/eventsockets/web/basic">Source</a></td><td>A basic EventSockets connector</td></tr>
+        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/eventsockets/web/creatorgoals/">Creator Goals EventSockets</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/eventsockets/web/creatorgoals/">Source</a></td><td>A EventSockets CreatorGoals Example</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/poll_tool/">Simple Poll Tool/Results Display</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/poll_tool">Source</a></td><td>A simple tool to create a poll and monitor the results via EventSockets.</td></tr>
     </tbody>
     <thead><tr><th colspan="3">Extension Type Things</th></tr></thead>
