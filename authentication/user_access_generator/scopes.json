@@ -6,6 +6,7 @@
     "channel read": {
         "bits:read":                            "View Bits information for your channel.",
 
+        "channel:read:charity":                 "Read charity campaign details and user donations on your channel.",
         "channel:read:editors":                 "View a list of users with the editor role for a channel.",
         "channel:read:goals":                   "View Creator Goals for a channel.",
         "channel:read:hype_train":              "Read Hype Train information on a channel",
@@ -62,6 +63,18 @@
         "user:manage:whispers":                 "Read whispers that you send and receive, and send whispers on your behalf.",
 
         "user:edit:broadcast":                  "Edit broadcast (Extensions)"
+    },
+    "moderator": {
+        "moderator:manage:announcements":       "Send announcements in channels where you have the moderator role.",
+        "moderator:manage:automod":             "Manage messages held for review by AutoMod in channels where you are a moderator.",
+        "moderator:read:automod_settings":      "View a broadcaster’s AutoMod settings.",
+        "moderator:manage:automod_settings":    "Manage a broadcaster’s AutoMod settings.",
+        "moderator:manage:banned_users":        "Ban and unban users.",
+        "moderator:read:blocked_terms":         "View a broadcaster’s list of blocked terms.",
+        "moderator:manage:blocked_terms":       "Manage a broadcaster’s list of blocked terms.",
+        "moderator:manage:chat_messages":       "Delete chat messages in channels where you have the moderator role",
+        "moderator:read:chat_settings":         "View a broadcaster’s chat room settings.",
+        "moderator:manage:chat_settings":       "Manage a broadcaster’s chat room settings."
     },
     "chat": {
         "channel:moderate":                     "Perform moderation actions in a channel. The user requesting the scope must be a moderator in the channel.",
