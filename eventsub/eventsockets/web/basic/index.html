@@ -25,6 +25,11 @@
         table {
             width: 100%;
         }
+
+        .delete_button {
+            border: 1px solid red;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -87,7 +92,7 @@
         // These are set for the GitHub Pages Example
         // Substitute as needed
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
-        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        var redirect = window.location.origin + '/twitch_misc/';
         var access_token = '';
         var socket_space = '';
         var session_id = '';
@@ -291,6 +296,7 @@
                     let td = document.createElement('td');
                     tr.append(td);
                     td.textContent = 'Delete';
+                    td.classList.add('delete_button');
                     td.addEventListener('click', (e) => {
                         deleteSub(sub.id)
                             .then(resp => {

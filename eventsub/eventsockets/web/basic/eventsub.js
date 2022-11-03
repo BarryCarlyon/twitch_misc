@@ -1,6 +1,17 @@
 let counter = 0;
 
 class initSocket {
+    closeCodes = {
+        4000: 'Internal Server Error',
+        4001: 'Client sent inbound traffic',
+        4002: 'Client failed ping-pong',
+        4003: 'Connection unused',
+        4004: 'Reconnect grace time expired',
+        4005: 'Network Timeout',
+        4006: 'Network error',
+        4007: 'Invalid Reconnect'
+    }
+
     constructor(connect) {
         this._events = {};
 
@@ -28,7 +39,7 @@ class initSocket {
         // https://github.com/Luka967/websocket-close-codes
         this.eventsub.addEventListener('close', (close) => {
             console.log('EventSub close', close, this.eventsub);
-            log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Closed: ${close.code}`);
+            log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Closed: ${close.code} Reason - ${this.closeCodes[close.code]}`);
 
             if (!this.eventsub.is_reconnecting) {
                 log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Is not reconnecting, auto reconnect`);
