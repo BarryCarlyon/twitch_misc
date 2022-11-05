@@ -46,6 +46,11 @@
                     <input type="number" name="poll_duration" id="poll_duration" min="15" max="1800" step="1" value="60" />
                     <p>Between 15s and 1800s (30 minutes)</p>
                 </div>
+                <div>
+                    <label for="poll_channel_points">Channel Points</label>
+                    <input type="number" name="poll_channel_points" id="poll_channel_points" min="0" max="1000000" value="0" />
+                    <p>Number of Channel Points required to vote once with Channel Points.</p>
+                </div>
             </fieldset>
             <fieldset>
                 <legend>Choices</legend>
@@ -187,7 +192,14 @@
                 broadcaster_id: user_id,
                 title: document.getElementById('poll_title').value,
                 duration: parseInt(document.getElementById('poll_duration').value),
-                choices: []
+                choices: [],
+                channel_points_voting_enabled: false
+            }
+
+            let poll_channel_points = parseInt(document.getElementById('poll_channel_points').value);
+            if (!isNaN(poll_channel_points)) {
+                payload.channel_points_voting_enabled = true;
+                payload.channel_points_per_vote = poll_channel_points;
             }
 
             let choices = document.getElementById('poll_choices').querySelectorAll('input');
