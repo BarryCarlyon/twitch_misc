@@ -1,6 +1,7 @@
 ## What is this example
 
-A simple Poll Tool with _live ish_ results display.
+A simple Poll Tool with which implements EventSub WebSockets for real time results display.
+Also supports display of results when using another method to create a poll such as the main Twitch Website/Dashboard
 
 This is an example on how to
 
