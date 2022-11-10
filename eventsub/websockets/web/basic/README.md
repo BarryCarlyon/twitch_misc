@@ -1,14 +1,14 @@
 ## What is this example
 
-This is an exmaple of how to setup a EventSockets connection inside a Web Browser.
+This is an exmaple of how to setup a EventSub WebSockets connection inside a Web Browser.
 
-It will use implicit auth to obtain an access token and then connect to EventSockets
+It will use implicit auth to obtain an access token and then connect to EventSub WebSockets
 
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via GitHub Pages!
 
-Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/eventsockets/web/basic/)
+Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/basic/)
 
 ## Reference Documentation
 

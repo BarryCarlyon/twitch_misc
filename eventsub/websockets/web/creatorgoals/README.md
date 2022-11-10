@@ -1,8 +1,8 @@
 ## What is this example
 
-This is an exmaple of how to setup a EventSockets connection inside a Web Browser.
+This is an exmaple of how to setup a EventSub Websockets connection inside a Web Browser.
 
-It will use implicit auth to obtain an access token and then connect to EventSockets.
+It will use implicit auth to obtain an access token and then connect to EventSub Websockets.
 
 This example will draw a creator goal bar and update it as events occur.
 And handles a goal ending and starting.
@@ -14,7 +14,7 @@ Which, sure, isn't a thing right now, but the API is designed in a way that it c
 
 This example is also available via GitHub Pages!
 
-Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/eventsockets/creatorgoals/)
+Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/creatorgoals/)
 
 ## Reference Documentation
 
