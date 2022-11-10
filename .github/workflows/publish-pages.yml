@@ -39,11 +39,11 @@ jobs:
           target-folder: player/html
           clean: true
 
-      - name: Deploy EventSockets 🚀
+      - name: Deploy EventSub WebSockets 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
-          folder: eventsub/eventsockets/web
-          target-folder: eventsub/eventsockets/web
+          folder: eventsub/websockets/web
+          target-folder: eventsub/websockets/web
           clean: true
