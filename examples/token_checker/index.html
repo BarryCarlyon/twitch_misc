@@ -170,9 +170,9 @@
                     method: 'POST'
                 }
             )
-            .then(resp => {
+            .then(async resp => {
                 if (resp.status != 200) {
-                    document.getElementById('revoke_output').textContent = 'Token Revoke Error: ' + resp.status;
+                    document.getElementById('revoke_output').textContent = 'Token Revoke Error: ' + resp.status + ' -- ' + await resp.text();
                 } else {
                     document.getElementById('revoke_output').textContent = 'Token Revoked';
                 }
