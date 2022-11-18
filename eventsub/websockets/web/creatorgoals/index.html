@@ -1,4 +1,5 @@
 <html>
+
 <head>
     <title>EventSub Websockets with Implicit Auth Example</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
@@ -15,6 +16,7 @@
 
             margin-bottom: 20px;
         }
+
         #log span {
             margin-right: 5px;
         }
@@ -22,6 +24,7 @@
         #subscriptions_refresh {
             cursor: pointer;
         }
+
         table {
             width: 100%;
         }
@@ -36,44 +39,50 @@
             background: darkred;
             color: palegoldenrod;
         }
+
         .goal {
             height: 50px;
             margin: 5px;
             background: red;
         }
-            .goal_outer {
-                position: relative;
-                width: 100%;
-                background: white;
-                height: 50px;
-            }
-            .goal_inner {
-                position: absolute;
-                top: 0px;
-                left: 0px;
-                right: 0px;
-                bottom: 0px;
-                background: yellow;
-            }
-            .goal_text_section {
-                position: absolute;
-                top: 0px;
-                left: 0px;
-                right: 0px;
-                bottom: 0px;
-                line-height: 50px;
-                font-size: 40px;
-                color: #000000;
-                text-align: center;
-                background: transparent;
-            }
-            .goal_text_section span {
-                margin: 0px 5px;
-                color: #000000;
-                background: transparent;
-            }
+
+        .goal_outer {
+            position: relative;
+            width: 100%;
+            background: white;
+            height: 50px;
+        }
+
+        .goal_inner {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: yellow;
+        }
+
+        .goal_text_section {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            line-height: 50px;
+            font-size: 40px;
+            color: #000000;
+            text-align: center;
+            background: transparent;
+        }
+
+        .goal_text_section span {
+            margin: 0px 5px;
+            color: #000000;
+            background: transparent;
+        }
     </style>
 </head>
+
 <body>
     <p>This example demonstrates how to connect to, create subscriptions and recieve data from EventSub Websockets</p>
     <p>It will just "dumb log" an EventSub notification.</p>
@@ -81,7 +90,8 @@
 
     <ul>
         <li>
-            <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize and Connect - with "channel:read:goals" scope</a>
+            <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize and Connect - with "channel:read:goals"
+                scope</a>
         </li>
     </ul>
 
@@ -93,7 +103,7 @@
 
     <div id="goals"></div>
 
-    <script type="text/javascript" src="eventsub.js"></script>
+    <script type="text/javascript" src="../eventsub.js"></script>
     <script type="text/javascript">
         // These are set for the GitHub Pages Example
         // Substitute as needed
@@ -117,53 +127,53 @@
                     }
                 }
             )
-            .then(resp => resp.json())
-            .then(resp => {
-                socket_space = new initSocket(true);
-                // and build schnanaigans
-                socket_space.on('connected', (id) => {
-                    log(`Connected to WebSocket with ${id}`);
-                    session_id = id;
+                .then(resp => resp.json())
+                .then(resp => {
+                    socket_space = new initSocket(true);
+                    // and build schnanaigans
+                    socket_space.on('connected', (id) => {
+                        log(`Connected to WebSocket with ${id}`);
+                        session_id = id;
 
-                    checkGoals(resp.data[0].id);
-                    requestHooks(resp.data[0].id);
-                });
+                        checkGoals(resp.data[0].id);
+                        requestHooks(resp.data[0].id);
+                    });
 
-                socket_space.on('session_keepalive', () => {
-                    document.getElementById('keepalive').textContent = new Date();
-                });
+                    socket_space.on('session_keepalive', () => {
+                        document.getElementById('keepalive').textContent = new Date();
+                    });
 
-                socket_space.on('channel.goal.begin', (msg) => {
-                    let { metadata, payload } = msg;
-                    let { event } = payload;
-                    drawGoal(event);
+                    socket_space.on('channel.goal.begin', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        drawGoal(event);
+                    });
+                    socket_space.on('channel.goal.progress', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        updateGoal(event);
+                    });
+                    socket_space.on('channel.goal.end', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        let { id } = event;
+                        let goal_bar = document.getElementById(`goal_${id}`);
+                        if (goal_bar) {
+                            goal_bar.remove();
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Users Call');
                 });
-                socket_space.on('channel.goal.progress', (msg) => {
-                    let { metadata, payload } = msg;
-                    let { event } = payload;
-                    updateGoal(event);
-                });
-                socket_space.on('channel.goal.end', (msg) => {
-                    let { metadata, payload } = msg;
-                    let { event } = payload;
-                    let { id } = event;
-                    let goal_bar = document.getElementById(`goal_${id}`);
-                    if (goal_bar) {
-                        goal_bar.remove();
-                    }
-                });
-            })
-            .catch(err => {
-                console.log(err);
-                log('Error with Users Call');
-            });
         }
 
         function requestHooks(user_id) {
             let topics = {
-                'channel.goal.begin':       { version: 1, condition: { broadcaster_user_id: user_id } },
-                'channel.goal.progress':    { version: 1, condition: { broadcaster_user_id: user_id } },
-                'channel.goal.end':         { version: 1, condition: { broadcaster_user_id: user_id } },
+                'channel.goal.begin': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.goal.progress': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.goal.end': { version: '1', condition: { broadcaster_user_id: user_id } },
             }
 
             log(`Spawn Topics for ${user_id}`);
@@ -192,18 +202,18 @@
                         })
                     }
                 )
-                .then(resp => resp.json())
-                .then(resp => {
-                    if (resp.error) {
-                        log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
-                    } else {
-                        log(`Created ${type}`);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
-                });
+                    .then(resp => resp.json())
+                    .then(resp => {
+                        if (resp.error) {
+                            log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
+                        } else {
+                            log(`Created ${type}`);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
+                    });
             }
         }
 
@@ -234,23 +244,23 @@
                     }
                 }
             )
-            .then(resp => resp.json())
-            .then(resp => {
-                console.log('Got', resp.data.length, 'goals');
-                if (resp.data && resp.data.length > 0) {
-                    log('Got at least one Creator Goal');
-                    resp.data.forEach(goal => {
-                        console.log('Add', goal.id);
-                        drawGoal(goal);
-                    });
-                } else {
-                    log('No Creator Goals');
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                log(`Error with Goals Call Call: ${err.message ? err.message : ''}`);
-            });
+                .then(resp => resp.json())
+                .then(resp => {
+                    console.log('Got', resp.data.length, 'goals');
+                    if (resp.data && resp.data.length > 0) {
+                        log('Got at least one Creator Goal');
+                        resp.data.forEach(goal => {
+                            console.log('Add', goal.id);
+                            drawGoal(goal);
+                        });
+                    } else {
+                        log('No Creator Goals');
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log(`Error with Goals Call Call: ${err.message ? err.message : ''}`);
+                });
         }
 
         function drawGoal(goal) {
@@ -291,9 +301,9 @@
             let goal_text = document.createElement('span');
             bar.append(goal_text);
             goal_text.classList.add('goal_text');
-            goal_text.textContent = p.toFixed(2)+'%';
+            goal_text.textContent = p.toFixed(2) + '%';
 
-            bar_inner.style.width = p+'%';
+            bar_inner.style.width = p + '%';
         }
         function updateGoal(data) {
             let { id, current_amount, target_amount, type, description } = data;
@@ -314,12 +324,13 @@
                 console.log('progress now', current_amount, target_amount, p);
 
                 let goal_text = goal_bar.querySelector('.goal_text');
-                goal_text.textContent = p.toFixed(2)+'%';
+                goal_text.textContent = p.toFixed(2) + '%';
 
-                bar_inner.style.width = p+'%';
+                bar_inner.style.width = p + '%';
             }
         }
 
     </script>
 </body>
+
 </html>
