@@ -14,19 +14,19 @@ Which, sure, isn't a thing right now, but the API is designed in a way that it c
 
 This example is also available via GitHub Pages!
 
-Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/creatorgoals/)
+Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/creatorgoals/)
 
 ## Reference Documentation
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#implicit-grant-flow)
 - [EventSub](https://dev.twitch.tv/docs/eventsub)
-- [EventSub RFC](https://discuss.dev.twitch.tv/t/rfc-0016-eventsub-websockets/32652)
-- [Create Goals](https://dev.twitch.tv/docs/api/reference#get-creator-goals)
+- [EventSub WebSockets](https://dev.twitch.tv/docs/eventsub/handling-websocket-events)
+- [Get Creator Goals](https://dev.twitch.tv/docs/api/reference#get-creator-goals)
 
 ## What this example doesn't do
 
 This example doesn't handle "long periods of silence where something has gone wrong and you need to reconnect".
-So make sure you honor the returned value ins the welcome message of `keepalive_timeout_seconds`
+So make sure you honor the returned value in the welcome message of `keepalive_timeout_seconds`
 
 ## Running the example
 
