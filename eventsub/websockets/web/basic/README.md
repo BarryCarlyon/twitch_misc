@@ -14,12 +14,12 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/webso
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#implicit-grant-flow)
 - [EventSub](https://dev.twitch.tv/docs/eventsub)
-- [EventSub RFC](https://discuss.dev.twitch.tv/t/rfc-0016-eventsub-websockets/32652)
+- [EventSub WebSockets](https://dev.twitch.tv/docs/eventsub/handling-websocket-events)
 
 ## What this example doesn't do
 
 This example doesn't handle "long periods of silence where something has gone wrong and you need to reconnect".
-So make sure you honor the returned value ins the welcome message of `keepalive_timeout_seconds`
+So make sure you honor the returned value in the welcome message of `keepalive_timeout_seconds`
 
 ## Running the example
 
