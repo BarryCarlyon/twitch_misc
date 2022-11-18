@@ -29,6 +29,7 @@ bot.on('close', () => {
 // as they are not sent back to the bot
 // if you want to _also_ log the bot then run an anonomous second instance
 // connected to the same channel
+const fs = require('fs');
 bot.on('raw', (line) => {
     fs.appendFileSync(path.join(
         __dirname,
@@ -46,7 +47,7 @@ bot.on('notice', (n) => {
 
 let my_command_prefix = '!';
 bot.on('privmsg', (payload) => {
-    let [ channel, message ] = payload.params;
+    let [channel, message] = payload.params;
 
     let room_id = payload.tags['room-id'];
     let message_id = payload.tags.id;
@@ -64,7 +65,7 @@ bot.on('privmsg', (payload) => {
         let word_two = '';
 
         if (rest !== undefined) {
-            [ word_two ] = rest.split(' ', 1);
+            [word_two] = rest.split(' ', 1);
             console.log('Word, two', command_word, word_two);
         }
 

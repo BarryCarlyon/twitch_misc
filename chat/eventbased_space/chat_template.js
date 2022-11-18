@@ -37,7 +37,7 @@ class ChatBot extends EventEmitter {
                 throw ('A Refresh Token was provided but no client secret');
             }
         } else {
-            this._username = 'justinfan'+(Math.floor(Math.random()*100));
+            this._username = 'justinfan' + (Math.floor(Math.random() * 100));
         }
 
         this.ws = null;
@@ -98,9 +98,9 @@ class ChatBot extends EventEmitter {
                 // token passed validation
                 let token_validation_data = await token_validation_response.json();
 
-                this.client_id  = token_validation_data.client_id;
-                this._username  = token_validation_data.login;
-                this._userId    = token_validation_data.user_id;
+                this.client_id = token_validation_data.client_id;
+                this._username = token_validation_data.login;
+                this._userId = token_validation_data.user_id;
 
                 console.log('Init data as', this.client_id, this._username, this._userId);
 
@@ -110,10 +110,10 @@ class ChatBot extends EventEmitter {
                     // auto refresh the token
                     let token_refresh_url = new URL('https://id.twitch.tv/oauth2/token');
                     token_refresh_url.search = new URLSearchParams([
-                        [ 'client_id', this.client_id ],
-                        [ 'client_secret', this.client_secret ],
-                        [ 'grant_type', 'refresh_token' ],
-                        [ 'refresh_token', this.refresh_token ]
+                        ['client_id', this.client_id],
+                        ['client_secret', this.client_secret],
+                        ['grant_type', 'refresh_token'],
+                        ['refresh_token', this.refresh_token]
                     ]).toString();
 
                     let token_refresh_response = await fetch(
@@ -133,8 +133,8 @@ class ChatBot extends EventEmitter {
 
                         this.emit('token_regnerated', token_refresh_data);
 
-                        this.access_token   = token_refresh_data.access_token;
-                        this.refresh_token  = token_refresh_data.refresh_token;
+                        this.access_token = token_refresh_data.access_token;
+                        this.refresh_token = token_refresh_data.refresh_token;
 
                         return resolve();
                     }
@@ -234,8 +234,7 @@ class ChatBot extends EventEmitter {
     _onMessage(event) {
         let messages = event.data.toString().trim().split(/\r?\n/);
 
-        //messages.forEach(this._parse);
-        for (var x=0;x<messages.length;x++) {
+        for (var x = 0; x < messages.length; x++) {
             this.emit('raw', messages[x]);
             this._parse(messages[x]);
         }
@@ -336,7 +335,7 @@ class ChatBot extends EventEmitter {
                             let badges = {};
 
                             badges_data.forEach(badge_data => {
-                                let [ badge, version ] = badge_data.split('/');
+                                let [badge, version] = badge_data.split('/');
                                 badges[badge] = version;
                             });
 
@@ -349,14 +348,14 @@ class ChatBot extends EventEmitter {
                             let emotes_groups = pair[1].split('/');
                             let emote_data = {};
                             emotes_groups.forEach(emotes_group => {
-                                let [ emote_id, emote_positions ] = emotes_group.split(':');
+                                let [emote_id, emote_positions] = emotes_group.split(':');
                                 emote_data[emote_id] = [];
 
                                 emote_positions = emote_positions.split(',');
                                 emote_positions.forEach(position => {
                                     //emote_data[emote_id].push(position.split('-'));
 
-                                    let [ start, end ] = position.split('-');
+                                    let [start, end] = position.split('-');
                                     // we'll parseInt these
                                     // as they are numerical positions
                                     emote_data[emote_id].push([
@@ -492,7 +491,7 @@ class ChatBot extends EventEmitter {
             case '002':
             case '003':
             case '004':
-                // startup
+            // startup
             case '353':
             case '366':
                 // names
@@ -517,22 +516,22 @@ class ChatBot extends EventEmitter {
             case 'PONG':
 
             case 'JOIN':
-                // You joined a room
+            // You joined a room
             case 'PART':
-                // as the result of a PART command
-                // you left a room
+            // as the result of a PART command
+            // you left a room
 
             case 'GLOBALUSERSTATE':
-                // You connected to the server
-                // here is some info about the user
+            // You connected to the server
+            // here is some info about the user
             case 'USERSTATE':
-                // Often sent when you send a PRIVMSG to a room
+            // Often sent when you send a PRIVMSG to a room
             case 'ROOMSTATE':
-                // You joined a room here is the intial state (followers only etc)
-                // The Room state was changed, on change only sends what changed, not the whole settings blob
+            // You joined a room here is the intial state (followers only etc)
+            // The Room state was changed, on change only sends what changed, not the whole settings blob
 
             case 'WHISPER':
-                // you received a whisper, good luck replying!
+            // you received a whisper, good luck replying!
             case 'PRIVMSG':
                 // heres where the magic happens
 
@@ -566,15 +565,15 @@ class ChatBot extends EventEmitter {
                 }
 
             case 'NOTICE':
-                // General notices about Twitch/rooms you are in
-                // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
+            // General notices about Twitch/rooms you are in
+            // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
 
             // moderationy stuff
             case 'CLEARCHAT':
-                // A users message is to be removed
-                // as the result of a ban or timeout
+            // A users message is to be removed
+            // as the result of a ban or timeout
             case 'CLEARMSG':
-                // a single users message was deleted
+            // a single users message was deleted
             case 'HOSTTARGET':
                 // the room you are in, is now hosting someone or has ended the host
 
@@ -612,35 +611,38 @@ class ChatBot extends EventEmitter {
         }
     }
 
-    _roomHash = function(room) {
+    _roomHash = function (room) {
         if (!room.startsWith('#')) {
-            room = '#'+room
+            room = '#' + room
         }
         room.toLowerCase();
 
         return room;
     }
 
-    join = function(rooms) {
-        rooms.forEach((room, index, rooms) => {
-            rooms[index] = this._roomHash(room);
-        })
-        //process.exit();
+    join = function (rooms) {
+        if (Array.isArray(rooms)) {
+            rooms.forEach((room, index, rooms) => {
+                rooms[index] = this._roomHash(room);
+            });
+        } else {
+            rooms = [rooms];
+        }
         this.ws.send(`JOIN ${rooms.join(',')}`);
     }
-    send = function(room, message) {
+    send = function (room, message) {
         room = this._roomHash(room);
         console.log(`>PRIVMSG ${room} :${message}`);
         this.ws.send(`PRIVMSG ${room} :${message}`);
     }
-    reply = function(room, id, message) {
+    reply = function (room, id, message) {
         room = this._roomHash(room);
         //console.log(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
         this.ws.send(`@reply-parent-msg-id=${id} PRIVMSG ${room} :${message}`);
     }
 
 
-    close = function() {
+    close = function () {
         try {
             this.ws.close();
         } catch (err) {
@@ -652,7 +654,7 @@ class ChatBot extends EventEmitter {
 
 
 
-    timeout = function(room_id, user_id, duration, reason) {
+    timeout = function (room_id, user_id, duration, reason) {
         this._banUser(
             room_id,
             {
@@ -664,7 +666,7 @@ class ChatBot extends EventEmitter {
             }
         );
     }
-    ban = function(room_id, user_id, reason) {
+    ban = function (room_id, user_id, reason) {
         this._banUser(
             room_id,
             {
@@ -675,13 +677,13 @@ class ChatBot extends EventEmitter {
             }
         );
     }
-    _banUser = async function(broadcaster_id, payload) {
+    _banUser = async function (broadcaster_id, payload) {
         //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/moderation/bans');
         url.search = new URLSearchParams([
-            [ 'broadcaster_id', broadcaster_id ],
-            [ 'moderator_id', this._userId ]
+            ['broadcaster_id', broadcaster_id],
+            ['moderator_id', this._userId]
         ]).toString();
 
         console.log('_banUser', url, payload);
@@ -702,24 +704,24 @@ class ChatBot extends EventEmitter {
         // promise return instead
     }
 
-    delete = function(room_id, message_id) {
+    delete = function (room_id, message_id) {
         let url = new URL('https://api.twitch.tv/helix/moderation/chat');
         url.search = new URLSearchParams([
-            [ 'broadcaster_id', broadcaster_id ],
-            [ 'moderator_id', this._userId ],
-            [ 'message_id', message_id ]
+            ['broadcaster_id', broadcaster_id],
+            ['moderator_id', this._userId],
+            ['message_id', message_id]
         ]).toString();
         this._delete(url);
     }
-    clear = function(room_id) {
+    clear = function (room_id) {
         let url = new URL('https://api.twitch.tv/helix/moderation/chat');
         url.search = new URLSearchParams([
-            [ 'broadcaster_id', broadcaster_id ],
-            [ 'moderator_id', this._userId ]
+            ['broadcaster_id', broadcaster_id],
+            ['moderator_id', this._userId]
         ]).toString();
         this._delete(url);
     }
-    _delete = async function(url) {
+    _delete = async function (url) {
         //await this._tokenMaintainece();
 
         let delete_response = await fetch(
@@ -736,15 +738,15 @@ class ChatBot extends EventEmitter {
         // promise return instead
     }
 
-    announcement = async function(room_id, message, color) {
+    announcement = async function (room_id, message, color) {
         color = color || 'primary';
 
         //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/chat/announcements');
         url.search = new URLSearchParams([
-            [ 'broadcaster_id', room_id ],
-            [ 'moderator_id', this._userId ]
+            ['broadcaster_id', room_id],
+            ['moderator_id', this._userId]
         ]).toString();
 
         let announcement_response = await fetch(
@@ -767,35 +769,35 @@ class ChatBot extends EventEmitter {
     }
 
     // kinda dumb util...
-    emoteOnly = function(room_id, emote_mode) {
+    emoteOnly = function (room_id, emote_mode) {
         this._updateChatSettings(room_id, {
             emote_mode
         });
     }
-    emoteOnlyOn = function(room_id) {
+    emoteOnlyOn = function (room_id) {
         this._updateChatSettings(room_id, {
             emote_mode: true
         });
     }
-    emoteOnlyOff = function(room_id) {
+    emoteOnlyOff = function (room_id) {
         this._updateChatSettings(room_id, {
             emote_mode: false
         });
     }
 
-    followersOn = function(room_id, follower_mode_duration) {
+    followersOn = function (room_id, follower_mode_duration) {
         this._updateChatSettings(room_id, {
             follower_mode: true,
             follower_mode_duration
         });
     }
-    followersOff = function(room_id) {
+    followersOff = function (room_id) {
         this._updateChatSettings(room_id, {
             follower_mode: false
         });
     }
 
-    slowOn = function(room_id, slow_mode_wait_time) {
+    slowOn = function (room_id, slow_mode_wait_time) {
         if (slow_mode_wait_time < 3 || slow_mode_wait_time > 120) {
             throw new Error('Slow Mode Duration must be between 3 and 120 seconds');
         }
@@ -805,41 +807,41 @@ class ChatBot extends EventEmitter {
             slow_mode_wait_time
         });
     }
-    slowOff = function(room_id) {
+    slowOff = function (room_id) {
         this._updateChatSettings(room_id, {
             slow_mode: false
         });
     }
 
-    subscribersOn = function(room_id) {
+    subscribersOn = function (room_id) {
         this._updateChatSettings(room_id, {
             subscriber_mode: true
         });
     }
-    subscribersOff = function(room_id) {
+    subscribersOff = function (room_id) {
         this._updateChatSettings(room_id, {
             subscriber_mode: false
         });
     }
 
-    uniqueOn = function(room_id) {
+    uniqueOn = function (room_id) {
         this._updateChatSettings(room_id, {
             unique_chat_mode: true
         });
     }
-    uniqueOff = function(room_id) {
+    uniqueOff = function (room_id) {
         this._updateChatSettings(room_id, {
             unique_chat_mode: false
         });
     }
 
-    _updateChatSettings = async function(room_id, payload) {
+    _updateChatSettings = async function (room_id, payload) {
         //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/chat/settings');
         url.search = new URLSearchParams([
-            [ 'broadcaster_id', room_id ],
-            [ 'moderator_id', this._userId ]
+            ['broadcaster_id', room_id],
+            ['moderator_id', this._userId]
         ]).toString();
 
         let chat_settings_response = await fetch(
