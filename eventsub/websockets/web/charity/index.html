@@ -385,7 +385,7 @@
         }
 
         function updateCharityGoal(data) {
-            let { current_amount, target_amount } = data;
+            let { id, current_amount, target_amount } = data;
             let charity_bar = document.getElementById(`charity_${id}`);
             if (charity_bar) {
                 let bar_inner = charity_bar.querySelector('.charity_inner');
@@ -435,7 +435,7 @@
 
             let text_div = document.createElement('div');
             // reconsider
-            value = (value / decimal_places).toFixed(decimal_places);
+            value = (value / Math.pow(10, 2)).toFixed(decimal_places);
             text_div.textContent = `${user_login} has donated ${value}${currency}`;
             adonation.append(text_div);
 
