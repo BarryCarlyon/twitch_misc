@@ -282,7 +282,7 @@
 
 
 
-
+        let momory_space = {};
         let charitys_div = document.getElementById('charitys');
 
         function checkCharity(broadcaster_id) {
@@ -360,6 +360,8 @@
             descrip.textContent = charity_description;
 
             let { current_amount, target_amount } = goal;
+            // work around for https://github.com/twitchdev/issues/issues/696
+            memory_space[id] = target_amount;
             // draw the bar
             let bar_outer = document.createElement('div');
             charity_bar.append(bar_outer);
@@ -385,7 +387,12 @@
         }
 
         function updateCharityGoal(data) {
-            let { id, current_amount, target_amount } = data;
+            //let { id, current_amount, target_amount } = data;
+
+            // work around for https://github.com/twitchdev/issues/issues/696
+            let { id, current_amount } = data;
+            let target_amount = memory_space[id];
+
             let charity_bar = document.getElementById(`charity_${id}`);
             if (charity_bar) {
                 let bar_inner = charity_bar.querySelector('.charity_inner');
