@@ -112,6 +112,12 @@ twitch token -u -s 'channel:moderate chat:edit chat:read whispers:read whispers:
 
 Notably we do not ask for `channel:moderate` which will be a dead scope when the Chat Commands APIs are the only way to Chat Commands.
 
+This is a _very verbose_ way to get a token with a lot of scopes. Depending on what you bot/client is and wants to do will determine the scopes you want to operate with. Generally you would request as few scopes as possible. 
+
+Generally if you have a `:manage:` scope it will imply the equivalent `:read:` scope.
+
+So you ask for `moderator:manage:automod_settings` you''ll get `moderator:read:automod_setting` "for free" but it's a good idea to be verbose and ask for both when you request `manage`.
+
 ## Sources
 
 Utilises the Performant stuff from [osslate](https://github.com/osslate)
