@@ -111,7 +111,7 @@ An operatior/devloper could call `_updateChatSettings` directly with a `room_id`
 
 
 # shieldsUp
-# sheildsDown
+# shieldsDown
 
 Turn on or off Shield Mode
 

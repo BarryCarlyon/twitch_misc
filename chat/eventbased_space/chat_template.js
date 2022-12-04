@@ -863,7 +863,7 @@ class ChatBot extends EventEmitter {
     shieldsUp = function(room_id) {
         this._updateShieldMode(true);
     },
-    sheildsDown = function(room_id) {
+    shieldsDown = function(room_id) {
         this._updateShieldMode(false);
     },
     _updateShieldMode = async (is_active) {
