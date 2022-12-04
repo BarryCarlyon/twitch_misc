@@ -101,13 +101,13 @@ Using the [Twitch CLI](https://dev.twitch.tv/docs/cli)
 This _should_ cover all the scopes needed for the various functions implemented
 
 ```
-twitch token -u -s 'channel:moderate chat:edit chat:read moderation:read moderator:manage:announcements moderator:manage:banned_users moderator:manage:chat_messages moderator:read:chat_settings moderator:manage:chat_settings'
+twitch token -u -s 'channel:moderate chat:edit chat:read moderation:read moderator:manage:announcements moderator:manage:banned_users moderator:manage:chat_messages moderator:read:chat_settings moderator:manage:chat_settings moderator:manage:shield_mode'
 ```
 
 A fuller set of scopes
 
 ```
-twitch token -u -s 'channel:moderate chat:edit chat:read whispers:read whispers:edit user:manage:chat_color user:manage:whispers moderation:read moderator:manage:announcements moderator:manage:automod moderator:read:automod_settings moderator:manage:automod_settings moderator:manage:banned_users moderator:read:blocked_terms moderator:manage:blocked_terms moderator:manage:chat_messages moderator:read:chat_settings moderator:manage:chat_settings'
+twitch token -u -s 'channel:moderate chat:edit chat:read whispers:read whispers:edit user:manage:chat_color user:manage:whispers moderation:read moderator:manage:announcements moderator:manage:automod moderator:read:automod_settings moderator:manage:automod_settings moderator:manage:banned_users moderator:read:blocked_terms moderator:manage:blocked_terms moderator:manage:chat_messages moderator:read:chat_settings moderator:manage:chat_settings moderator:read:chatters moderator:read:shield_mode moderator:manage:shield_mode'
 ```
 
 Notably we do not ask for `channel:moderate` which will be a dead scope when the Chat Commands APIs are the only way to Chat Commands.

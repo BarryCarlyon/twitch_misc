@@ -1,5 +1,6 @@
 'use strict';
 
+const { throws } = require('assert');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
 
@@ -857,6 +858,38 @@ class ChatBot extends EventEmitter {
             }
         );
         this.emit('update_chat_settings_response', chat_settings_response);
+    },
+
+    shieldsUp = function(room_id) {
+        this._updateShieldMode(true);
+    },
+    sheildsDown = function(room_id) {
+        this._updateShieldMode(false);
+    },
+    _updateShieldMode = async (is_active) {
+        let url = new URL('https://api.twitch.tv/helix/moderation/shield_mode');
+        url.search = new URLSearchParams([
+            ['broadcaster_id', room_id],
+            ['moderator_id', this._userId]
+        ]).toString();
+
+        let payload = {
+            is_active
+        }
+
+        let shield_mode_response = await fetch(
+            url,
+            {
+                method: 'POST',
+                headers: {
+                    'Client-ID': this.client_id,
+                    'Authorization': `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+        this.emit('update_shield_mode_response', shield_mode_response);
     }
 }
 
