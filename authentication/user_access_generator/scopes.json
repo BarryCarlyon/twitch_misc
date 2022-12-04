@@ -43,7 +43,10 @@
         "moderator:manage:blocked_terms":       "Manage a broadcaster’s list of blocked terms.",
         "moderator:manage:chat_messages":       "Delete chat messages in channels where you have the moderator role",
         "moderator:read:chat_settings":         "View a broadcaster’s chat room settings.",
-        "moderator:manage:chat_settings":       "Manage a broadcaster’s chat room settings."
+        "moderator:manage:chat_settings":       "Manage a broadcaster’s chat room settings.",
+        "moderator:read:chatters":              "View the chatters in a broadcaster’s chat room.",
+        "moderator:read:shield_mode":           "View a broadcaster’s Shield Mode status.",
+        "moderator:manage:shield_mode":         "Manage a broadcaster’s Shield Mode status."
     },
 
     "user": {
