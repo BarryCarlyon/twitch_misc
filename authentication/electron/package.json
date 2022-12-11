@@ -13,7 +13,7 @@
   },
   "license": "WTFPL",
   "devDependencies": {
-    "electron": "^21.2.0"
+    "electron": "^22.0.0"
   },
   "dependencies": {
     "electron-fetch": "^1.9.1"
