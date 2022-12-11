@@ -117,7 +117,7 @@ Set subscribers or unique chat (aka [R9k](https://blog.xkcd.com/2008/01/14/robot
 
 An operatior/devloper could call `_updateChatSettings` directly with a `room_id` and `payload` to update whatever rules in one go. See [Update Chat Settings](https://dev.twitch.tv/docs/api/reference#update-chat-settings) for the full possible payload.
 
-# Sheild Mode
+# Shield Mode
 
 Scope: `moderator:manage:shield_mode`
 

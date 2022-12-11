@@ -858,15 +858,15 @@ class ChatBot extends EventEmitter {
             }
         );
         this.emit('update_chat_settings_response', chat_settings_response);
-    },
+    }
 
     shieldsUp = function(room_id) {
-        this._updateShieldMode(true);
-    },
+        this._updateShieldMode(room_id, true);
+    }
     shieldsDown = function(room_id) {
-        this._updateShieldMode(false);
-    },
-    _updateShieldMode = async (is_active) {
+        this._updateShieldMode(room_id, false);
+    }
+    _updateShieldMode = async function (room_id, is_active) {
         let url = new URL('https://api.twitch.tv/helix/moderation/shield_mode');
         url.search = new URLSearchParams([
             ['broadcaster_id', room_id],
@@ -890,6 +890,47 @@ class ChatBot extends EventEmitter {
             }
         );
         this.emit('update_shield_mode_response', shield_mode_response);
+    }
+
+    apiCall = async function (path, method, body) {
+        if (!method) {
+            method = 'GET';
+        }
+        
+        let response = await fetch(
+            `https://api.twitch.tv/helix/${path}`,
+            {
+                method,
+                headers: {
+                    'Client-ID': this.client_id,
+                    'Authorization': `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body
+            }
+        )
+
+        let text = await response.text();
+        
+        let json = false;
+        if (response.headers.get('content-type').includes('application/json')) {
+            try {
+                json = JSON.parse(text);
+            } catch (e) {
+                console.debug('Failed to parse to JSON', e);
+            }
+        }
+
+        return {
+            status: response.status,
+            headers: response.headers,
+            ratelimit: {
+                remaining: response.headers.get('ratelimit-remaining'),
+                limit: response.headers.get('ratelimit-limit')
+            },
+            text: text,
+            json: json
+        }
     }
 }
 

@@ -88,6 +88,32 @@ Reply to/create a thread in a chat room
 - `id` - the ID to reply thread against
 - `messaage` - the message to send
 
+### apiCall
+
+Utility function to send API requests and retrieve the response.
+Using the internally maintained Bot Access token.
+
+#### Arguments
+- `path` - API URL to call (including query string parameters) so just `/streams/` not `https://api.twitch.tv/helix/strams` for example
+#### Optional Arguments
+- `method` - HTTP method to use if unspecified `GET`
+- `body` - HTTP `POST`/`PATCH` body to send if any
+
+#### Response
+
+```json
+{
+    "status": "HTTP Status",
+    "headers": "the raw headers object"
+    "ratelimit": {
+        "remaining": "Twitch Header ratelimit-remaining"
+        "limit": "Twitch Header ratelimit-limit"
+    },
+    "text": "The body text of the response as a string",
+    "json": "The body text of the response as json (if the header of content-type includes application/json)",
+}
+```
+
 ## Chat Command Helper Functions
 
 Note that PRIVMSG based stuff above uses `#channelname` and `usernames` but all the Chat Command stuff uses `channel_id` and `user_id` instead.
