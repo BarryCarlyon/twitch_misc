@@ -42,7 +42,6 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/soundtrack/">SoundTrack Now Playing + History</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/soundtrack">Source</a></td><td></td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/stream_key/">Get my Stream Key</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/stream_key">Source</a></td><td>A simple demo to auth the user and show the user their own stream key.</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/clips_navigator/">Clips Navigator</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/clips_navigator">Source</a></td><td>A simple demo fetch and display clips using started_at and ended_at parameters.</td></tr>
-
     </tbody>
     <thead><tr><th colspan="3">EventSub WebSocket Transport Things</th></tr></thead>
     <tbody>
