@@ -14,8 +14,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 // cypto handles Crpytographic functions, sorta like passwords (for a bad example)
 const crypto = require('crypto');
-// got is used for HTTP/API requests
-const got = require('got');
+// fetch is used for HTTP/API requests
+// and can be swapped out for inbuild fetch in node19+
+
+//esm
+//const fetch = require('node-fetch');
+// cjs
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 
 // Express basics
 const app = express();
@@ -76,7 +82,7 @@ app.use(function(req,res,next) {
 // Routes
 app
     .route('/')
-    .get((req, res) => {
+    .get(async (req, res) => {
         console.log('Incoming get request');
 
         if (req.session.token) {
@@ -86,30 +92,29 @@ app
             console.log(`The server has a token: ${req.session.token.access_token}`);
 
             // validate and return the token details
-            got({
-                url: 'https://id.twitch.tv/oauth2/validate',
-                headers: {
-                    Authorization: 'Bearer ' + req.session.token.access_token
-                },
-                responseType: 'json'
-            })
-            .then(resp => {
-                console.log('Ok', resp.body);
-
-                res.render(
-                    'loggedin',
-                    {
-                        user: req.session.user,
-                        token: resp.body
+            let validateResp = await fetch(
+                'https://id.twitch.tv/oauth2/validate',
+                {
+                    headers: {
+                        'Authorization': `Bearer ${req.session.token.access_token}`,
+                        'Accept': 'application/json'
                     }
-                );
-            })
-            .catch(err => {
-                console.error('Error body:', err.response.body);
-                // the oAuth dance failed
-                req.session.error = 'An Error occured: ' + ((err.response && err.response.body.message) ? err.response.body.message : 'Unknown');
+                }
+            )
+            if (validateResp.status != 200) {
+                req.session.error = 'Token is invalid!';
                 res.redirect('/');
-            });
+                return;
+            }
+            let validateData = await validateResp.json();
+            console.log('Ok', validateData);
+            res.render(
+                'loggedin',
+                {
+                    user: req.session.user,
+                    token: validateData
+                }
+            );
 
             return
         }
@@ -132,51 +137,67 @@ app
             delete req.session.state;
 
             // start the oAuth dance
-            got({
-                "url": "https://id.twitch.tv/oauth2/token",
-                "method": 'POST',
-                "headers": {
-                    "Accept": "application/json"
-                },
-                "form": {
-                    "client_id": config.client_id,
-                    "client_secret": config.client_secret,
-                    "code": code,
-                    "grant_type": "authorization_code",
-                    "redirect_uri": config.redirect_uri
-                },
-                "responseType": 'json'
-            })
-            .then(resp => {
-                // oAuth dance success!
-                req.session.token = resp.body;
-
-                // we'll go collect the user this token is for
-                return got({
-                    "url": "https://api.twitch.tv/helix/users",
-                    "method": "GET",
-                    "headers": {
-                        "Accept": "application/json",
-                        "Client-ID": config.client_id,
-                        "Authorization": "Bearer " + req.session.token.access_token
+            let tokenResp = await fetch(
+                "https://id.twitch.tv/oauth2/token",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
                     },
-                    "responseType": 'json'
-                })
-            })
-            .then(resp => {
-                if (resp.body && resp.body.data && resp.body.data[0]) {
-                    req.session.user = resp.body.data[0];
-                } else {
-                    req.session.warning = 'We got a Token but failed to get your Twitch profile from Helix';
+                    body: new URLSearchParams([
+                        [ 'client_id',      config.client_id ],
+                        [ 'client_secret',  config.client_secret ],
+                        [ 'code',           code ],
+                        [ 'grant_type',     'authorization_code' ],
+                        [ 'redirect_uri',   config.redirect_uri ]
+                    ])
                 }
+            );
+
+            if (tokenResp.status != 200) {
+                req.session.error = 'An Error occured: ' + await tokenResp.text();
                 res.redirect('/');
-            })
-            .catch(err => {
-                console.error('Error body:', err.response.body);
-                // the oAuth dance failed
-                req.session.error = 'An Error occured: ' + ((err.response && err.response.body.message) ? err.response.body.message : 'Unknown');
+                return;
+            }
+
+            // oAuth dance success!
+            req.session.token = await tokenResp.json();
+
+            // we'll go collect the user this token is for
+            let userResp = await fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Client-ID': config.client_id,
+                        'Authorization': `Bearer ${req.session.token.access_token}`
+                    }
+                }
+            );
+
+            if (userResp.status != 200) {
+                req.session.error = 'An Error occured: ' + await tokenResp.text();
                 res.redirect('/');
-            });
+                return;
+            }
+
+            let userData = await userResp.json();
+            // malformed...
+            if (!userData.hasOwnProperty('data')) {
+                req.session.warning = 'We got a Token but failed to get your Twitch profile from Helix';
+                res.redirect('/');
+                return;
+            }
+            // not one user returned
+            if (userData.data.length != 1) {
+                req.session.warning = 'We got a Token but failed to get your Twitch profile from Helix';
+                res.redirect('/');
+                return;
+            }
+            req.session.user = userData.data[0];
+
+            res.redirect('/');
 
             return;
         }
@@ -214,14 +235,16 @@ app
     .get((req, res) => {
         console.log('Incoming logout request');
         // as well as dumoing the session lets revoke the token
-        got({
-            url: 'https://id.twitch.tv/oauth2/revoke'
+        fetch(
+            'https://id.twitch.tv/oauth2/revoke'
                 + '?client_id=' + config.client_id
                 + '&token=' + req.session.token.access_token,
-            method: 'post'
-        })
+            {
+                method: 'post'
+            }
+        )
         .then(resp => {
-            console.log('KeyRevoke OK', resp.body);
+            console.log('KeyRevoke OK', resp.status);
         })
         .catch(err => {
             console.error('KeyRevoke Fail', err);
