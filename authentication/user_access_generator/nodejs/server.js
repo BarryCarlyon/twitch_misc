@@ -33,7 +33,6 @@ const RedisStore = require('connect-redis')(session);
 // https://expressjs.com/en/advanced/best-practice-security.html#use-cookies-securely
 
 // Setup a session manager
-var session = require('express-session');
 app.use(session({
     secret: crypto.randomBytes(4).toString('base64'),
     resave: true,
