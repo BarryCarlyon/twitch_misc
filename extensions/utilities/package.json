@@ -5,7 +5,7 @@
   "main": "get_global.js",
   "dependencies": {
     "got": "^11.8.3",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^9.0.0"
   },
   "devDependencies": {},
   "scripts": {
