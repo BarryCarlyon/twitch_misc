@@ -38,7 +38,11 @@
 
                         <tr>
                             <th>Delay</th>
-                            <td><input type="number" name="channel_delay" id="channel_delay" max="900" /></td>
+                            <td>
+                                <input type="number" name="channel_delay" id="channel_delay" max="900" />
+                                <br />
+                                Channel Delay is a function only available to Partners.
+                            </td>
                         </tr>
 
                         <tr>
@@ -189,7 +193,7 @@
                 let { title, delay, game_id, game_name, tags } = channelData.data[0];
 
                 channel_title.value = title;
-                channel_delay.vlaue = delay;
+                channel_delay.value = delay;
 
                 let tagFields = document.querySelectorAll('input[name="channel_tag[]"]');
                 for (var x=0;x<tags.length;x++) {
@@ -338,7 +342,9 @@
             let tags = [];
             let tagFields = document.querySelectorAll('input[name="channel_tag[]"]');
             tagFields.forEach(tagField => {
-                tags.push(tagField.value);
+                if (tagField.value.length > 0) {
+                    tags.push(tagField.value);
+                }
             });
 
             let channel = {
@@ -346,7 +352,7 @@
                 tags
             }
 
-            if (!channel_delay.hasAttribute('diabled')) {
+            if (!channel_delay.hasAttribute('disabled')) {
                 channel.delay = parseInt(channel_delay.value);
             }
 
