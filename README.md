@@ -37,6 +37,7 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
     </tbody>
     <thead><tr><th colspan="3">Streamer Tool Type Things</th></tr></thead>
     <tbody>
+        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/channel_dashboard/">Near Clone of the Dashboard</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_dashboard">Source</a></td><td>The <a href="https://dashboard.twitch.tv/stream-manager">Dashboard</a> core parts (edit stream info) but via the API</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/poll_tool/">Simple Poll Tool/Results Display</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/poll_tool">Source</a></td><td>A simple tool to create a poll and monitor the results</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/channel_points/">Simple Channel Points Manager</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_points">Source</a></td><td>A simple tool to manage rewards</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/soundtrack/">SoundTrack Now Playing + History</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/soundtrack">Source</a></td><td></td></tr>
