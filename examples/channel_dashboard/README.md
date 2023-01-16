@@ -28,6 +28,13 @@ As a result we are using frontend JS to make the API calls, and browsers will li
 
 But that is something to consider if you are making these calls server side.
 
+## Languages
+
+The language list is likely not quite correct I lifted it from Stack Overflow!
+
+- https://stackoverflow.com/questions/5580876/navigator-language-list-of-all-languages
+- https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+
 ## Setting up the config
 
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
