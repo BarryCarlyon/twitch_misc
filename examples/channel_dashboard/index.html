@@ -3,8 +3,29 @@
     <title>Channel Dashboard | Twitch API Example</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
     <style>
+        #search_results {
+            background-color: rgba(0,0,0,1);
+
+            overflow: auto;
+            max-height: 200px;
+        }
+        #search_results>div {
+            padding: 3px;
+            display: block;
+            width: 100%;
+            height: 60px;
+            cursor: pointer;
+            background-color: rgba(0,0,0,1);
+
+            background-size: auto 60px;
+            background-repeat: no-repeat;
+            box-sizing: border-box;
+            padding-left: 60px;
+        }
+        #search_results>div:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
     </style>
-    <script src="https://embed.twitch.tv/embed/v1.js"></script>
 </head>
 <body>
     <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will Various endpoints.
@@ -17,6 +38,7 @@
         <li><a href="https://dev.twitch.tv/docs/api/reference/#get-user-extensions">Get User Extensions</a> - See what Extensions are installed to the channel</li>
         <li><a href="https://dev.twitch.tv/docs/api/reference/#get-user-active-extensions">Get User Active Extensions</a> - See what Extensions are active</li>
         <li><a href="https://dev.twitch.tv/docs/api/reference/#update-user-extensions">Update User Extensions</a></li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#search-categories">Search Categories</a> - In order to change your game as gameID is needed, not a name</li>
     </ul>
 
     <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/team">Github</a> or just View the source instead</p>
@@ -34,6 +56,18 @@
                         <tr>
                             <th>Title</th>
                             <td><input type="text" name="channel_title" id="channel_title" /></td>
+                        </tr>
+
+                        <tr>
+                            <th>Game/Category</th>
+                            <td style="position: relative;">
+                                <div style="display: flex;">
+                                    <div id="channel_game_id"></div>
+                                    <input type="text" name="channel_game_name" id="channel_game_name" />
+                                </div>
+
+                                <div id="search_results" style="position: absolute; top: 30px; left: 0px; right: 0px;"></div>
+                            </td>
                         </tr>
 
                         <tr>
@@ -195,6 +229,9 @@
                 channel_title.value = title;
                 channel_delay.value = delay;
 
+                channel_game_id.textContent = game_id;
+                channel_game_name.value = game_name;
+
                 let tagFields = document.querySelectorAll('input[name="channel_tag[]"]');
                 for (var x=0;x<tags.length;x++) {
                     tagFields[x].value = tags[x];
@@ -348,6 +385,7 @@
             });
 
             let channel = {
+                game_id: channel_game_id.textContent,
                 title: channel_title.value,
                 tags
             }
@@ -483,6 +521,71 @@
                 return;
             }
         });
+
+        // category search
+        channel_game_name.addEventListener('keyup', (e) => {
+            categorySearch();
+        });
+        let categorySearchTick = false;
+        function categorySearch() {
+            clearTimeout(categorySearchTick);
+            categorySearchTick = setTimeout(() => {
+                categorySearchGo();
+            }, 300);
+        }
+        async function categorySearchGo() {
+            let searchURL = new URL('https://api.twitch.tv/helix/search/categories');
+            searchURL.search = new URLSearchParams([
+                [ 'query', channel_game_name.value ],
+                [ 'first', 50 ]
+            ]);
+
+            let searchResp = await fetch(
+                searchURL,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+
+            if (searchResp.status != 200) {
+                state('Failed to get Search Results. Non 200');
+                return;
+            }
+
+            let searchResults = {};
+            try {
+                searchResults = await searchResp.json();
+            } catch (e) {
+                state('Failed to get Search Results. Parse Error');
+                return;
+            }
+
+            search_results.textContent = '';
+            if (searchResults.data && searchResults.data.length > 0) {
+                searchResults.data.forEach(result => {
+                    let { box_art_url, id, name } = result;
+
+                    let hit = document.createElement('div');
+                    hit.addEventListener('click', (e) => {
+                        channel_game_id.textContent = id;
+                        channel_game_name.value = name;
+
+                        search_results.textContent = '';
+                    });
+
+                    //box_art_url = box_art_url.replace('')
+
+                    hit.textContent = name;
+                    hit.style.backgroundImage = `url(${box_art_url})`;
+                    search_results.append(hit);
+                });
+            }
+        }
     </script>
 </body>
 
