@@ -37,7 +37,7 @@ app.on('ready', () => {
 
     //win.webContents.openDevTools();
 
-    win.webContents.on('new-window', (e,url,empty,tab,new_window) => {
+    win.webContents.on('did-create-window', (new_window, details) => {
         new_window.webContents.on('did-navigate', (e, frame_url, httpResponseCode, httpStatusText) => {
             console.log('child url', frame_url);
             let url = new URL(frame_url);
