@@ -1,0 +1,15 @@
+{
+  "name": "twitch_misc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Barry Carlyon",
+  "license": "WTFPL",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.0",
+    "node-fetch": "^3.3.0"
+  }
+}
