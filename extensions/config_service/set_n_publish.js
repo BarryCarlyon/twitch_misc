@@ -23,8 +23,8 @@ const config = JSON.parse(fs.readFileSync(path.join(
 )));
 
 // Require depedancies
-// Got is used for making HTTP/API Calls
-const got = require('got');
+// Fetch is used for making HTTP/API Calls
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 // jsonwebtoken is used for creating an decoding JWT's
 const jwt = require('jsonwebtoken');
 
@@ -68,59 +68,59 @@ var content = JSON.stringify({
 // This means its' available for all instances of the extension
 // an instance is a channel the extension is installed upon
 
-got({
-    url: "https://api.twitch.tv/helix/extensions/configurations",
-    method: "PUT",
-    headers: {
-        "Client-ID": config.client_id,
-        "Authorization": "Bearer " + sigConfig
-    },
-    json: {
-        extension_id: config.client_id,
-        segment: "global",
-        content
-    },
-    responseType: 'json'
-})
+fetch(
+    "https://api.twitch.tv/helix/extensions/configurations",
+    {
+        method: "PUT",
+        headers: {
+            "Client-ID": config.client_id,
+            "Authorization": "Bearer " + sigConfig,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            extension_id: config.client_id,
+            segment: "global",
+            content
+        })
+    }
+)
 .then(resp => {
     // console log out the useful information
     // keeping track of rate limits is important
     // you can only set the config 12 times a minute per segment
-    console.error('Store Config OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
+    console.error('Store Config OK', resp.status, resp.headers.get('ratelimit-remaining'), '/', resp.headers.get('ratelimit-limit'));
 
-    // we don't care too much about the statusCode here
+    // we don't care too much about the status here
     // but you should test it for a 204
 
     // lets also send the same information to pubsub
     // so running instances get the update
 
     // we'll pubsub to the all/global message feed
-    return got({
-        url: "https://api.twitch.tv/helix/extensions/pubsub",
-        method: "POST",
-        headers: {
-            "Client-ID": config.client_id,
-            "Authorization": "Bearer " + sigPubSub
-        },
-        json: {
-            target: sigPubSubPayload.pubsub_perms.send,
-            is_global_broadcast: true,
-            message: JSON.stringify({
-                event: "configure",
-                data: content
+    return fetch(
+        "https://api.twitch.tv/helix/extensions/pubsub",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": config.client_id,
+                "Authorization": "Bearer " + sigPubSub,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                target: sigPubSubPayload.pubsub_perms.send,
+                is_global_broadcast: true,
+                message: JSON.stringify({
+                    event: "configure",
+                    data: content
+                })
             })
-        },
-        responseType: 'json'
-    })
+        }
+    )
 })
 .then(resp => {
     // Same story here with the rate limit its around 60 per minute per topic
-    console.error('Relay PubSub OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
+    console.error('Relay PubSub OK', resp.status, resp.headers.get('ratelimit-remaining'), '/', resp.headers.get('ratelimit-limit'));
 })
 .catch(err => {
-    if (err.response) {
-        console.error('Errored', err.response.statusCode, err.response.body);
-        return;
-    }
     console.error(err);
 });
