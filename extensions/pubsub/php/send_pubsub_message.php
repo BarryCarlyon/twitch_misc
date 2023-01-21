@@ -13,8 +13,8 @@ $message_to_send = 'here is the message we are sending to the extension';
 $payload = array(
     'exp' => time() + 10,
     'user_id' => EXTENSION_OWNER,
-    'channel_id' => $channel_id,
     'role' => 'external',
+    'channel_id' => $channel_id,
     'pubsub_perms' => array(
         'send' => array(
             'broadcast'
@@ -29,7 +29,7 @@ $secret = base64_decode(EXTENSION_SECRET);
 $token = JWT::encode($payload, $secret);
 
 // build curl to make request
-$ch = curl_init('https://api.twitch.tv/extensions/message/' . $channel_id);
+$ch = curl_init('https://api.twitch.tv/helix/extensions/message/' . $channel_id);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HEADER, true);
@@ -39,9 +39,10 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Content-Type: application/json'
 ));
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array(
-    'message' => $message_to_send,
-    'content_type' => 'application/json',
-    'targets' => array('broadcast')
+    'target': array('broadcast'),
+    'broadcaster_id': $channel_id,
+    'is_global_broadcast': false,
+    'message' => $message_to_send
 )));
 
 // run the request
@@ -66,7 +67,7 @@ foreach ($header as $k => $v) {
 
 // display a response
 if ($info['http_code'] == 204) {
-    echo 'OK ' . $headers['ratelimit-ratelimitermessagesbychannel-remaining'] . '/' . $headers['ratelimit-ratelimitermessagesbychannel-limit'];
+    echo 'OK ' . $headers['ratelimit-remaining'] . '/' . $headers['ratelimit-limit'];
 } else {
     echo 'An Error Occured ' . $info['http_code'] . ' Twitch: ' . $body;
 }
