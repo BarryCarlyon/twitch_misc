@@ -8,8 +8,8 @@ const config = JSON.parse(fs.readFileSync(path.join(
 )));
 
 // Require depedancies
-// Got is used for making HTTP/API Calls
-const got = require('got');
+// Fetch is used for making HTTP/API Calls
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 // jsonwebtoken is used for creating an decoding JWT's
 const jwt = require('jsonwebtoken');
 
@@ -28,34 +28,32 @@ const sigChat = jwt.sign(sigChatPayload, ext_secret);
 
 // We have now prepared the Signature and data
 
-got({
-    url: "https://api.twitch.tv/helix/extensions/chat",
-    method: "POST",
-    headers: {
-        "Client-ID": config.client_id,
-        "Authorization": "Bearer " + sigChat
-    },
-    json: {
-        broadcaster_id: config.channel_id,
-        text: "This is a Test Message Kappa",
-        extension_id: config.client_id,
-        extension_version: config.extension_version
-    },
-    responseType: 'json'
-})
+fetch(
+    "https://api.twitch.tv/helix/extensions/chat",
+    {
+        method: "POST",
+        headers: {
+            "Client-ID": config.client_id,
+            "Authorization": "Bearer " + sigChat,
+            "Content-Type": 'application/json'
+        },
+        body: JSON.stringify({
+            broadcaster_id: config.channel_id,
+            text: "This is a Test Message Kappa",
+            extension_id: config.client_id,
+            extension_version: config.extension_version
+        })
+    }
+)
 .then(resp => {
     // console log out the useful information
     // keeping track of rate limits is important
     // you can only set the config 12 times a minute per segment
-    console.error('Send Chat OK', resp.statusCode, resp.headers['ratelimit-remaining'], '/', resp.headers['ratelimit-limit']);
+    console.error('Send Chat OK', resp.status, resp.headers.get('ratelimit-remaining'), '/', resp.headers.get('ratelimit-limit'));
 
     // we don't care too much about the statusCode here
     // but you should test it for a 204
 })
 .catch(err => {
-    if (err.response) {
-        console.error('Errored', err.response.statusCode, err.response.body);
-        return;
-    }
     console.error(err);
 });
