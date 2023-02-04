@@ -44,4 +44,4 @@ In a console/terminal, run these commands:
 ## Notes
 
 This Example script requires the use of a WebPage to capture and Display the `?code` to be copy and pasted to the script.
-An example of this is provided [in this report](../../main/examples/auth_code_no_server/)
+An example of this is provided [in this repo](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/auth_code_no_server)
