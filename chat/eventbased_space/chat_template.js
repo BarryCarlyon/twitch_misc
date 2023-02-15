@@ -892,7 +892,7 @@ class ChatBot extends EventEmitter {
         this.emit('update_shield_mode_response', shield_mode_response);
     }
 
-    sendWhisper = function(to_user_id, message) {
+    sendWhisper = async function(to_user_id, message) {
         let url = new URL('https://api.twitch.tv/helix/whispers');
         url.search = new URLSearchParams([
             ['from_user_id', this._userId],
