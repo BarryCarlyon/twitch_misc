@@ -128,3 +128,14 @@ Turn on or off Shield Mode
 
 ### Arguments
 - `room_id`
+
+# Send Whisper
+
+Scope: `user:manage:whispers`
+
+Send a whisper to a user.
+
+### Arguments
+
+- `to_user_id` - the user ID to whisper (not a login)
+- `message` - the message to send to the user

@@ -892,6 +892,32 @@ class ChatBot extends EventEmitter {
         this.emit('update_shield_mode_response', shield_mode_response);
     }
 
+    sendWhisper = function(to_user_id, message) {
+        let url = new URL('https://api.twitch.tv/helix/whispers');
+        url.search = new URLSearchParams([
+            ['from_user_id', this._userId],
+            ['to_user_id', to_user_id]
+        ]).toString();
+
+        let payload = {
+            message
+        }
+
+        let whisper_response = await fetch(
+            url,
+            {
+                method: 'POST',
+                headers: {
+                    'Client-ID': this.client_id,
+                    'Authorization': `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+        this.emit('send_whisper_response', whisper_response);
+    }
+    
     apiCall = async function (path, method, body) {
         if (!method) {
             method = 'GET';
