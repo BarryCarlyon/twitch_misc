@@ -2,8 +2,6 @@
 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-const { throws } = require('assert');
-const util = require('util');
 const EventEmitter = require('events').EventEmitter;
 
 const WebSocket = require('ws');
