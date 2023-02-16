@@ -705,7 +705,7 @@ class ChatBot extends EventEmitter {
         // promise return instead
     }
 
-    delete = function (room_id, message_id) {
+    delete = function (broadcaster_id, message_id) {
         let url = new URL('https://api.twitch.tv/helix/moderation/chat');
         url.search = new URLSearchParams([
             ['broadcaster_id', broadcaster_id],
@@ -714,7 +714,7 @@ class ChatBot extends EventEmitter {
         ]).toString();
         this._delete(url);
     }
-    clear = function (room_id) {
+    clear = function (broadcaster_id) {
         let url = new URL('https://api.twitch.tv/helix/moderation/chat');
         url.search = new URLSearchParams([
             ['broadcaster_id', broadcaster_id],
@@ -739,14 +739,14 @@ class ChatBot extends EventEmitter {
         // promise return instead
     }
 
-    announcement = async function (room_id, message, color) {
+    announcement = async function (broadcaster_id, message, color) {
         color = color || 'primary';
 
         //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/chat/announcements');
         url.search = new URLSearchParams([
-            ['broadcaster_id', room_id],
+            ['broadcaster_id', broadcaster_id],
             ['moderator_id', this._userId]
         ]).toString();
 
@@ -836,12 +836,12 @@ class ChatBot extends EventEmitter {
         });
     }
 
-    _updateChatSettings = async function (room_id, payload) {
+    _updateChatSettings = async function (broadcaster_id, payload) {
         //await this._tokenMaintainece();
 
         let url = new URL('https://api.twitch.tv/helix/chat/settings');
         url.search = new URLSearchParams([
-            ['broadcaster_id', room_id],
+            ['broadcaster_id', broadcaster_id],
             ['moderator_id', this._userId]
         ]).toString();
 
@@ -866,10 +866,10 @@ class ChatBot extends EventEmitter {
     shieldsDown = function(room_id) {
         this._updateShieldMode(room_id, false);
     }
-    _updateShieldMode = async function (room_id, is_active) {
+    _updateShieldMode = async function (broadcaster_id, is_active) {
         let url = new URL('https://api.twitch.tv/helix/moderation/shield_mode');
         url.search = new URLSearchParams([
-            ['broadcaster_id', room_id],
+            ['broadcaster_id', broadcaster_id],
             ['moderator_id', this._userId]
         ]).toString();
 
