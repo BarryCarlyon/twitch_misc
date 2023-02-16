@@ -17,6 +17,7 @@ class ChatBot extends EventEmitter {
         this._username = '';
         this._userId = '';
         this.reconnect = opts.reconnect || true;
+        this.autoMaintainece = false;
 
         this.access_token = opts.access_token || '';
         this.refresh_token = opts.refresh_token || '';
@@ -180,7 +181,8 @@ class ChatBot extends EventEmitter {
             }
 
             // auto token every 15 minutes
-            setInterval(async () => {
+            clearInterval(this.autoMaintainece);
+            this.autoMaintainece = setInterval(async () => {
                 await this._tokenMaintainece();
                 console.log('Token cleared auto Maintainece');
             }, (15 * 60 * 1000));
