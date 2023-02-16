@@ -1,5 +1,7 @@
 'use strict';
 
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 const { throws } = require('assert');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
@@ -109,45 +111,60 @@ class ChatBot extends EventEmitter {
 
                 if (this.refresh_token != '' && token_validation_data.expires_in < this._autoTokenTime) {
                     // auto refresh the token
-                    let token_refresh_url = new URL('https://id.twitch.tv/oauth2/token');
-                    token_refresh_url.search = new URLSearchParams([
-                        ['client_id', this.client_id],
-                        ['client_secret', this.client_secret],
-                        ['grant_type', 'refresh_token'],
-                        ['refresh_token', this.refresh_token]
-                    ]).toString();
-
-                    let token_refresh_response = await fetch(
-                        token_refresh_url,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'Accept': 'application/json'
-                            }
-                        }
-                    );
-
-                    if (token_refresh_response.status == 200) {
-                        // token refresh ok
-                        let token_refresh_data = await token_refresh_response.json();
-
-                        this.emit('token_regnerated', token_refresh_data);
-
-                        this.access_token = token_refresh_data.access_token;
-                        this.refresh_token = token_refresh_data.refresh_token;
-
+                    if (await this._refreshToken()) {
                         return resolve();
                     }
-
-                    return reject(`Token Refresh Failed: ${await token_validation_response.text()}`);
                 }
 
                 return resolve();
             }
 
-            return reject(`Failed to validate the token ${await token_validation_response.text()}`);
+            // token is invalidate
+            // can we refresh
+            if (this.refresh_token != '') {
+                if (await this._refreshToken()) {
+                    return resolve();
+                }
+            }
+
+            return reject(`Failed to validate the token. No Refresh token available ${await token_validation_response.text()}`);
         });
+    }
+    async _refreshToken() {
+        let token_refresh_url = new URL('https://id.twitch.tv/oauth2/token');
+        token_refresh_url.search = new URLSearchParams([
+            ['client_id', this.client_id],
+            ['client_secret', this.client_secret],
+            ['grant_type', 'refresh_token'],
+            ['refresh_token', this.refresh_token]
+        ]).toString();
+
+        let token_refresh_response = await fetch(
+            token_refresh_url,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (token_refresh_response.status == 200) {
+            // token refresh ok
+            let token_refresh_data = await token_refresh_response.json();
+
+            this.emit('token_regnerated', token_refresh_data);
+
+            this.access_token = token_refresh_data.access_token;
+            this.refresh_token = token_refresh_data.refresh_token;
+
+            console.log('Got new token to work with');
+
+            return true;
+        }
+
+        return false;
     }
 
     async connect() {
@@ -157,7 +174,7 @@ class ChatBot extends EventEmitter {
         if (!this._anonymous) {
             try {
                 await this._tokenMaintainece();
-                console.log('Token cleared Maintainece');
+                console.log('Token cleared startup Maintainece');
             } catch (e) {
                 console.log(e);
                 console.error('An Error Occured during token validation');
@@ -656,7 +673,7 @@ class ChatBot extends EventEmitter {
 
 
     timeout = function (room_id, user_id, duration, reason) {
-        this._banUser(
+        return this._banUser(
             room_id,
             {
                 data: {
@@ -668,7 +685,7 @@ class ChatBot extends EventEmitter {
         );
     }
     ban = function (room_id, user_id, reason) {
-        this._banUser(
+        return this._banUser(
             room_id,
             {
                 data: {
@@ -687,7 +704,7 @@ class ChatBot extends EventEmitter {
             ['moderator_id', this._userId]
         ]).toString();
 
-        console.log('_banUser', url, payload);
+        //console.log('_banUser', url, payload);
 
         let ban_user_response = await fetch(
             url,
@@ -703,6 +720,7 @@ class ChatBot extends EventEmitter {
         );
         this.emit('ban_user_response', ban_user_response);
         // promise return instead
+        return ban_user_response;
     }
 
     delete = function (broadcaster_id, message_id) {
@@ -712,7 +730,7 @@ class ChatBot extends EventEmitter {
             ['moderator_id', this._userId],
             ['message_id', message_id]
         ]).toString();
-        this._delete(url);
+        return this._delete(url);
     }
     clear = function (broadcaster_id) {
         let url = new URL('https://api.twitch.tv/helix/moderation/chat');
@@ -720,7 +738,7 @@ class ChatBot extends EventEmitter {
             ['broadcaster_id', broadcaster_id],
             ['moderator_id', this._userId]
         ]).toString();
-        this._delete(url);
+        return this._delete(url);
     }
     _delete = async function (url) {
         //await this._tokenMaintainece();
@@ -737,6 +755,7 @@ class ChatBot extends EventEmitter {
         );
         this.emit('delete_response', delete_response);
         // promise return instead
+        return delete_response;
     }
 
     announcement = async function (broadcaster_id, message, color) {
@@ -767,33 +786,34 @@ class ChatBot extends EventEmitter {
         );
         //console.debug('announcement_response', announcement_response.status, await announcement_response.text());
         this.emit('announcement_response', announcement_response);
+        return announcement_response;
     }
 
     // kinda dumb util...
     emoteOnly = function (room_id, emote_mode) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             emote_mode
         });
     }
     emoteOnlyOn = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             emote_mode: true
         });
     }
     emoteOnlyOff = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             emote_mode: false
         });
     }
 
     followersOn = function (room_id, follower_mode_duration) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             follower_mode: true,
             follower_mode_duration
         });
     }
     followersOff = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             follower_mode: false
         });
     }
@@ -803,35 +823,35 @@ class ChatBot extends EventEmitter {
             throw new Error('Slow Mode Duration must be between 3 and 120 seconds');
         }
 
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             slow_mode: true,
             slow_mode_wait_time
         });
     }
     slowOff = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             slow_mode: false
         });
     }
 
     subscribersOn = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             subscriber_mode: true
         });
     }
     subscribersOff = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             subscriber_mode: false
         });
     }
 
     uniqueOn = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             unique_chat_mode: true
         });
     }
     uniqueOff = function (room_id) {
-        this._updateChatSettings(room_id, {
+        return this._updateChatSettings(room_id, {
             unique_chat_mode: false
         });
     }
@@ -858,13 +878,14 @@ class ChatBot extends EventEmitter {
             }
         );
         this.emit('update_chat_settings_response', chat_settings_response);
+        return chat_settings_response;
     }
 
     shieldsUp = function(room_id) {
-        this._updateShieldMode(room_id, true);
+        return this._updateShieldMode(room_id, true);
     }
     shieldsDown = function(room_id) {
-        this._updateShieldMode(room_id, false);
+        return this._updateShieldMode(room_id, false);
     }
     _updateShieldMode = async function (broadcaster_id, is_active) {
         let url = new URL('https://api.twitch.tv/helix/moderation/shield_mode');
@@ -890,6 +911,7 @@ class ChatBot extends EventEmitter {
             }
         );
         this.emit('update_shield_mode_response', shield_mode_response);
+        return shield_mode_response;
     }
 
     sendWhisper = async function(to_user_id, message) {
@@ -916,8 +938,9 @@ class ChatBot extends EventEmitter {
             }
         );
         this.emit('send_whisper_response', whisper_response);
+        return whisper_response;
     }
-    
+
     apiCall = async function (path, method, body) {
         if (!method) {
             method = 'GET';
