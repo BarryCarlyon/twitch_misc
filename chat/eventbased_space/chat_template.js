@@ -18,7 +18,7 @@ class ChatBot extends EventEmitter {
         this._userId = '';
         this.reconnect = opts.reconnect || true;
         this._autoMaintainece = false;//memory space for the timer
-        this.autoMaintainece = opts.autoMaintainece || false;// should auto maintain run
+        this.autoMaintainece = opts.autoMaintainece || true;// should auto maintain run
 
         this.access_token = opts.access_token || '';
         this.refresh_token = opts.refresh_token || '';
