@@ -131,40 +131,42 @@ class ChatBot extends EventEmitter {
         });
     }
     async _refreshToken() {
-        let token_refresh_url = new URL('https://id.twitch.tv/oauth2/token');
-        token_refresh_url.search = new URLSearchParams([
-            ['client_id', this.client_id],
-            ['client_secret', this.client_secret],
-            ['grant_type', 'refresh_token'],
-            ['refresh_token', this.refresh_token]
-        ]).toString();
+        return new Promise(async (resolve, reject) => {
+            let token_refresh_url = new URL('https://id.twitch.tv/oauth2/token');
+            token_refresh_url.search = new URLSearchParams([
+                ['client_id', this.client_id],
+                ['client_secret', this.client_secret],
+                ['grant_type', 'refresh_token'],
+                ['refresh_token', this.refresh_token]
+            ]).toString();
 
-        let token_refresh_response = await fetch(
-            token_refresh_url,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
+            let token_refresh_response = await fetch(
+                token_refresh_url,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    }
                 }
+            );
+
+            if (token_refresh_response.status == 200) {
+                // token refresh ok
+                let token_refresh_data = await token_refresh_response.json();
+
+                this.emit('token_regnerated', token_refresh_data);
+
+                this.access_token = token_refresh_data.access_token;
+                this.refresh_token = token_refresh_data.refresh_token;
+
+                console.log('Got new token to work with');
+
+                return resolve();
             }
-        );
 
-        if (token_refresh_response.status == 200) {
-            // token refresh ok
-            let token_refresh_data = await token_refresh_response.json();
-
-            this.emit('token_regnerated', token_refresh_data);
-
-            this.access_token = token_refresh_data.access_token;
-            this.refresh_token = token_refresh_data.refresh_token;
-
-            console.log('Got new token to work with');
-
-            return true;
+            return reject();
         }
-
-        return false;
     }
 
     async connect() {
