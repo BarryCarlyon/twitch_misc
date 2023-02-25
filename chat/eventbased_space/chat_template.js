@@ -877,7 +877,7 @@ class ChatBot extends EventEmitter {
         let chat_settings_response = await fetch(
             url,
             {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
                     'Client-ID': this.client_id,
                     'Authorization': `Bearer ${this.access_token}`,
