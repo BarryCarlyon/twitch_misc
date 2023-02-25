@@ -111,20 +111,20 @@ class ChatBot extends EventEmitter {
 
                 if (this.refresh_token != '' && token_validation_data.expires_in < this._autoTokenTime) {
                     // auto refresh the token
-                    if (await this._refreshToken()) {
-                        return resolve();
-                    }
+                    console.log('Token could do with refresh');
+                    await this._refreshToken();
+                    return this._tokenMaintainece();
                 }
 
                 return resolve();
             }
 
-            // token is invalidate
-            // can we refresh
+            // token is invalid
+            // attempt to refresh
             if (this.refresh_token != '') {
-                if (await this._refreshToken()) {
-                    return resolve();
-                }
+                console.log('Token needs refresh');
+                await this._refreshToken();
+                return this._tokenMaintainece();
             }
 
             return reject(`Failed to validate the token. No Refresh token available ${await token_validation_response.text()}`);
@@ -166,7 +166,7 @@ class ChatBot extends EventEmitter {
             }
 
             return reject();
-        }
+        });
     }
 
     async connect() {
@@ -218,8 +218,12 @@ class ChatBot extends EventEmitter {
             this._reconnect();
         }
     }
-    _onClose() {
-        console.log('Got Close');
+    _onClose(e) {
+        console.log('Got Close',
+            e.code,
+            e.reason,
+            e.wasClean
+        );
         // reconnect
         this.emit('close');
 
