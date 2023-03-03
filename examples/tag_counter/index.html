@@ -50,6 +50,7 @@ div {
         // setup a memory space for the token
         var access_token = '';
         var page_counter = 0;
+        var total_streams = 0;
         var tagsCounts = {};
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
@@ -57,14 +58,14 @@ div {
         function processToken(token) {
             access_token = token;
 
-            document.getElementById('loading').textContent = `Loading Streams ${page_counter}`;
+            document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams}`;
 
             getPage();
         }
 
         function getPage(after) {
             page_counter++;
-            document.getElementById('loading').textContent = `Loading Streams ${page_counter}`;
+            document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams}`;
             fetch(
                 'https://api.twitch.tv/helix/streams?first=100' + (after ? '&after='+after : ''),
                 {
@@ -77,6 +78,7 @@ div {
             )
             .then(resp => resp.json())
             .then(resp => {
+                total_streams += resp.data.length;
                 resp.data.forEach(stream => {
                     let { tags } = stream;
 
