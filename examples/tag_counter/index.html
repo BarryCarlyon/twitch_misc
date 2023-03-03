@@ -81,8 +81,8 @@ div {
                 total_streams += resp.data.length;
                 
                 resp.data.forEach(stream => {
-                    let { tags, viewers } = stream;
-                    page_record_viewer = viewers;
+                    let { tags, viewer_count } = stream;
+                    page_record_viewer = viewer_count;
 
                     if (tags && tags.length) {
                         tags.forEach(tag => {
