@@ -102,9 +102,9 @@
         var access_token = '';
         var socket_space = '';
         var session_id = '';
+        var my_user_id = '';
 
-        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token');
-
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=moderator:read:followers');
 
         if (document.location.hash && document.location.hash != '') {
             log('Checking for token');
@@ -158,8 +158,9 @@
                     socket_space.on('connected', (id) => {
                         log(`Connected to WebSocket with ${id}`);
                         session_id = id;
+                        my_user_id = resp.data[0].id;
 
-                        requestHooks(resp.data[0].id);
+                        requestHooks(resp.data[0].id, my_user_id);
                     });
 
                     socket_space.on('session_keepalive', () => {
@@ -187,7 +188,7 @@
                 .then(resp => resp.json())
                 .then(resp => {
                     log(`Got ${resp.data[0].id} for ${username}`);
-                    requestHooks(resp.data[0].id);
+                    requestHooks(resp.data[0].id, my_user_id);
                 })
                 .catch(err => {
                     console.log(err);
@@ -195,10 +196,10 @@
                 });
         }
 
-        function requestHooks(user_id) {
+        function requestHooks(user_id, my_id) {
             let topics = {
                 'channel.update': { version: "1", condition: { broadcaster_user_id: user_id } },
-                'channel.follow': { version: "1", condition: { broadcaster_user_id: user_id } },
+                'channel.follow': { version: "2", condition: { broadcaster_user_id: user_id, moderator_user_id: my_id } },
                 //inbound raid
                 'channel.raid': { version: "1", condition: { to_broadcaster_user_id: user_id } },
 
