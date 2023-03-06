@@ -2,7 +2,7 @@
 
 This example is a simple web based tool to read/write from the Extension config service.
 
-It sorta replaces the COnfig Service tool that is in the Developer Rig. Which calls the deprecated Extension APIs.
+It sorta replaces the Config Service tool that is in the Developer Rig. Which calls the deprecated Extension APIs.
 
 ## TRY THIS EXAMPLE NOW!
 

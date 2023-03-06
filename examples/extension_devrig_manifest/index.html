@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/enc-base64.min.js" integrity="sha512-IKpu1GFk/bQ+2fOc4sXuA6lm7Rct4P7611iDBxY9LReOZ2PpwoDWWqj6GSYejUce1FLxo/d4lxAnKqGWJuBw7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style type="text/css">
-        label, input, textarea {
+        label, input, textarea, .help-text {
             display: inline-block;
             width: 500px;
         }
@@ -63,11 +63,13 @@
             <div>
                 <label for="owner_id">Your/Extension Owner Twitch User ID</label>
                 <input type="text" name="owner_id" id="owner_id" value="" />
+                <div class="help-text">your userID (15185913) not username (barrycarlyon)</div>
             </div>
 
             <div>
-                <label for="version">Version - if blank uses released version if any</label>
+                <label for="version">Version</label>
                 <input type="text" name="version" id="version" />
+                <div class="help-text">if blank uses released version if any</div>
             </div>
         </fieldset>
         <fieldset>
