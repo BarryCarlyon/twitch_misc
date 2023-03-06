@@ -32,6 +32,10 @@
             background: transparent;
             display: block;
         }
+        textarea {
+            width: 90%;
+            height: 300px;
+        }
     </style>
 </head>
 <body>
@@ -72,7 +76,7 @@
         </fieldset>
     </form>
     
-    <pre id="output"></pre>
+    <textarea id="output"></textarea>
 
     <script type="text/javascript">
         function base64url(source) {
@@ -184,8 +188,10 @@ let manifest = {
         "viewerSummary":                theExtension.viewer_summary,
         "viewerUrl":                    "",
         "viewerUrls": {
-            "mobile":                   theExtension.views.mobile.viewer_url,
-            "panel":                    theExtension.views.panel.viewer_url,
+            "mobile":                   (theExtension.views.mobile ? theExtension.views.mobile.viewer_url : ''),
+            "panel":                    (theExtension.views.panel ? theExtension.views.panel.viewer_url : ''),
+            "component":                (theExtension.views.component ? theExtension.views.component.viewer_url : ''),
+            "config":                   (theExtension.views.config ? theExtension.views.config.viewer_url : ''),
         },
         "views":                        theExtension.views,
         "whitelistedConfigUrls":        theExtension.allowlisted_config_urls,
