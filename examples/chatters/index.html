@@ -59,8 +59,6 @@
             )
             .then(resp => resp.json())
             .then(resp => {
-                document.getElementById('loader_' + game_id).textContent = 'Processing Page: ' + page;
-
                 resp.data.forEach(user => {
                     let { user_id, user_login, user_name } = user;
 
