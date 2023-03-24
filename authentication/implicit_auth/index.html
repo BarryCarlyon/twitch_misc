@@ -24,15 +24,15 @@
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
         var redirect = 'https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/';
 
-        document.getElementById('authorize_public').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token');
-        document.getElementById('authorize_email').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:email');
+        document.getElementById('authorize_public').setAttribute('href', `https://id.twitch.tv/oauth2/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token`);
+        document.getElementById('authorize_email').setAttribute('href', `https://id.twitch.tv/oauth2/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=user:read:email`);
         document.getElementById('access_token').textContent = '';
 
         if (document.location.hash && document.location.hash != '') {
             var parsedHash = new URLSearchParams(window.location.hash.slice(1));
             if (parsedHash.get('access_token')) {
                 var access_token = parsedHash.get('access_token');
-                document.getElementById('access_token').textContent = 'Your Access Key from the #url: ' + access_token;
+                document.getElementById('access_token').textContent = `Your Access Token extracted from the #url is ${access_token}`;
 
                 document.getElementById('user_data').textContent = 'Loading';
 
@@ -42,7 +42,7 @@
                     {
                         "headers": {
                             "Client-ID": client_id,
-                            "Authorization": "Bearer " + access_token
+                            "Authorization": `Bearer ${access_token}`
                         }
                     }
                 )
@@ -70,7 +70,7 @@
         } else if (document.location.search && document.location.search != '') {
             var parsedParams = new URLSearchParams(window.location.search);
             if (parsedParams.get('error_description')) {
-                document.getElementById('access_token').textContent = parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
+                document.getElementById('access_token').textContent = `${parsedParams.get('error')} - ${parsedParams.get('error_description')}`;
             }
         }
             
