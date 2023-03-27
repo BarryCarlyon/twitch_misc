@@ -11,6 +11,6 @@
   "license": "WTFPL",
   "type": "module",
   "dependencies": {
-    "got": "^12.5.3"
+    "node-fetch": "^3.3.1"
   }
 }

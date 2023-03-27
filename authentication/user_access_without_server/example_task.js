@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, URL } from 'url';
-import got from 'got';
+import fetch from 'node-fetch';
 
 const config = JSON.parse(fs.readFileSync(path.join(
     path.dirname(fileURLToPath(import.meta.url)),
@@ -33,39 +33,37 @@ function requestAuth() {
     console.log(url.href);
 
     // readline time
-    rl.question('Code> ', (code) => {
-        got({
-            "url": "https://id.twitch.tv/oauth2/token",
-            "method": 'POST',
-            "headers": {
-                "Accept": "application/json"
-            },
-            "form": {
-                "client_id": config.client_id,
-                "client_secret": config.client_secret,
-                code,
-                "grant_type": "authorization_code",
-                "redirect_uri": config.redirect_uri
-            },
-            "responseType": 'json'
-        })
-        .then(resp => {
-            auth_data = resp.body;
-            writeAuthFile();
-            doMainThing();
-        })
-        .catch(err => {
-            if (err.response) {
-                console.error('Token Error', err.response.statusCode, err.response.body);
-            } else {
-                console.error('Bad Error', err);
+    rl.question('Code> ', async (code) => {
+        let resp = await fetch(
+            "https://id.twitch.tv/oauth2/token",
+            {
+                "method": 'POST',
+                "headers": {
+                    "Accept": "application/json"
+                },
+                "body": new URLSearchParams([
+                    [ "client_id", config.client_id ],
+                    [ "client_secret", config.client_secret ],
+                    [ "code", code ],
+                    [ "grant_type", "authorization_code" ],
+                    [ "redirect_uri", config.redirect_uri ]
+                ])
             }
+        );
+
+        if (resp.status != 200) {
+            console.error('An Error occured', await resp.text());
             process.exit();
-        })
+        }
+
+        auth_data = await resp.json();
+
+        writeAuthFile();
+        doMainThing();
     });
 }
 
-function go() {
+async function go() {
     // no auth file
     if (fs.existsSync(auth_file)) {
         console.log('Got Auth File');
@@ -81,60 +79,55 @@ function go() {
         }
 
         // validate
-        got({
-            url: 'https://id.twitch.tv/oauth2/validate',
-            headers: {
-                Authorization: `Bearer ${auth_data.access_token}`
-            },
-            responseType: 'json'
-        })
-        .then(resp => {
-            // token is good
-            doMainThing();
-        })
-        .catch(err => {
-            if (err.response) {
-                console.error('Token Error', err.response.statusCode, err.response.body);
-                attemptRefresh();
-            } else {
-                console.error('Bad Error', err);
-                requestAuth();
+        let resp = await fetch(
+            'https://id.twitch.tv/oauth2/validate',
+            {
+                headers: {
+                    Authorization: `Bearer ${auth_data.access_token}`
+                }
             }
+        );
+        if (resp.status != 200) {
+            console.error('Token Error', resp.status, await resp.text());
+            attemptRefresh();
             return;
-        });
-        return;
+        }
+
+        // token is good
+        doMainThing();
     }
     // there is no Auth File
     requestAuth();
 }
 go();
 
-function attemptRefresh() {
-    got({
-        url: 'https://id.twitch.tv/oauth2/token',
-        method: 'POST',
-        searchParams: {
-            grant_type:     'refresh',
-            refresh_token:  auth_data.refresh_token,
-            client_id:      config.client_id,
-            client_secret:  config.client_secret
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        auth_data = resp.body;
-        writeAuthFile();
-        doMainThing();
-    })
-    .catch(err => {
-        if (err.response) {
-            console.error('Refresh Token Error', err.response.statusCode, err.response.body);
-        } else {
-            console.error('Bad Error', err);
+async function attemptRefresh() {
+    let url = new URL('https://id.twitch.tv/oauth2/token');
+    url.search = new URLSearchParams([
+        [ 'grant_type', 'refresh_token' ],
+        [ 'refresh_token', auth_data.refresh_token ],
+        [ 'client_id', config.client_id ],
+        [ 'client_secret', config.client_secret ]
+    ]).toString();
+
+    let resp = await fetch(
+        url,
+        {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
         }
+    );
+
+    if (resp.status != 200) {
+        console.error('Refresh Token Error', resp.status, await resp.text());
         requestAuth();
         return;
-    });
+    }
+    auth_data = await resp.json();
+    writeAuthFile();
+    doMainThing();
 }
 function writeAuthFile() {
     fs.writeFileSync(
@@ -147,32 +140,22 @@ function writeAuthFile() {
 
 
 
-function doMainThing() {
+async function doMainThing() {
     // the main thing here
     // is an example that just calls get users
     // but normally it would be say,
     // connect to pubsub and do stuff
     // connect to the API and poll for data periodically auto refreshign the token
     // etc
-    got({
-        url: 'https://api.twitch.tv/helix/users',
-        headers: {
-            'Client-ID': config.client_id,
-            Authorization: `Bearer ${auth_data.access_token}`
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        console.log(resp.body);
-    })
-    .catch(err => {
-        if (err.response) {
-            console.error('doMainThing Error', err.response.statusCode, err.response.body);
-        } else {
-            console.error('doMainThing Bad Error', err);
+    let resp = await fetch(
+        'https://api.twitch.tv/helix/users',
+        {
+            headers: {
+                'Client-ID': config.client_id,
+                Authorization: `Bearer ${auth_data.access_token}`
+            }
         }
-    })
-    .finally(() => {
-        process.exit();
-    });
+    )
+    console.log('user', resp.status, await resp.json());
+    process.exit();
 }
