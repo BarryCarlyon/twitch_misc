@@ -35,6 +35,11 @@ You can change the port in config if you want but remember to change it in the R
 
 ## Running the example
 
+There are two examples.
+
+- `example_task.js` is a interactive script for doing a task after gettin auth and handling refresh
+- `simple.js` which I commonly call `seeder.js` will do a code for token exchange and store the access and refresh into redis. Something else will use and manage the refresh of that token
+
 In a console/terminal, run these commands:
 
 - `npm install`
@@ -44,4 +49,4 @@ In a console/terminal, run these commands:
 ## Notes
 
 This Example script requires the use of a WebPage to capture and Display the `?code` to be copy and pasted to the script.
-An example of this is provided [in this repo](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/auth_code_no_server)
+An example of this is provided elsewhere [in this repo](https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/auth_code_no_server)
