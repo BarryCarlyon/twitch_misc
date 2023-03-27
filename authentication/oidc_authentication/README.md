@@ -6,6 +6,16 @@ It works both "Authorization Code Flow" and "Implicit Code Flow", but this only 
 
 This uses JWT's so you should read up about what a JWT is on [JWT.io](https://jwt.io/)
 
+## Hang on
+
+What is ODIC and the point of it in the first place.
+
+ODIC is a standard method to do login with a service.
+
+And supports a auto discovery system, so you can feed a library with _just_ a URL.
+
+In this case that is `https://id.twitch.tv/oauth2/` and the OIDC library will self configure using the values in `https://id.twitch.tv/oauth2/.well-known/openid-configuration`
+
 ## Reference Documentation
 
 - [Getting Tokens: OIDC](https://dev.twitch.tv/docs/authentication/getting-tokens-oidc)
