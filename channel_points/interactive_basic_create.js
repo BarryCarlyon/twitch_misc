@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -23,67 +23,62 @@ const account_config = JSON.parse(fs.readFileSync(path.join(
 // validate n refresh key
 console.log('Run with', client_config.client_id, account_config.access_token);
 
-got({
-    url: 'https://id.twitch.tv/oauth2/validate',
-    method: 'GET',
-    headers: {
-        'Authorization': 'Bearer ' + account_config.access_token
-    },
-    responseType: 'json'
-})
-.then(resp => {
-    go();
-})
-.catch(err => {
-    if (err.response) {
-        console.error('Error', err.response.statusCode, err.response.body);
-
-        if (err.response.statusCode == 401) {
-            regenerate();
+async function entry() {
+    let resp = await fetch(
+        'https://id.twitch.tv/oauth2/validate',
+        {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${account_config.access_token}`,
+                'Accept': 'application/json'
+            }
         }
-    } else {
-        console.error('Error', err);
+    )
+    if (resp.status != 200) {
+        regenerate();
+        return;
     }
-});
+    go();
+}
 
-function regenerate() {
-    got({
-        url: 'https://id.twitch.tv/oauth2/token',
-        method: 'POST',
-        searchParams: {
-            grant_type: 'refresh_token',
-            refresh_token: account_config.refresh_token,
-            client_id: client_config.client_id,
-            client_secret: client_config.client_secret
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        console.log(resp.body);
+async function regenerate() {
+    let url = new URL('https://id.twitch.tv/oauth2/token');
+    url.search = new URLSearchParams([
+        [ 'grant_type', 'refresh_token' ],
+        [ 'refresh_token', account_config.refresh_token ],
+        [ 'client_id', client_config.client_id ],
+        [ 'client_secret', client_config.client_secret ]
+    ]).toString();
 
-        for (var k in resp.body) {
-            account_config[k] = resp.body[k];
+    let resp = await fetch(
+        url,
+        {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
         }
+    );
+    if (resp.status != 200) {
+        console.error('Error', resp.status, await resp.text());
+        return;
+    }
+    let body = await resp.json();
 
-        fs.writeFileSync(path.join(
-            __dirname,
-            'jsons',
-            'config_user.json'
-        ), JSON.stringify(account_config, null, 4));
+    for (var k in body) {
+        account_config[k] = body[k];
+    }
 
-        go();
-    })
-    .catch(err => {
-        if (err.response) {
-            console.error('Error', err.response.statusCode, err.response.body);
-        } else {
-            console.error('Error', err);
-        }
-    });
+    fs.writeFileSync(path.join(
+        __dirname,
+        'jsons',
+        'config_user.json'
+    ), JSON.stringify(account_config, null, 4));
+
+    go();
 }
 
 function go() {
-//        prompt: '',
     var item = {
         title: '',
         cost: 0,
@@ -104,56 +99,62 @@ function go() {
                 rl.question('Color> no #/hex ', (c) => {
                     item.background_color = '#' + c;
 
-                rl.question('Pause> 0/1 ', (c) => {
-                    item.is_paused = (c == "1" ? true : false);
+                    rl.question('Pause> 0/1 ', (c) => {
+                        item.is_paused = (c == "1" ? true : false);
 
-                    create(item);
-                });
+                        create(item);
+                    });
                 });
             });
         })
     });
 }
 
-function create(item) {
-    got({
-        url: 'https://api.twitch.tv/helix/users',
-        method: 'GET',
-        headers: {
-            'Client-ID': client_config.client_id,
-            'Authorization': 'Bearer ' + account_config.access_token
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        console.log(resp.body.data[0]);
-console.log('send', item);
-        return got({
-            url: 'https://api.twitch.tv/helix/channel_points/custom_rewards',
+async function create(item) {
+    let userResp = await fetch(
+        'https://api.twitch.tv/helix/users',
+        {
+            method: 'GET',
+            headers: {
+                'Client-ID': client_config.client_id,
+                'Authorization': `Bearer ${account_config.access_token}`,
+                'Accept': 'application/json'
+            }
+        }
+    );
+    if (userResp.status != 200) {
+        console.error('Error', userResp.status, await userResp.text());
+        return;
+    }
+
+    let body = await userResp.json();
+    console.log(body);
+    let broadcaster_id = body.data[0].id;
+
+    console.log('send', item);
+
+    let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+    url.search = new URLSearchParams([
+        [ 'broadcaster_id', broadcaster_id ],
+        [ 'only_manageable_rewards', 1 ]
+    ]).toString();
+
+    let resp = await fetch(
+        url,
+        {
             method: 'POST',
             headers: {
                 'Client-ID': client_config.client_id,
-                'Authorization': 'Bearer ' + account_config.access_token
+                'Authorization': `Bearer ${account_config.access_token}`,
+                'Content-Type': 'application/json'
             },
-            searchParams: {
-                broadcaster_id:resp.body.data[0].id
-            },
-            json: item,
-            responseType: 'json'
-        })
-    })
-    .then(resp => {
-        console.log('Did', resp.body);
-
-        go();
-    })
-    .catch(err => {
-        if (err.response) {
-            console.error('Error', err.response.statusCode, err.response.body);
-        } else {
-            console.error('Error', err);
+            body: JSON.stringify(item)
         }
+    );
+    
+    console.log('Did', resp.status, (resp.status != 200 ? await resp.text() : ''));
 
-        go();
-    });
+    go();
 }
+
+entry();
