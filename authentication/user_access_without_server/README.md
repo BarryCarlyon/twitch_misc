@@ -37,8 +37,8 @@ You can change the port in config if you want but remember to change it in the R
 
 There are two examples.
 
-- `example_task.js` is a interactive script for doing a task after gettin auth and handling refresh
-- `simple.js` which I commonly call `seeder.js` will do a code for token exchange and store the access and refresh into redis. Something else will use and manage the refresh of that token
+- `example_task.js` is a interactive script for doing a task after getting auth and handling refresh, could be interative/shell based chnanel points or title managment
+- `simple.js` which I commonly call `seeder.js` will do a code for token exchange and store the access and refresh into redis. Something else will use and manage the refresh of that token, this could be a chat bot where you didn't want to expose port 80 or 443
 
 In a console/terminal, run these commands:
 
