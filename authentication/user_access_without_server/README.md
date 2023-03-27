@@ -10,7 +10,7 @@ This is similar to how the Google NodeJS API's examples work.
 - User/You copy and paste the code back into the interactive script
 - Away we go
 
-When you (re)start the script again, it will validate the token, refresh if it can and if needed prompt for a fresh set of keys/tokens.
+When you (re)start the `example_task.js` script again, it will validate the token, refresh if it can and if needed prompt for a fresh set of keys/tokens. `seeder.js` is a more simple request code for token exchanger and likely the thing you need.
 
 ## Reference Documentation
 
@@ -38,7 +38,7 @@ You can change the port in config if you want but remember to change it in the R
 There are two examples.
 
 - `example_task.js` is a interactive script for doing a task after getting auth and handling refresh, could be interative/shell based chnanel points or title managment
-- `simple.js` which I commonly call `seeder.js` will do a code for token exchange and store the access and refresh into redis. Something else will use and manage the refresh of that token, this could be a chat bot where you didn't want to expose port 80 or 443
+- `seeder.js`will do a code for token exchange and store the access and refresh into redis. Something else will use and manage the refresh of that token, this could be a chat bot where you didn't want to expose port 80 or 443
 
 In a console/terminal, run these commands:
 
