@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -15,8 +14,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 // cypto handles Crpytographic functions, sorta like passwords (for a bad example)
 const crypto = require('crypto');
-// got is used for HTTP/API requests
-const got = require('got');
+// fetch is used for HTTP/API requests
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 // OIDC FUN STUFF
 const jwt = require('jsonwebtoken');
@@ -33,28 +32,30 @@ const jwksClient = require('jwks-rsa');
 // This includes the relevant endpoitns for authentatication
 // And the available scopes
 // And the keys for validation JWT's
-    got({
-        url: 'https://id.twitch.tv/oauth2/.well-known/openid-configuration',
-        method: 'GET',
-        responseType: 'json'
-    })
-    .then(resp => {
-        console.log('BOOT: Got openID config');
-        oidc_data = resp.body;
-
-        verifier_options = {
-            algorithms: oidc_data.id_token_signing_alg_values_supported,
-            audience: config.client_id,
-            issuer: oidc_data.issuer
+async function getOpenIDConfig() {
+    let resp = await fetch(
+        'https://id.twitch.tv/oauth2/.well-known/openid-configuration',
+        {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
         }
+    );
+    oidc_data = await resp.json();
+    console.log('BOOT: Got openID config');
 
-        verifier_client = jwksClient({
-            jwksUri: oidc_data.jwks_uri
-        });
-    })
-    .catch(err => {
-        console.log('OIDC Got a', err);
+    verifier_options = {
+        algorithms: oidc_data.id_token_signing_alg_values_supported,
+        audience: config.client_id,
+        issuer: oidc_data.issuer
+    }
+
+    verifier_client = jwksClient({
+        jwksUri: oidc_data.jwks_uri
     });
+}
+getOpenIDConfig();
 
     // https://github.com/auth0/node-jsonwebtoken
     function getKey(header, callback) {
@@ -120,7 +121,7 @@ app.use(function(req,res,next) {
 // Routes
 app
     .route('/')
-    .get((req, res) => {
+    .get(async (req, res) => {
         console.log('Incoming get request');
 
         if (req.session.token) {
@@ -128,31 +129,31 @@ app
             // and will suffice for this example
 
             // validate and return the token details
-            got({
-                url: 'https://id.twitch.tv/oauth2/validate',
-                headers: {
-                    Authorization: 'Bearer ' + req.session.token.access_token
-                },
-                responseType: 'json'
-            })
-            .then(resp => {
-                console.log(req.session.user);
-                console.log(req.session.payload);
-
-                res.render(
-                    'loggedin',
-                    {
-                        user: req.session.user,
-                        payload: req.session.payload,
-                        token: resp.body
+            let resp = await fetch(
+                'https://id.twitch.tv/oauth2/validate',
+                {
+                    headers: {
+                        Authorization: `Bearer ${req.session.token.access_token}`
                     }
-                );
-            })
-            .catch(err => {
-                console.error(err);
-                req.session.error = 'An Error occured: ' + ((err.response && err.response.message) ? err.response.message : 'Unknown');
+                }
+            )
+            if (resp.status != 200) {
+                req.session.error = 'Token not valid!';
                 res.redirect('/');
-            });
+                return;
+            }
+
+            console.log(req.session.user);
+            console.log(req.session.payload);
+
+            res.render(
+                'loggedin',
+                {
+                    user: req.session.user,
+                    payload: req.session.payload,
+                    token: await resp.json()
+                }
+            );
 
             return
         }
@@ -175,75 +176,72 @@ app
             delete req.session.state;
 
             // start the oAuth dance
-            got({
-                "url": oidc_data.token_endpoint,
-                "method": 'POST',
-                "headers": {
-                    "Accept": "application/json"
-                },
-                "form": {
-                    "client_id": config.client_id,
-                    "client_secret": config.client_secret,
-                    "code": code,
-                    "grant_type": "authorization_code",
-                    "redirect_uri": config.redirect_uri
-                },
-                "responseType": 'json'
-            })
-            .then(resp => {
-                // oAuth dance success!
-                req.session.token = resp.body;
-                // console.log(resp.body);
-
-                jwt.verify(req.session.token.id_token, getKey, verifier_options, function(err, payload) {
-                    if (err) {
-                        if (err.Error) {
-                            req.session.warning = 'Error: ' + err.Error;
-                        } else if (err.body && err.body.message) {
-                            req.session.warning = 'Error: ' + err.body.message;
-                        } else {
-                            console.log(err);
-                        }
-
-                        req.session.error = 'Twitch Hiccuped';
-                        res.redirect('/');
-                    } else {
-                        console.log('Login From', payload.sub, payload);
-
-                        req.session.payload = payload;
-
-                        got({
-                            url: oidc_data.userinfo_endpoint,
-                            methd: 'GET',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Authorization': 'Bearer ' + req.session.token.access_token
-                            },
-                            responseType: 'json'
-                        })
-                        .then(resp => {
-                            req.session.user = resp.body;
-
-                            res.redirect('/');
-                        })
-                        .catch(err => {
-                            console.log(err.body);
-                            req.session.error = 'Twitch Hiccuped b';
-                            if (err.body.message) {
-                                req.session.warning = 'Error: ' + err.body.message;
-                            }
-
-                            res.redirect('/');
-                        })
-                    }
-                });
+            let resp = await fetch(
+                oidc_data.token_endpoint,
+                {
+                    "method": 'POST',
+                    "headers": {
+                        "Accept": "application/json"
+                    },
+                    "body": new URLSearchParams([
+                        [ "client_id", config.client_id ],
+                        [ "client_secret", config.client_secret ],
+                        [ "code", code ],
+                        [ "grant_type", "authorization_code" ],
+                        [ "redirect_uri", config.redirect_uri ]
+                    ])
+                }
+            );
+            if (resp.status != 200) {
+                // the oAuth dance failed
+                req.session.error = 'An Error occured: ' + await resp.text();
+                res.redirect('/');
 
                 return;
-            })
-            .catch(err => {
-                // the oAuth dance failed
-                req.session.error = 'An Error occured: ' + ((err.response && err.response.message) ? err.response.message : 'Unknown');
-                res.redirect('/');
+            }
+            
+            // oAuth dance success!
+            req.session.token = await resp.json();
+            // console.log(resp.body);
+
+            jwt.verify(req.session.token.id_token, getKey, verifier_options, async function(err, payload) {
+                if (err) {
+                    if (err.Error) {
+                        req.session.warning = 'Error: ' + err.Error;
+                    } else if (err.body && err.body.message) {
+                        req.session.warning = 'Error: ' + err.body.message;
+                    } else {
+                        console.log(err);
+                    }
+
+                    req.session.error = 'Twitch Hiccuped';
+                    res.redirect('/');
+                } else {
+                    console.log('Login From', payload.sub, payload);
+
+                    req.session.payload = payload;
+
+                    let userInfo = await fetch(
+                        oidc_data.userinfo_endpoint,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${req.session.token.access_token}`
+                            }
+                        }
+                    );
+                    if (userInfo.status != 200) {
+                        req.session.error = 'Twitch Hiccuped b';
+                        req.session.warning = 'Error: ' + await userInfo.text();
+
+                        res.redirect('/');
+                        return;
+                    }
+                    req.session.user = await userInfo.json();
+
+                    res.redirect('/');
+                }
             });
 
             return;
