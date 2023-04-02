@@ -197,7 +197,7 @@
             }
 
             let poll_channel_points = parseInt(document.getElementById('poll_channel_points').value);
-            if (!isNaN(poll_channel_points)) {
+            if (!isNaN(poll_channel_points) && poll_channel_points > 0) {
                 payload.channel_points_voting_enabled = true;
                 payload.channel_points_per_vote = poll_channel_points;
             }
