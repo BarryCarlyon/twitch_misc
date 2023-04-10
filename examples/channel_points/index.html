@@ -56,7 +56,7 @@
     <form action="" method="post" id="provide_access_token">
         <fieldset>
             <label>Provide Access Token</label>
-            <input type="text" name="input_access_token" id="input_access_token" />
+            <input type="password" name="input_access_token" id="input_access_token" />
             <input type="submit" value="Insert Access Token" />
         </fieldset>
     </form>
@@ -291,7 +291,14 @@
 
                         cell('Cannot', tr);
                         cell(reward.id, tr);
-                        cell(reward.image, tr);
+                        //cell(reward.image, tr);
+                        let itd = cell('', tr);
+                        if (reward.image && reward.image.url_1x) {
+                            let iti = document.createElement('img');
+                            itd.append(iti);
+                            iti.setAttribute('src', reward.image.url_1x);
+                        }
+                        
                         cell(reward.title, tr);
                         cell(reward.cost, tr);
                         colorCell((reward.is_enabled ? 'Enabled' : 'Disabled'), tr, reward.is_enabled);
