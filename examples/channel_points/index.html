@@ -52,6 +52,14 @@
     <p>Generates a page that shows simiar stuff to <a href="https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards">Rewards Dashboard</a></p>
 
     <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    or
+    <form action="" method="post" id="provide_access_token">
+        <fieldset>
+            <label>Provide Access Token</label>
+            <input type="text" name="input_access_token" id="input_access_token" />
+            <input type="submit" value="Insert Access Token" />
+        </fieldset>
+    </form>
 
     <div id="loading"></div>
     <table>
@@ -129,6 +137,38 @@
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:read:redemptions+channel:manage:redemptions')
 
+        function provideAccessToken(token) {
+            fetch(
+                'https://id.twitch.tv/oauth2/validate',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.client_id) {
+                    client_id = resp.client_id;
+                    processToken(token);
+                    
+                    return;
+                }
+                
+                document.getElementById('loading').textContent = 'The token seems invalid';
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'An Error Occured loading Validating Token: error';
+            });
+        }
+        provide_access_token.addEventListener('submit', (e) => {
+            e.preventDefault();
+            provideAccessToken(input_access_token.value);
+        });
+        
         function processToken(token) {
             access_token = token;
 
