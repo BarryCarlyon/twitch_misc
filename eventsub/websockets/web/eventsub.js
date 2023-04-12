@@ -24,7 +24,7 @@ class initSocket {
         this.eventsub = {};
         counter++;
 
-        url = url ? url : 'wss://eventsub-beta.wss.twitch.tv/ws';
+        url = url ? url : 'wss://eventsub.wss.twitch.tv/ws';
         is_reconnect = is_reconnect ? is_reconnect : false;
 
         log(`Connecting to ${url}|${is_reconnect}`);
