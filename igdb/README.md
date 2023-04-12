@@ -23,6 +23,15 @@ In production you would generate, retain and utilise a single token until it's c
 We call the Games endpoint but with a `search` filter instead.
 We also use an expanded to collect additional data
 
+## Running the Example
+
+cd into the directory
+
+- `php -S 127.0.0.1:8000`
+- Open [http://localhost:8000](http://localhost:8000) in a browser
+
+Search for a game!
+
 ## Reference Documentation
 
 - [Generate Client Credentials](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow)
