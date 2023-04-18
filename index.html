@@ -62,6 +62,10 @@
                 if (window.opener) {
                     window.opener.processToken(parsedHash.get('access_token'));
                     window.close();
+                } else if (parsedHash.get('state') && parsedHash.get('state') == 'electronexample') {
+                    // try for electron?
+                    window.location.href = `twitch-misc-example://twitchauth/${parsedHash.get('access_token')}`;
+                    document.body.textContent = 'It is safe to close this window';
                 }
             }
         }
