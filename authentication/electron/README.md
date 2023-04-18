@@ -21,6 +21,12 @@ Both methods will need the [capture page](webpage) stored in your program in ord
 
 You can use the Validate endpoint to get the ClientID that a token uses, so why have two config parameters when you only need one!
 
+## Deep link
+
+This example uses `twitch-misc-example` as the Deep Link "protocol".
+
+If you intend to use this example make sure to refer to the [Packaging Instructions](https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#packaging) to ensure your Application correctly defines the Deep Link, and this will vary depending on what packaging method you use.
+
 ## Reference Documentation
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow)
