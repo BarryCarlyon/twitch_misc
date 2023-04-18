@@ -28,7 +28,7 @@ If is *important* that the `owner` in the `config.json` is wrapped in `"`, as ch
 In a console/terminal, run these commands:
 
 - `npm install`
-- `node set_n_publish.js`
+- `node send.js`
 
 It'll either return, (the current rate limit may differ)
 
