@@ -24,6 +24,7 @@ This electron application uses a "single package.json" layout.
 
 In a console/terminal, run these commands:
 
+- `cd program`
 - `npm install`
 - `npm start`
 
