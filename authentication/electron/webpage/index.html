@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="/twitch_misc/style.css" />
 </head>
 <body>
-    <div id="status">Please click this link to continue if not automatically redirected</div>
+    <div id="output">Please click this link to continue if not automatically redirected</div>
 
     <p><a href="https://id.twitch.tv/oauth2/authorize?client_id=hozgh446gdilj5knsrsxxz8tahr3koz&redirect_uri=https%3A%2F%2Fbarrycarlyon.github.io%2Ftwitch_misc%2Fauthentication%2Felectron%2Fwebpage%2F&response_type=token">Login with Twitch</a></a></p>
 
@@ -16,7 +16,7 @@
             if (parsedHash.get('access_token')) {
                 // try for electron?
                 window.location.href = `twitch-misc-example://twitchauth/${parsedHash.get('access_token')}`;
-                status.textContent = 'It is safe to close this window';
+                output.textContent = 'It is safe to close this window';
             }
         } else {
             // attempt redirect
