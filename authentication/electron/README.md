@@ -10,12 +10,21 @@ In this example, the redirect is set to the same place as most of the examples o
 
 Then a bit of javascript will detect the present of a token and then cause the webpage to redirect to the URI, and then the Electron App will pick it up.
 
-This URL is hardcoded (along with the clientID) in the Electron View (index.html). But that URL could be `https://myserver/login/application/` and that then redirects to Twitch, so your Desktop App needs no ClientID or RedirectURI (stored within it), as the ClientID is extracted from the Access Token, via use of the Validation Endpoint.
+There are two methods you can use here.
+
+- Launch the browser to your capture page and redirect to Twitch.
+- Launch the browser directly to Twitch.
+
+The second method will need your ClientID to be stored in the Application, where as the first needs your capture page instead.
+
+Both methods will need the [capture page](webpage) in order to relay the token from the web browser to your application anyway.
+
+You can use the Validate endpoint to get the ClientID that a token uses.
 
 ## Reference Documentation
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow)
-- [Validating Requests](https://dev.twitch.tv/docs/authentication#validating-requests)
+- [Validating Requests](https://dev.twitch.tv/docs/authentication/validate-tokens/)
 - [Electron Deep Links](https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app)
 
 ## Running the example
@@ -30,6 +39,6 @@ In a console/terminal, run these commands:
 
 ## Notes
 
-Twitch recently changed what it supports in terms of browsers. And as such the magic Electron intercepts/not needing to open the users regular browser no longer work
+Twitch recently changed what it supports in terms of browsers. And as such the magic Electron intercepts/not needing to open the users regular browser no longer work.
 
 https://twitter.com/TwitchSupport/status/1575571090994102272
