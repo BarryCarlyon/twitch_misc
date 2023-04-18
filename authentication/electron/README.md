@@ -4,9 +4,11 @@ This example covers a method to do Twitch Authentication inside a Desktop Applic
 
 In theory you also could _not_ put your ClientID into the code, even though this is public.
 
-This solution requires a page on your own server that acts as a valid "redirect" location. But you could, in theory let it 404 and Electron can capture that. However you want to make sure that the access token is only capurable to your Desktop app and not whatever your redirect URL is (even more so if the redirect URL isn't owned by you, to prevent token leakage).
+This solution requires a page on your own server that acts as a valid "redirect" location, and then relays the token to the Electron Application via a custom application handler. Which are commonly referred to as Deep Links.
 
-In this example, the redirect is set to the same place as my [GitHub Implicit Auth example](https://barrycarlyon.github.io/twitch_misc/authentication/implicit_auth/), Electron just intercepts the response and extracts the Access Token to use it locally instead. And in this case runs the same fetch code to fetch and display the user in the Electron App.
+In this example, the redirect is set to the same place as most of the examples on this repo [GitHub Pages Landing Page](https://barrycarlyon.github.io/twitch_misc/).
+
+Then a bit of javascript will detect the present of a token and then cause the webpage to redirect to the URI, and then the Electron App will pick it up.
 
 This URL is hardcoded (along with the clientID) in the Electron View (index.html). But that URL could be `https://myserver/login/application/` and that then redirects to Twitch, so your Desktop App needs no ClientID or RedirectURI (stored within it), as the ClientID is extracted from the Access Token, via use of the Validation Endpoint.
 
@@ -14,6 +16,7 @@ This URL is hardcoded (along with the clientID) in the Electron View (index.html
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow)
 - [Validating Requests](https://dev.twitch.tv/docs/authentication#validating-requests)
+- [Electron Deep Links](https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app)
 
 ## Running the example
 
@@ -26,8 +29,6 @@ In a console/terminal, run these commands:
 
 ## Notes
 
-Twitch recently changed what it supports in terms of browsers.
-
-So this example may or may not continue to work.
+Twitch recently changed what it supports in terms of browsers. And as such the magic Electron intercepts/not needing to open the users regular browser no longer work
 
 https://twitter.com/TwitchSupport/status/1575571090994102272

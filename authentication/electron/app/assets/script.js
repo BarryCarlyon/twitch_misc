@@ -1,4 +1,12 @@
 console.log('loaded');
+
+document.addEventListener('click', (e) => {
+    if (e.target.tagName == 'A') {
+        e.preventDefault();
+        window.electron.openWeb(e.target.getAttribute('href'));
+    }
+});
+
 window.electron.onTwitchUser(user => {
 	let table = document.getElementById('user');
 	table.textContent = '';
