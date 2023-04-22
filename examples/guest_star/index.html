@@ -164,8 +164,13 @@
 
             switch (func) {
                 case 'start':
+                    var url = new URL('https://api.twitch.tv/helix/guest_star/session');
+                    url.search = new URLSearchParams([
+                        [ 'broadcaster_id', broadcaster_id ]
+                    ]);
+
                     var req = await fetch(
-                        `https://api.twitch.tv/helix/guest_star/session?broadcaster_id=${broadcaster_id}`,
+                        url,
                         {
                             method: 'POST',
                             headers: {
@@ -190,8 +195,14 @@
                     loadSession();
                     return;
                 case 'stop':
+                    var url = new URL('https://api.twitch.tv/helix/guest_star/session');
+                    url.search = new URLSearchParams([
+                        [ 'broadcaster_id', broadcaster_id ],
+                        [ 'session_id', active_session_id ]
+                    ]);
+
                     var req = await fetch(
-                        `https://api.twitch.tv/helix/guest_star/session?broadcaster_id=${broadcaster_id}&session_id=${active_session_id}`,
+                        url,
                         {
                             method: 'DELETE',
                             headers: {
@@ -207,8 +218,16 @@
                     loadSession();
                     break;
                 case 'delete_invite':
+                    var url = new URL('https://api.twitch.tv/helix/guest_star/invites');
+                    url.search = new URLSearchParams([
+                        [ 'broadcaster_id', broadcaster_id ],
+                        [ 'moderator_id', moderator_id ],
+                        [ 'session_id', active_session_id ],
+                        [ 'guest_id', e.target.getAttribute('data-user-id') ]
+                    ]);
+                
                     var req = await fetch(
-                        `https://api.twitch.tv/helix/guest_star/invtites?broadcaster_id=${broadcaster_id}&moderator_id=${moderator_id}&session_id=${active_session_id}&guest_id=${e.target.getAttribute('data-user-id')}`,
+                        url,
                         {
                             method: 'DELETE',
                             headers: {
@@ -221,7 +240,8 @@
                         return;
                     }
                     status_bar.textContent = 'Deleted Invite';
-                    loadSession();
+
+                    refreshInvites();
                     break;
             }
         });
@@ -318,6 +338,10 @@
         }
         let refreshInvitesTimer = false;
         async function refreshInvites() {
+            if (active_session_id == '') {
+                return;
+            }
+
             let url = new URL('https://api.twitch.tv/helix/guest_star/invites');
             url.search = new URLSearchParams([
                 [ 'broadcaster_id', broadcaster_id ],
@@ -360,9 +384,10 @@
                 
                 var c = r.insertCell();
                 let kill_invite = document.createElement('button');
-                kill_invite.textContent = 'x';
+                kill_invite.textContent = 'Del';
                 kill_invite.setAttribute('data-user-id', user_id);
-                kill_invite.setAttribute('data-function', 'delete_invite')
+                kill_invite.setAttribute('data-function', 'delete_invite');
+                c.append(kill_invite);
             }
 
             let users = new URL('https://api.twitch.tv/helix/users');
@@ -448,6 +473,7 @@
             if (invite.status == 204) {
                 // yay
                 status_bar.textContent = `Invite sent to ${username}`;
+                refreshInvites();
                 return;
             }
 
