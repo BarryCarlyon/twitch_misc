@@ -35,7 +35,7 @@
             <input type="button" id="master_control" data-function="start_stop" value="Start Guest Star" />
         </div>
         <div id="ui" style="display: flex;">
-            <div id="invite_manager" style="width: 33%;">
+            <div id="invite_manager" style="width: 40%;">
                 <form action="" method="post" id="invite_username_form">
                     <fieldset>
                         <legend>Create Invite</legend>
@@ -44,7 +44,7 @@
                 </form>
                 <table id="invite_manager_list"></table>
             </div>
-            <div style="width: 66%;">
+            <div style="width: 60%;">
                 <div id="settings">
                     <form action="" method="post" id="settings_form">
                         <fieldset style="display: flex">
@@ -77,6 +77,48 @@
                         <input type="submit" value="Update Settings" />
                     </form>
                 </div>
+
+                <div id="slots">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Who</th>
+                                <th>Move Guest</th>
+                                <th>Live/Backstage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="slot_1_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="1" id="slot_1_move"><option selected="selected">1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="1" id="slot_1_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                            </tr>
+                            <tr>
+                                <td id="slot_2_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="2" id="slot_2_move"><option>1</option><option selected="selected">2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="2" id="slot_2_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                            </tr>
+                            <tr>
+                                <td id="slot_3_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="3" id="slot_3_move"><option>1</option><option>2</option><option selected="selected">3</option><option>4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="3" id="slot_3_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                            </tr>
+                            <tr>
+                                <td id="slot_4_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="4" id="slot_4_move"><option>1</option><option>2</option><option>3</option><option selected="selected">4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="4" id="slot_4_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                            </tr>
+                            <tr>
+                                <td id="slot_5_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="5" id="slot_5_move"><option>1</option><option>2</option><option>3</option><option>4</option><option selected="selected">5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="5" id="slot_5_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="layout">
+                <table></table>
             </div>
         </div>
     </div>
@@ -225,7 +267,7 @@
                         [ 'session_id', active_session_id ],
                         [ 'guest_id', e.target.getAttribute('data-user-id') ]
                     ]);
-                
+
                     var req = await fetch(
                         url,
                         {
@@ -331,11 +373,20 @@
             active_session_id = id;
 
             // process slots
+            let { guests } = session.data[0];
+            buildGuests(guests);
+
+            // spawn invite check
+            initInvite();
+        }
+
+        function initInvite() {
             // check invites
             refreshInvites();
             clearInterval(refreshInvitesTimer);
             refreshInvitesTimer = setInterval(refreshInvites, 5000);
         }
+
         let refreshInvitesTimer = false;
         async function refreshInvites() {
             if (active_session_id == '') {
@@ -381,13 +432,31 @@
                 c.textContent = status;
                 var c = r.insertCell();
                 c.textContent = invited_at;
-                
+
                 var c = r.insertCell();
                 let kill_invite = document.createElement('button');
                 kill_invite.textContent = 'Del';
                 kill_invite.setAttribute('data-user-id', user_id);
                 kill_invite.setAttribute('data-function', 'delete_invite');
                 c.append(kill_invite);
+
+                var c = r.insertCell();
+                let slot = document.createElement('select');
+                c.append(slot);
+
+                slot.setAttribute('data-user-id', user_id);
+                var b = document.createElement('option');
+                b.value = `Assign Slot`;
+                slot.append(b);
+
+                for (var slot_id=1;slot_id<=5;slot_id++) {
+                    let opt = document.createElement('option');
+                    opt.value = slot_id;
+                    opt.textContent = `Slot ${slot_id}`
+                    slot.append(opt);
+                }
+
+                slot.addEventListener('change', slotUser);
             }
 
             let users = new URL('https://api.twitch.tv/helix/users');
@@ -406,6 +475,54 @@
             userData.data.forEach(user => {
                 let { id, display_name } = user;
                 document.querySelector(`td[data-user-id="${id}"]`).textContent = display_name;
+            });
+        }
+
+        async function buildGuests(guests) {
+            status_bar.textContent = 'Checking the Guest List';
+
+            let slot_ref = {}
+            let user_ids = []
+            for (var x=0;x<guests.length;x++) {
+                // slot_id 0 is the streamer
+                // and local video
+                let { slot_id, user_id, is_live } = guests[x];
+                if (slot_id != 0) {
+                    let sel = document.getElementById(`slot_${slot_id}_live`);
+                    if (is_live) {
+                        sel.value = 'live';
+                    } else {
+                        sel.value = 'backstage';
+                    }
+
+                    slot_ref[user_id] = document.getElementById(`slot_${slot_id}_guest`);
+                    user_ids.push([ 'id', user_id ]);
+                }
+            }
+
+            // get user names
+            let users = new URL('https://api.twitch.tv/helix/users');
+            users.search = new URLSearchParams(user_ids);
+
+            let userReq = await fetch(
+                users,
+                {
+                    method: 'GET',
+                    headers: {
+                        ...commonHeaders
+                    }
+                }
+            );
+            if (userReq.status != 200) {
+                // oh no
+                status_bar.textContent = 'Something went wrong looking up guests';
+                return;
+            }
+
+            let userData = await userReq.json();
+            userData.data.forEach(user => {
+                let { id, login } = user;
+                slot_ref[id].textContent = login;
             });
         }
 
@@ -522,6 +639,8 @@
                 let { session_id } = payload.event;
                 active_session_id = session_id;
 
+                initInvite();
+
                 master_control.setAttribute('data-function', 'stop');
                 master_control.value = 'End Guest Star';
             });
@@ -532,7 +651,7 @@
                 master_control.value = 'Start Guest Star';
             });
             eventSubController.on('channel.guest_star_settings.update', ({ metadata, payload }) => {
-                let { is_moderator_send_live_enabled, slot_count, is_browser_source_audio_enabled, browser_source_group_layout } = payload.event;
+                let { is_moderator_send_live_enabled, slot_count, is_browser_source_audio_enabled, group_layout } = payload.event;
 
                 if (is_moderator_send_live_enabled) {
                     document.querySelector('input[name="is_moderator_send_live_enabled"]').setAttribute('checked', 'checked');
@@ -545,9 +664,152 @@
                 } else {
                     document.querySelector('input[name="is_browser_source_audio_enabled"]').removeAttribute('checked');
                 }
-                document.querySelector('select[name="group_layout"]').value = browser_source_group_layout.toUpperCase();
+                document.querySelector('select[name="group_layout"]').value = group_layout.toUpperCase();
+            });
+
+            eventSubController.on('channel.guest_star_guest.update', ({ metadata, payload }) => {
+                let { slot_id, guest_user_login, state } = payload.event;
+
+                console.log(`Update ${slot_id} to ${guest_user_login} with ${state}`);
+
+                let el = document.getElementById(`slot_${slot_id}_guest`);
+                if (!el) {
+                    // errr
+                    return;
+                }
+
+                el.textContent = guest_user_login;
+
+                let st = document.getElementById(`slot_${slot_id}_live`);
+                st.value = state;
             });
         }
+
+
+        /*
+        Slotting
+        */
+        async function slotUser(e) {
+            let guest_id = e.target.getAttribute('data-user-id');
+            let slot_id = e.target.value;
+
+            console.log(`Putting ${guest_id} into ${slot_id}`);
+            status_bar.textContent = `Putting ${guest_id} into ${slot_id}`;
+
+            let slotAttempt = await fetch(
+                'https://api.twitch.tv/helix/guest_star/slot',
+                {
+                    method: 'POST',
+                    headers: {
+                        ...commonHeaders,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        broadcaster_id,
+                        moderator_id,
+                        session_id: active_session_id,
+                        slot_id,
+                        guest_id
+                    })
+                }
+            );
+
+            if (slotAttempt.status == 204) {
+                // yay
+                status_bar.textContent = `Slotted ${guest_id} into ${slot_id}`;
+                return;
+            }
+
+            let data = await slotAttempt.json();
+            status_bar.textContent = `Failed to Slot User - ${data.message}`;
+        }
+
+        async function makeSlotLive(slot_id, is_live) {
+            status_bar.textContent = `Making ${slot_id} into ${is_live ? 'Live' : 'Backstage'}`;
+
+            let slotAttempt = await fetch(
+                'https://api.twitch.tv/helix/guest_star/slot_settings',
+                {
+                    method: 'PATCH',
+                    headers: {
+                        ...commonHeaders,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        broadcaster_id,
+                        moderator_id,
+                        session_id: active_session_id,
+                        slot_id,
+                        is_live
+                    })
+                }
+            );
+
+            if (slotAttempt.status == 204) {
+                // yay
+                status_bar.textContent = `Updated ${slot_id} into ${is_live ? 'Live' : 'Backstage'}`;
+                return;
+            }
+
+            let data = await slotAttempt.json();
+            status_bar.textContent = `Failed to Update Slot - ${data.message}`;
+        }
+
+        async function moveSlot(source_slot_id, destination_slot_id) {
+            status_bar.textContent = `Moving ${source_slot_id} into ${destination_slot_id}`;
+
+            let slotAttempt = await fetch(
+                'https://api.twitch.tv/helix/guest_star/slot',
+                {
+                    method: 'PATCH',
+                    headers: {
+                        ...commonHeaders,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        broadcaster_id,
+                        moderator_id,
+                        session_id: active_session_id,
+                        source_slot_id,
+                        destination_slot_id
+                    })
+                }
+            );
+
+            if (slotAttempt.status == 204) {
+                // yay
+                status_bar.textContent = `Moved ${source_slot_id} into ${destination_slot_id}`;
+                return;
+            }
+
+            let data = await slotAttempt.json();
+            status_bar.textContent = `Failed to Move Slot - ${data.message}`;
+        }
+
+        /*
+        Slot Control
+        */
+        slots.addEventListener('change', (e) => {
+            let func = e.target.getAttribute('data-function');
+            if (!func) {
+                return;
+            }
+            let slot_id = e.target.getAttribute('data-slot-id');
+
+            switch (func) {
+                case 'slot_guest':
+                    let destination = e.target.value;
+                    moveSlot(slot_id, destination);
+                    break;
+                case 'slot_live':
+                    let is_live = false;
+                    if (e.target.value == 'live') {
+                        is_live = true;
+                    }
+                    makeSlotLive(slot_id, is_live);
+                    break;
+            }
+        });
     </script>
 </body>
 </html>
