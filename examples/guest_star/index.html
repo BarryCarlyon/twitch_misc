@@ -23,6 +23,19 @@
             text-align: center;
             cursor: pointer;
         }
+
+        tr {
+            position: relative;
+        }
+        tr.disabled:after {
+            content: '';
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: rgb(255 0 0 / 50%);
+        }
     </style>
 </head>
 <body>
@@ -121,7 +134,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr id="slot_1">
                                 <td id="slot_1_guest"></td>
                                 <td><select data-function="slot_guest" data-slot-id="1" id="slot_1_move"><option>Remove</option><option>Queue</option></option><option selected="selected">1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
                                 <td><select data-function="slot_live" data-slot-id="1" id="slot_1_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
@@ -152,7 +165,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr id="slot_2">
                                 <td id="slot_2_guest"></td>
                                 <td><select data-function="slot_guest" data-slot-id="2" id="slot_2_move"><option>Remove</option><option>Queue</option><option>1</option><option selected="selected">2</option><option>3</option><option>4</option><option>5</option></select></td>
                                 <td><select data-function="slot_live" data-slot-id="2" id="slot_2_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
@@ -183,7 +196,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr id="slot_3">
                                 <td id="slot_3_guest"></td>
                                 <td><select data-function="slot_guest" data-slot-id="3" id="slot_3_move"><option>Remove</option><option>Queue</option><option>1</option><option>2</option><option selected="selected">3</option><option>4</option><option>5</option></select></td>
                                 <td><select data-function="slot_live" data-slot-id="3" id="slot_3_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
@@ -214,7 +227,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr id="slot_4">
                                 <td id="slot_4_guest"></td>
                                 <td><select data-function="slot_guest" data-slot-id="4" id="slot_4_move"><option>Remove</option><option>Queue</option><option>1</option><option>2</option><option>3</option><option selected="selected">4</option><option>5</option></select></td>
                                 <td><select data-function="slot_live" data-slot-id="4" id="slot_4_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
@@ -245,7 +258,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr id="slot_5">
                                 <td id="slot_5_guest"></td>
                                 <td><select data-function="slot_guest" data-slot-id="5" id="slot_5_move"><option>Remove</option><option>Queue</option><option>1</option><option>2</option><option>3</option><option>4</option><option selected="selected">5</option></select></td>
                                 <td><select data-function="slot_live" data-slot-id="5" id="slot_5_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
@@ -280,9 +293,6 @@
                     </table>
                 </div>
             </div>
-            <div id="layout">
-                <table></table>
-            </div>
         </div>
     </div>
 
@@ -298,6 +308,7 @@
         let broadcaster_id = '';
         let moderator_id = '';
         let active_session_id = '';
+        let active_session_slot_count = 0;
 
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:manage:guest_star+moderator:manage:guest_star');
 
@@ -758,7 +769,20 @@
             } else {
                 document.querySelector('input[name="is_moderator_send_live_enabled"]').removeAttribute('checked');
             }
+
+            active_session_slot_count = slot_count;
             document.querySelector('select[name="slot_count"]').value = slot_count;
+            for (var x=1;x<=5;x++) {
+                let layout_row = document.getElementById(`slot_${x}`);
+                if (x <= slot_count) {
+                    layout_row.removeAttribute('disabled');
+                    layout_row.classList.remove('disabled');
+                } else {
+                    layout_row.setAttribute('disabled', 'disabled');
+                    layout_row.classList.add('disabled');
+                }
+            }
+
             if (is_browser_source_audio_enabled) {
                 document.querySelector('input[name="is_browser_source_audio_enabled"]').setAttribute('checked', 'checked');
             } else {
@@ -920,6 +944,11 @@
             let guest_id = e.target.getAttribute('data-user-id');
             let slot_id = e.target.value;
 
+            if (slot_id > active_session_slot_count) {
+                status_bar.textContent = `${slot_id} is > ${active_session_slot_count}`;
+                return;
+            }
+
             console.log(`Putting ${guest_id} into ${slot_id}`);
             status_bar.textContent = `Putting ${guest_id} into ${slot_id}`;
 
@@ -1018,6 +1047,11 @@
             }
 
         async function moveSlot(source_slot_id, destination_slot_id) {
+            if (destination_slot_id > active_session_slot_count) {
+                status_bar.textContent = `${destination_slot_id} is > ${active_session_slot_count}`;
+                return;
+            }
+
             status_bar.textContent = `Moving ${source_slot_id} into ${destination_slot_id}`;
 
             let slotAttempt = await fetch(
