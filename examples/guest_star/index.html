@@ -310,6 +310,8 @@
         let active_session_id = '';
         let active_session_slot_count = 0;
 
+        let user_name_cache = {};
+
         document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:manage:guest_star+moderator:manage:guest_star');
 
         async function getUserData(username) {
@@ -616,16 +618,31 @@
             for (let x=0;x<invited.data.length;x++) {
                 let { user_id, invited_at, status } = invited.data[x];
 
-                user_ids.push([ 'id', user_id ]);
-
                 let r = invite_manager_list.insertRow();
                 var c = r.insertCell();
                 c.setAttribute('data-user-id', user_id);
-                c.textContent = user_id;
+
+                if (user_name_cache.hasOwnProperty(user_id)) {
+                    c.textContent = user_name_cache[user_id].display_name;
+                } else {
+                    user_ids.push([ 'id', user_id ]);
+                    c.textContent = user_id;
+                }
+
                 var c = r.insertCell();
                 c.textContent = status;
                 var c = r.insertCell();
-                c.textContent = invited_at;
+
+                //c.textContent = invited_at;
+                let ago = new Date().getTime() - new Date(invited_at).getTime();
+                let seconds = Math.floor(ago / 1000);
+                let mins = Math.floor(seconds / 60);
+                seconds = seconds - (mins * 60);
+
+                mins = mins < 10 ? `0${mins}` : mins;
+                seconds = seconds < 10 ? `0${seconds}` : seconds;
+
+                c.textContent = `${mins}:${seconds} ago`;
 
                 var c = r.insertCell();
                 let kill_invite = document.createElement('button');
@@ -656,6 +673,10 @@
                 }
             }
 
+            if (user_ids.length == 0) {
+                return;
+            }
+
             let users = new URL('https://api.twitch.tv/helix/users');
             users.search = new URLSearchParams(user_ids);
 
@@ -672,14 +693,26 @@
             userData.data.forEach(user => {
                 let { id, display_name } = user;
                 document.querySelector(`td[data-user-id="${id}"]`).textContent = display_name;
+
+                user_name_cache[id] = user;
             });
         }
 
         async function buildGuests(guests) {
             status_bar.textContent = 'Checking the Guest List';
 
-            let slot_ref = {}
-            let user_ids = []
+            let slot_ref = {};
+            let user_ids = [];
+
+            let actives = slots.querySelectorAll('.active');
+            for (var x=0;x<actives.length;x++) {
+                actives[x].classList.remove('active');
+            }
+            let inactives = slots.querySelectorAll('.inactive');
+            for (var x=0;x<inactives.length;x++) {
+                inactives[x].classList.remove('active');
+            }
+
             for (var x=0;x<guests.length;x++) {
                 // slot_id 0 is the streamer
                 // and local video
@@ -695,8 +728,12 @@
                     let mov = document.getElementById(`slot_${slot_id}_move`);
                     mov.setAttribute('data-user-id', user_id);
 
-                    slot_ref[user_id] = document.getElementById(`slot_${slot_id}_guest`);
-                    user_ids.push([ 'id', user_id ]);
+                    if (user_name_cache.hasOwnProperty(user_id)) {
+                        document.getElementById(`slot_${slot_id}_guest`).textContent = user_name_cache[user_id].display_name;
+                    } else {
+                        slot_ref[user_id] = document.getElementById(`slot_${slot_id}_guest`);
+                        user_ids.push([ 'id', user_id ]);
+                    }
 
                     let { audio, video, volume } = guests[x];
                     // mic
@@ -720,6 +757,11 @@
                 }
             }
 
+            if (user_ids.length == 0) {
+                // no guests
+                return;
+            }
+
             // get user names
             let users = new URL('https://api.twitch.tv/helix/users');
             users.search = new URLSearchParams(user_ids);
@@ -741,8 +783,10 @@
 
             let userData = await userReq.json();
             userData.data.forEach(user => {
-                let { id, login } = user;
-                slot_ref[id].textContent = login;
+                let { id, display_name } = user;
+                slot_ref[id].textContent = display_name;
+
+                user_name_cache[id] = user;
             });
         }
 
