@@ -629,28 +629,31 @@
 
                 var c = r.insertCell();
                 let kill_invite = document.createElement('button');
-                kill_invite.textContent = 'Del';
+                //kill_invite.textContent = 'Del';
+                kill_invite.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg>';
                 kill_invite.setAttribute('data-user-id', user_id);
                 kill_invite.setAttribute('data-function', 'delete_invite');
                 c.append(kill_invite);
 
                 var c = r.insertCell();
-                let slot = document.createElement('select');
-                c.append(slot);
+                if (status == 'READY') {
+                    let slot = document.createElement('select');
+                    c.append(slot);
 
-                slot.setAttribute('data-user-id', user_id);
-                var b = document.createElement('option');
-                b.value = `Assign Slot`;
-                slot.append(b);
+                    slot.setAttribute('data-user-id', user_id);
+                    var b = document.createElement('option');
+                    b.textContent = `Assign Slot`;
+                    slot.append(b);
 
-                for (var slot_id=1;slot_id<=5;slot_id++) {
-                    let opt = document.createElement('option');
-                    opt.value = slot_id;
-                    opt.textContent = `Slot ${slot_id}`
-                    slot.append(opt);
+                    for (var slot_id=1;slot_id<=5;slot_id++) {
+                        let opt = document.createElement('option');
+                        opt.value = slot_id;
+                        opt.textContent = `Slot ${slot_id}`
+                        slot.append(opt);
+                    }
+
+                    slot.addEventListener('change', slotUser);
                 }
-
-                slot.addEventListener('change', slotUser);
             }
 
             let users = new URL('https://api.twitch.tv/helix/users');
@@ -763,7 +766,11 @@
             }
             let session = await request.json();
 
-            let { is_moderator_send_live_enabled, slot_count, is_browser_source_audio_enabled, group_layout } = session.data[0];
+            drawSession(session.data[0]);
+        }
+
+        function drawSession(session_data) {
+            let { is_moderator_send_live_enabled, slot_count, is_browser_source_audio_enabled, group_layout } = session_data;
             if (is_moderator_send_live_enabled) {
                 document.querySelector('input[name="is_moderator_send_live_enabled"]').setAttribute('checked', 'checked');
             } else {
@@ -882,20 +889,9 @@
             });
 
             eventSubController.on('channel.guest_star_settings.update', ({ metadata, payload }) => {
-                let { is_moderator_send_live_enabled, slot_count, is_browser_source_audio_enabled, group_layout } = payload.event;
-
-                if (is_moderator_send_live_enabled) {
-                    document.querySelector('input[name="is_moderator_send_live_enabled"]').setAttribute('checked', 'checked');
-                } else {
-                    document.querySelector('input[name="is_moderator_send_live_enabled"]').removeAttribute('checked');
-                }
-                document.querySelector('select[name="slot_count"]').value = slot_count;
-                if (is_browser_source_audio_enabled) {
-                    document.querySelector('input[name="is_browser_source_audio_enabled"]').setAttribute('checked', 'checked');
-                } else {
-                    document.querySelector('input[name="is_browser_source_audio_enabled"]').removeAttribute('checked');
-                }
-                document.querySelector('select[name="group_layout"]').value = group_layout.toUpperCase();
+                drawSession(payload.event);
+                // load guests
+                loadSession();
             });
 
             eventSubController.on('channel.guest_star_guest.update', ({ metadata, payload }) => {
@@ -918,6 +914,16 @@
                     el.textContent = '';
                     st.value = 'backstage';
                     mov.removeAttribute('data-user-id');
+
+                    // reset mic/cam
+                    let mic = document.getElementById(`slot_${slot_id}_mic`);
+                        mic.classList.remove('active');
+                        mic.classList.remove('inactive');
+                    // cam
+                    let cam = document.getElementById(`slot_${slot_id}_cam`);
+                        cam.classList.remove('active');
+                        cam.classList.remove('inactive');
+
                     return;
                 }
 
@@ -945,7 +951,7 @@
             let slot_id = e.target.value;
 
             if (slot_id > active_session_slot_count) {
-                status_bar.textContent = `${slot_id} is > ${active_session_slot_count}`;
+                status_bar.textContent = `Cannot add to slot due to slot max ${slot_id} is > ${active_session_slot_count}`;
                 return;
             }
 
@@ -973,6 +979,9 @@
             if (slotAttempt.status == 204) {
                 // yay
                 status_bar.textContent = `Slotted ${guest_id} into ${slot_id}`;
+
+                // reload
+                loadSession();
                 return;
             }
 
@@ -1048,7 +1057,7 @@
 
         async function moveSlot(source_slot_id, destination_slot_id) {
             if (destination_slot_id > active_session_slot_count) {
-                status_bar.textContent = `${destination_slot_id} is > ${active_session_slot_count}`;
+                status_bar.textContent = `Cannot change slot due to slot max ${destination_slot_id} is > ${active_session_slot_count}`;
                 return;
             }
 
@@ -1092,7 +1101,7 @@
             let slotAttempt = await fetch(
                 'https://api.twitch.tv/helix/guest_star/slot',
                 {
-                    method: 'DEELTE',
+                    method: 'DELETE',
                     headers: {
                         ...commonHeaders,
                         'Content-Type': 'application/json'
