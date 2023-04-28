@@ -59,7 +59,7 @@ class initSocket {
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/message_event
         this.eventsub.addEventListener('message', (message) => {
             //console.log('Message');
-            console.log(this.eventsub.counter, message);
+            //console.log(this.eventsub.counter, message);
             let { data } = message;
             data = JSON.parse(data);
 
