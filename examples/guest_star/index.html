@@ -453,7 +453,7 @@
                             }
                         }
                     );
-                    if (req.status != 200) {
+                    if (req.status != 204) {
                         status_bar.textContent = 'Failed to Delete Invite: ' + await req.text();
                         return;
                     }
@@ -630,6 +630,7 @@
                 }
 
                 var c = r.insertCell();
+                c.setAttribute('data-invite-state', user_id);
                 c.textContent = status;
                 var c = r.insertCell();
 
@@ -942,6 +943,15 @@
                 let { slot_id, guest_user_id, guest_user_login, state } = payload.event;
 
                 console.log(`Update ${slot_id} to ${guest_user_login} with ${state}`);
+
+                //if (state == 'ready') {
+                if (!slot_id) {
+                    // user became ready in the invite list
+                    //data-invite-state
+                    document.querySelector(`td[data-invite-state="${guest_user_id}"]`).textContent = state;
+
+                    return;
+                }
 
                 let el = document.getElementById(`slot_${slot_id}_guest`);
                 if (!el) {
