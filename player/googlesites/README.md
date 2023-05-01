@@ -84,6 +84,17 @@ Something like:
 </script>
 ```
 
+For Clips
+
+```json
+<script type="text/javascript">
+  var parent = ['sites.google.com', 'www.gstatic.com', window.location.host];
+  console.log(parent);
+  document.getElementById('chat_frame').setAttribute('src', document.getElementById('chat_frame').getAttribute('src') + '&parent=' + parent.join('&parent='));
+</script>
+```
+
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via Google Pages/Sites!
