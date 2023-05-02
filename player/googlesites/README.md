@@ -78,19 +78,20 @@ Something like:
 <iframe src="https://www.twitch.tv/embed/monstercat/chat" id="chat_frame" style="width: 800px; height: 400px;"></iframe>
 
 <script type="text/javascript">
-  var parent = ['sites.google.com', 'www.gstatic.com', window.location.host];
+  var parent = ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host];
   console.log(parent);
   document.getElementById('chat_frame').setAttribute('src', document.getElementById('chat_frame').getAttribute('src') + '?parent=' + parent.join('&parent='));
 </script>
 ```
 
-For Clips
+### But What about For Clips
 
-```json
+```html
+<iframe src="https://clips.twitch.tv/embed?clip=CLIPSLUG" id="chat_frame" style="width: 800px; height: 400px;"></iframe>
+
 <script type="text/javascript">
-  var parent = ['sites.google.com', 'www.gstatic.com', window.location.host];
-  console.log(parent);
-  document.getElementById('chat_frame').setAttribute('src', document.getElementById('chat_frame').getAttribute('src') + '&parent=' + parent.join('&parent='));
+  var parent = ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host];
+  document.getElementById('clip_frame').setAttribute('src', document.getElementById('clip_frame').getAttribute('src') + '&parent=' + parent.join('&parent='));
 </script>
 ```
 
