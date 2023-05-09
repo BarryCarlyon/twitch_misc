@@ -673,7 +673,7 @@ function bindEventSubTriggers() {
         let mov = document.getElementById(`slot_${slot_id}_move`);
 
         if (state == 'invited') {
-            // this slot was emptied
+            // this slot was emptied of the user and the user was removed or queued
             el.textContent = '';
             st.value = 'backstage';
             mov.removeAttribute('data-user-id');
