@@ -110,7 +110,8 @@ controls.addEventListener('click', async (e) => {
             //active_session_id = id;
 
             status_bar.textContent = 'Started a Guest Star Session';
-            loadSession();
+            console.log('Skipping the load');
+            //loadSession();
             return;
         case 'stop':
             var url = new URL('https://api.twitch.tv/helix/guest_star/session');
@@ -133,7 +134,7 @@ controls.addEventListener('click', async (e) => {
                 return;
             }
             status_bar.textContent = 'Stopped Guest Star Session';
-            loadSession();
+            //loadSession();
             break;
         case 'delete_invite':
             var url = new URL('https://api.twitch.tv/helix/guest_star/invites');
@@ -701,8 +702,45 @@ function bindEventSubTriggers() {
     eventSubController.on('channel.guest_star_slot.update', ({ metadata, payload }) => {
         console.log('slot update', payload.event);
         let { slot_id, host_video_enabled, host_audio_enabled, host_volume } = payload.event;
+        let { guest_user_id, guest_user_login, guest_user_name } = payload.event;
 
+        // redraw the table line for slot_id
+        let targetRow = document.getElementById(`slot_${slot_id}`);
+        let targetGuest = document.getElementById(`slot_${slot_id}_guest`);
+        let targetLive = document.getElementById(`slot_${slot_id}_live`);
+        let mic = document.getElementById(`slot_${slot_id}_mic`);
+        let cam = document.getElementById(`slot_${slot_id}_cam`);
 
+        if (guest_user_id == null) {
+            // the slot was emptied
+            targetGuest.textContent = '';
+            targetLive.value = 'backstage';
+            mic.classList.remove('active');
+            mic.classList.remove('inactive');
+            cam.classList.remove('active');
+            cam.classList.remove('inactive');
+
+            return;
+        }
+
+        targetGuest.textContent = guest_user_name;
+        //targetLive.value = 'backstage';// missing data....
+
+        if (host_audio_enabled) {
+            mic.classList.add('active');
+            mic.classList.remove('inactive');
+        } else {
+            mic.classList.remove('active');
+            mic.classList.add('inactive');
+        }
+
+        if (host_video_enabled) {
+            cam.classList.add('active');
+            cam.classList.remove('inactive');
+        } else {
+            cam.classList.remove('active');
+            cam.classList.add('inactive');
+        }
     });
 }
 
@@ -745,7 +783,8 @@ async function slotUser(e) {
         status_bar.textContent = `Slotted ${guest_id} into ${slot_id}`;
 
         // reload
-        loadSession();
+        console.log('Skip reload');
+        //loadSession();
         return;
     }
 
@@ -810,7 +849,7 @@ async function makeSlotLive(slot_id, is_live) {
 
             // no eventsub for the result
             // request guest/redraw
-            loadSession();
+            console.log('Skip full reload');
 
             return;
         }
@@ -851,7 +890,8 @@ async function moveSlot(source_slot_id, destination_slot_id) {
 
         // no eventsub for the result
         // request guest/redraw
-        loadSession();
+        console.log('skip reload');
+        //loadSession();
 
         return;
     }
