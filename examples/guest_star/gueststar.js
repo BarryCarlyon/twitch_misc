@@ -145,6 +145,9 @@ controls.addEventListener('click', async (e) => {
         case 'refresh_invites':
             refreshInvites();
             break;
+        case 'slot_refresh':
+            loadSession();
+            break;
         case 'delete_invite':
             var url = new URL('https://api.twitch.tv/helix/guest_star/invites');
             url.search = new URLSearchParams([
@@ -711,6 +714,9 @@ function bindEventSubTriggers() {
         let st = document.getElementById(`slot_${slot_id}_live`);
         let mov = document.getElementById(`slot_${slot_id}_move`);
 
+        let mic = document.getElementById(`slot_${slot_id}_mic`);
+        let cam = document.getElementById(`slot_${slot_id}_cam`);
+
         if (state == 'invited') {
             // this slot was emptied of the user and the user was removed or queued
             el.textContent = '';
@@ -718,11 +724,9 @@ function bindEventSubTriggers() {
             mov.removeAttribute('data-user-id');
 
             // reset mic/cam
-            let mic = document.getElementById(`slot_${slot_id}_mic`);
                 mic.classList.remove('active');
                 mic.classList.remove('inactive');
             // cam
-            let cam = document.getElementById(`slot_${slot_id}_cam`);
                 cam.classList.remove('active');
                 cam.classList.remove('inactive');
 
@@ -738,6 +742,12 @@ function bindEventSubTriggers() {
         st.value = state;
 
         mov.setAttribute('data-user-id', guest_user_id);
+
+        // mic cam
+        loadSession();
+        // I don't know what the mic/cam state is
+        mic.classList.add('active');
+        cam.classList.add('active');
     });
 
 
