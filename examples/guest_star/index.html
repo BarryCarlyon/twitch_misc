@@ -36,6 +36,9 @@
             bottom: 0px;
             background: rgb(255 0 0 / 50%);
         }
+        input[type="button"][data-function="stop"] {
+            background: rgb(255 0 0 / 50%);
+        }
     </style>
 </head>
 <body>
@@ -51,7 +54,7 @@
     <div id="status_bar"></div>
 
     <div id="selector" style="display: none;">
-        <form action="" method="post">
+        <form action="" method="post" id="moderate_channel_form">
             <fieldset>
                 <div style="width: 30%; display: inline-block;">
                     <input type="text" id="moderate_channel_name" placeholder="Control a Channel" />

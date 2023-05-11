@@ -59,13 +59,18 @@ async function processToken(token) {
     selector.style.display = 'block';
 }
 
-moderate_channel.addEventListener('click', (e) => {
+
+function moderateChannel(e) => {
+    e.preventDefault();
+
     let user = getUserData(moderate_channel_name.textContent);
 
     broadcaster_id = user.id;
 
     initGuestStar();
-});
+}
+moderate_channel_form.addEventListener('submit', moderateChannel);
+moderate_channel.addEventListener('click', moderateChannel);
 control_channel.addEventListener('click', (e) => {
     broadcaster_id = moderator_id;
 
