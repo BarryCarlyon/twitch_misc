@@ -69,6 +69,33 @@ If you are using a custom domain, same `https://www.mycoolwebsite.com/` then you
 </html>
 ```
 
+### What about dumb iframes?
+
+Put in the dumb iframe url, and then add a bit of javacript to append a parent.
+Something like:
+
+```html
+<iframe src="https://www.twitch.tv/embed/monstercat/chat" id="chat_frame" style="width: 800px; height: 400px;"></iframe>
+
+<script type="text/javascript">
+  var parent = ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host];
+  console.log(parent);
+  document.getElementById('chat_frame').setAttribute('src', document.getElementById('chat_frame').getAttribute('src') + '?parent=' + parent.join('&parent='));
+</script>
+```
+
+### But What about For Clips
+
+```html
+<iframe src="https://clips.twitch.tv/embed?clip=CLIPSLUG" id="chat_frame" style="width: 800px; height: 400px;"></iframe>
+
+<script type="text/javascript">
+  var parent = ['www.mycoolwebsite.com', 'sites.google.com', 'www.gstatic.com', window.location.host];
+  document.getElementById('clip_frame').setAttribute('src', document.getElementById('clip_frame').getAttribute('src') + '&parent=' + parent.join('&parent='));
+</script>
+```
+
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via Google Pages/Sites!
