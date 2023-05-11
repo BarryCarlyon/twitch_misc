@@ -1,6 +1,5 @@
-let counter = 0;
-
 class initSocket {
+    counter: 0,
     closeCodes = {
         4000: 'Internal Server Error',
         4001: 'Client sent inbound traffic',
@@ -22,7 +21,7 @@ class initSocket {
 
     connect(url, is_reconnect) {
         this.eventsub = {};
-        counter++;
+        this.counter++;
 
         url = url ? url : 'wss://eventsub.wss.twitch.tv/ws';
         is_reconnect = is_reconnect ? is_reconnect : false;
