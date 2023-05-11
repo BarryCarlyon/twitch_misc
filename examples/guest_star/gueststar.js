@@ -60,7 +60,7 @@ async function processToken(token) {
 }
 
 
-function moderateChannel(e) => {
+function moderateChannel(e) {
     e.preventDefault();
 
     let user = getUserData(moderate_channel_name.textContent);
