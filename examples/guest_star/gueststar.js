@@ -141,6 +141,10 @@ controls.addEventListener('click', async (e) => {
             status_bar.textContent = 'Stopped Guest Star Session';
             //loadSession();
             break;
+
+        case 'refresh_invites':
+            refreshInvites();
+            break;
         case 'delete_invite':
             var url = new URL('https://api.twitch.tv/helix/guest_star/invites');
             url.search = new URLSearchParams([
@@ -164,8 +168,6 @@ controls.addEventListener('click', async (e) => {
                 return;
             }
             status_bar.textContent = 'Deleted Invite';
-
-            refreshInvites();
             break;
 
         case 'slot_mute':
@@ -283,11 +285,12 @@ async function loadSession() {
 Hole in eventsub!
 */
 function initInvite() {
-    console.log('Suppress initinvite');
-    return;
-
     // check invites
     refreshInvites();
+
+    console.log('Suppress initinvite refresh timer');
+    return;
+
     clearInterval(refreshInvitesTimer);
     refreshInvitesTimer = setInterval(refreshInvites, 5000);
 }
@@ -329,6 +332,8 @@ async function refreshInvites() {
         let { user_id, invited_at, status } = invited.data[x];
 
         let r = invite_manager_list.insertRow();
+        r.setAttribute('id', `invite_for_${user_id}`);
+        r.setAttribute('data-user-id', user_id);
         var c = r.insertCell();
         c.setAttribute('data-user-id', user_id);
 
@@ -364,24 +369,26 @@ async function refreshInvites() {
         c.append(kill_invite);
 
         var c = r.insertCell();
-        if (status == 'READY') {
-            let slot = document.createElement('select');
-            c.append(slot);
-
-            slot.setAttribute('data-user-id', user_id);
-            var b = document.createElement('option');
-            b.textContent = `Assign Slot`;
-            slot.append(b);
-
-            for (var slot_id=1;slot_id<=5;slot_id++) {
-                let opt = document.createElement('option');
-                opt.value = slot_id;
-                opt.textContent = `Slot ${slot_id}`
-                slot.append(opt);
-            }
-
-            slot.addEventListener('change', slotUser);
+        let slot = document.createElement('select');
+        c.append(slot);
+        slot.setAttribute('id', `invite_to_slot_for_${user_id}`);
+        if (status.toLowerCase() != 'ready') {
+            slot.style.display = 'none';
         }
+
+        //slot.setAttribute('data-user-id', user_id);
+        var b = document.createElement('option');
+        b.textContent = `Assign Slot`;
+        slot.append(b);
+
+        for (var slot_id=1;slot_id<=5;slot_id++) {
+            let opt = document.createElement('option');
+            opt.value = slot_id;
+            opt.textContent = `Slot ${slot_id}`
+            slot.append(opt);
+        }
+
+        slot.addEventListener('change', slotUser);
     }
 
     if (user_ids.length == 0) {
@@ -429,6 +436,8 @@ async function buildGuests(guests) {
         // and local video
         let { slot_id, user_id, is_live } = guests[x];
         if (slot_id != 0) {
+            let row = document.getElementById(`slot_${slot_id}`);
+            row.setAttribute('data-user-id', user_id);
             let sel = document.getElementById(`slot_${slot_id}_live`);
             if (is_live) {
                 sel.value = 'live';
@@ -437,7 +446,7 @@ async function buildGuests(guests) {
             }
 
             let mov = document.getElementById(`slot_${slot_id}_move`);
-            mov.setAttribute('data-user-id', user_id);
+            //mov.setAttribute('data-user-id', user_id);
 
             if (user_name_cache.hasOwnProperty(user_id)) {
                 document.getElementById(`slot_${slot_id}_guest`).textContent = user_name_cache[user_id].display_name;
@@ -561,6 +570,11 @@ function drawSession(session_data) {
 invite_username_form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    if (!active_session_id) {
+        status_bar.textContent = 'Please Start a Guest Star session first';
+        return;
+    }
+
     console.log('create invite');
 
     let username = invite_username.value;
@@ -586,6 +600,8 @@ invite_username_form.addEventListener('submit', async (e) => {
     if (invite.status == 204) {
         // yay
         status_bar.textContent = `Invite sent to ${username}`;
+        // we have to refresh
+        // as eventsub doesn't give us NEW INVITED users
         refreshInvites();
         return;
     }
@@ -660,12 +676,30 @@ function bindEventSubTriggers() {
 
         //if (state == 'ready') {
         if (!slot_id) {
-            // user became ready in the invite list
-            //data-invite-state
+            // occurance on a user not in a slot
+            // so in the invite queue
+
+            if (state == 'removed') {
+                // invite was removed
+                return;
+            }
+
+            // user changed state in the queue 
             document.querySelector(`td[data-invite-state="${guest_user_id}"]`).textContent = state;
+            // if it's ready show the slot selector
+            if (state == 'ready') {
+                document.getElementById(`invite_to_slot_for_${guest_user_id}`).style.display = 'block';
+            }
 
             return;
         }
+
+        // check for and remove from invites
+        var invite = document.getElementById(`invite_for_${guest_user_id}`);
+        if (invite) {
+            invite.remove();
+        }
+        // check for and remove from invites
 
         let el = document.getElementById(`slot_${slot_id}_guest`);
         if (!el) {
@@ -692,6 +726,9 @@ function bindEventSubTriggers() {
                 cam.classList.remove('active');
                 cam.classList.remove('inactive');
 
+            // add the user _back_ to the invite list
+            refreshInvites();//cop out
+
             return;
         }
 
@@ -711,6 +748,8 @@ function bindEventSubTriggers() {
 
         // redraw the table line for slot_id
         let targetRow = document.getElementById(`slot_${slot_id}`);
+        targetRow.setAttribute('data-user-id', guest_user_id);
+
         let targetGuest = document.getElementById(`slot_${slot_id}_guest`);
         let targetLive = document.getElementById(`slot_${slot_id}_live`);
         let mic = document.getElementById(`slot_${slot_id}_mic`);
@@ -754,7 +793,7 @@ function bindEventSubTriggers() {
 Slotting
 */
 async function slotUser(e) {
-    let guest_id = e.target.getAttribute('data-user-id');
+    let guest_id = e.target.closest('tr').getAttribute('data-user-id');
     let slot_id = e.target.value;
 
     if (slot_id > active_session_slot_count) {
@@ -945,7 +984,7 @@ slots.addEventListener('change', (e) => {
         return;
     }
     let slot_id = e.target.getAttribute('data-slot-id');
-    var user_id = e.target.getAttribute('data-user-id');
+    var user_id = e.target.closest('tr').getAttribute('data-user-id');
 
     switch (func) {
         case 'slot_guest':
@@ -958,8 +997,10 @@ slots.addEventListener('change', (e) => {
             }
 
             if (destination == 'Remove') {
+                console.log('Removing the user', slot_id, user_id);
                 emptySlot(slot_id, user_id, false);
             } else if (destination == 'Queue') {
+                console.log('ReQueuing the user', slot_id, user_id);
                 emptySlot(slot_id, user_id, true);
             } else {
                 moveSlot(slot_id, destination);
