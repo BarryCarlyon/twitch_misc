@@ -31,6 +31,9 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background: rgb(189, 1, 189);
 }
+input[type="button"], button {
+    background: #7c63ac;
+}
 
 #status {
     display: none;
