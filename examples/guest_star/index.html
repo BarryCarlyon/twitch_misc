@@ -4,6 +4,13 @@
     <link rel="stylesheet" href="/twitch_misc/style.css" />
 
     <style>
+        .flexer {
+            display: flex;
+        }
+        .flexer>div {
+            flex-grow: 1;
+        }
+
         .camon,
         .camoff,
         .unmuted,
@@ -56,14 +63,15 @@
 
     <div id="selector" style="display: none;">
         <form action="" method="post" id="moderate_channel_form">
-            <fieldset>
-                <div style="width: 30%; display: inline-block;">
+            <fieldset class="flexer">
+                <div class="whoami"></div>
+                <div>
                     <input type="text" id="moderate_channel_name" placeholder="Control a Channel" />
                 </div>
-                <div style="width: 30%; display: inline-block;">
+                <div>
                     <input type="button" id="moderate_channel" value="Moderate" />
                 </div>
-                <div style="width: 30%; display: inline-block;">
+                <div>
                     <input type="button" id="control_channel" value="My Own" />
                 </div>
             </fieldset>
@@ -77,7 +85,7 @@
             <div id="invite_manager" style="width: 40%;">
                 <form action="" method="post" id="invite_username_form">
                     <fieldset>
-                        <legend>Create Invite</legend>
+                        <legend>Create Invite for <span class="target_channel"></span></legend>
                         <input type="text" name="invite_username" id="invite_username" placeholder="Username" />
                     </fieldset>
                 </form>

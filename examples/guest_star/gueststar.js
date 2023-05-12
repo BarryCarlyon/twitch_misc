@@ -5,6 +5,7 @@ var redirect = `https://${window.location.host}/twitch_misc/`;
 var access_token = '';
 
 let commonHeaders = {};
+let whoami = {};
 let broadcaster_id = '';
 let moderator_id = '';
 let active_session_id = '';
@@ -56,16 +57,27 @@ async function processToken(token) {
     let moderator = await getUserData();
     moderator_id = moderator.id;
 
+    whoami = moderator;
+    let els = document.querySelectorAll('.whoami');
+    els.forEach(el => {
+        el.textContent = `You are: ${moderator.display_name}`;
+    })
+
     selector.style.display = 'block';
 }
 
 
-function moderateChannel(e) {
+async function moderateChannel(e) {
     e.preventDefault();
 
-    let user = getUserData(moderate_channel_name.textContent);
+    status_bar.textContent = `Loking up ${moderate_channel_name.value}`;
+    let user = await getUserData(moderate_channel_name.value);
 
     broadcaster_id = user.id;
+    let els = document.querySelectorAll('.target_channel');
+    els.forEach(el => {
+        el.textContent = `${user.display_name}`;
+    })
 
     initGuestStar();
 }
@@ -73,6 +85,11 @@ moderate_channel_form.addEventListener('submit', moderateChannel);
 moderate_channel.addEventListener('click', moderateChannel);
 control_channel.addEventListener('click', (e) => {
     broadcaster_id = moderator_id;
+
+    let els = document.querySelectorAll('.target_channel');
+    els.forEach(el => {
+        el.textContent = `${whoami.display_name}`;
+    })
 
     initGuestStar();
 });
@@ -198,18 +215,36 @@ async function initGuestStar() {
     selector.style.display = 'none';
     controls.style.display = 'block';
 
+    // check
+    if (broadcaster_id != moderator_id) {
+        // only the caster can start/stop
+        master_controls.classList.add('disableit');
+    } else {
+        master_controls.classList.remove('disableit');
+    }
+
     // lets connect to eventsub
     stauts_bar = 'Spawning EventSub';
     eventSubController = new initSocket(true);
-    eventSubController.on('connected', (id) => {
+    eventSubController.on('connected', async (id) => {
         status_bar.textContent = `Connected to EventSub WebSockets with ${id}`;
 
         console.log(eventSubController.eventsub.twitch_websocket_id);
 
         // subscribe
-        requstEventSub('channel.guest_star_session.begin', 'beta', { broadcaster_user_id: broadcaster_id });
-        requstEventSub('channel.guest_star_session.end', 'beta', { broadcaster_user_id: broadcaster_id });
-        requstEventSub('channel.guest_star_guest.update', 'beta', { broadcaster_user_id: broadcaster_id, moderator_user_id: moderator_id });
+        if (broadcaster_id == moderator_id) {
+            requstEventSub('channel.guest_star_session.begin', 'beta', { broadcaster_user_id: broadcaster_id });
+            requstEventSub('channel.guest_star_session.end', 'beta', { broadcaster_user_id: broadcaster_id });
+        }
+        let resp = await requstEventSub('channel.guest_star_guest.update', 'beta', { broadcaster_user_id: broadcaster_id, moderator_user_id: moderator_id });
+        if (resp.status == 403) {
+            // assume not a guest star moderator
+            status_bar.textContent = 'You do not appear to be a Guest Star Moderator for this channel';
+            controls.classList.add('disableit');
+            return;
+        }
+        controls.classList.remove('disableit');
+
         requstEventSub('channel.guest_star_slot.update', 'beta', { broadcaster_user_id: broadcaster_id, moderator_user_id: moderator_id });
         requstEventSub('channel.guest_star_settings.update', 'beta', { broadcaster_user_id: broadcaster_id, moderator_user_id: moderator_id });
     });
@@ -518,6 +553,12 @@ async function buildGuests(guests) {
 }
 
 async function loadSettings() {
+    if (broadcaster_id != moderator_id) {
+        // cannot do
+        settings_form.classList.add('disableit');
+        return;
+    }
+
     let url = new URL('https://api.twitch.tv/helix/guest_star/channel_settings');
     url.search = new URLSearchParams([
         [ 'broadcaster_id', broadcaster_id ]
