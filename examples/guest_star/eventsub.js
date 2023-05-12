@@ -40,6 +40,11 @@ class initSocket {
             console.log('EventSub close', close, this.eventsub);
             console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Closed: ${close.code} Reason - ${this.closeCodes[close.code]}`);
 
+            if (close.code == 4003) {
+                console.log('No Subscribes made will not reconnect');
+                return;
+            }
+
             if (!this.eventsub.is_reconnecting) {
                 console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Is not reconnecting, auto reconnect`);
                 //new initSocket();
