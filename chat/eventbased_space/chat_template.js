@@ -238,6 +238,7 @@ class ChatBot extends EventEmitter {
 
         this.ws.send('CAP REQ :twitch.tv/commands');
         this.ws.send('CAP REQ :twitch.tv/tags');
+        //this.ws.send('CAP REQ :twitch.tv/membership');
 
         this.emit('opened');
 
