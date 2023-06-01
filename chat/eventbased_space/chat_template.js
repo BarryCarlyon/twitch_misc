@@ -109,7 +109,7 @@ class ChatBot extends EventEmitter {
 
                 // check scopes?
 
-                if (this.refresh_token != '' && token_validation_data.expires_in < this._autoTokenTime) {
+                if (this.refresh_token != '' && token_validation_data.expires_in < this._autoTokenTime && token_validation_data.expires_in > 0) {
                     // auto refresh the token
                     console.log('Token could do with refresh');
                     await this._refreshToken();
