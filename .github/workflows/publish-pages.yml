@@ -36,8 +36,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: github
-          target-folder: ./
-          clean: true
 
       - name: Deploy Examples 🚀
         uses: JamesIves/github-pages-deploy-action@v4
