@@ -49,7 +49,6 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/guest_star/controller/">Guest Star Controller</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/controller/">Source</a></td><td>WIP implementation of the Guest Star API/EventSub. Uses EventSub Websockets for real time updates.</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/guest_star/obs_assist/">Guest Star OBS Setup Assistant</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/obs_assist/">Source</a></td><td></td></tr>
     </tbody>
-
     <thead><tr><th colspan="3">EventSub WebSocket Transport Things</th></tr></thead>
     <tbody>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/basic/">The Basics</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/websockets/web/basic">Source</a></td><td>A basic EventSub WebSocket connector</td></tr>
