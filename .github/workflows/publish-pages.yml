@@ -20,7 +20,7 @@ jobs:
           folder: authentication/implicit_auth
           target-folder: authentication/implicit_auth
           clean: true
-          
+
       - name: Deploy Electron Auth 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -28,6 +28,15 @@ jobs:
           branch: gh-pages
           folder: authentication/electron/webpage
           target-folder: authentication/electron/webpage
+          clean: true
+
+      - name: Deploy Index 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: github
+          target-folder: ./
           clean: true
 
       - name: Deploy Examples 🚀

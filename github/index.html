@@ -1,20 +1,14 @@
-# Whats in this Repo
+<html>
+<head>
+    <title>Barry's Live/Testable Twitch examples</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+</head>
+<body>
+    <div id="status"></div>
 
-This repo contains a bunch of examples and bits and pieces that might be useful it might not.
-
-[![CodeQL](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/codeql.yml/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/codeql.yml)
-[![Deploy statics](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/publish-pages.yml/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/publish-pages.yml)
-[![pages-build-deployment](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/BarryCarlyon/twitch_misc/actions/workflows/pages/pages-build-deployment)
-
-## Languages
-
-Most of these examples either use NodeJS or PHP or pure HTML (with Javascript) (using a dumb `php -S` to serve the demo, as apposed to file:// to avoid some oddities)
-
-Aside from that the dependencies are supposed to be as lightweight as possible.
-
-## LIVE EXAMPLES
-
-These examples are testable on GitHub pages, and will prompt for implicit authentication to run the code.
+    <p>Here are some Twitch API examples you can try. And the source for those examples</p>
+    <p>Most of this examples will prompt for Twitch Auth to get a Token to use to call the API with</p>
+    <p>Generally those Authentication Links will open a new window, which oAuth Redirect URI's to this window, which will extract the oAuth Access Token from the URL and magic pass it to the original window</p>
 
 <table>
     <thead><tr><th colspan="3">Auth Type Things</th></tr></thead>
@@ -40,22 +34,16 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/channel_dashboard/">Near Clone of the Dashboard</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_dashboard">Source</a></td><td>The <a href="https://dashboard.twitch.tv/stream-manager">Dashboard</a> core parts (edit stream info) but via the API</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/poll_tool/">Simple Poll Tool/Results Display</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/poll_tool">Source</a></td><td>A simple tool to create a poll and monitor the results</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/channel_points/">Simple Channel Points Manager</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_points">Source</a></td><td>A simple tool to manage rewards</td></tr>
-        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/soundtrack/">SoundTrack Now Playing + History</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/soundtrack">Source</a></td><td></td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/stream_key/">Get my Stream Key</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/stream_key">Source</a></td><td>A simple demo to auth the user and show the user their own stream key.</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/clips_navigator/">Clips Navigator</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/clips_navigator">Source</a></td><td>A simple demo fetch and display clips using started_at and ended_at parameters.</td></tr>
+        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/guest_star/">Guest Star</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/">Source</a></td><td>WIP implementation of the Guest Star API/EventSub. Uses EventSub Websockets for real time updates.</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/twitchemotes/">TwitchEmotes</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/twitchemotes/">Source</a></td><td></td></tr>
     </tbody>
-    <thead><tr><th colspan="3">Guest Star</th></tr></thead>
-    <tbody>
-        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/guest_star/controller/">Guest Star Controller</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/controller/">Source</a></td><td>WIP implementation of the Guest Star API/EventSub. Uses EventSub Websockets for real time updates.</td></tr>
-        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/guest_star/obs_assist/">Guest Star OBS Setup Assistant</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/obs_assist/">Source</a></td><td></td></tr>
-    </tbody>
-
     <thead><tr><th colspan="3">EventSub WebSocket Transport Things</th></tr></thead>
     <tbody>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/basic/">The Basics</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/websockets/web/basic">Source</a></td><td>A basic EventSub WebSocket connector</td></tr>
-        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/creatorgoals/">Creator Goals EventSub WebSocket</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/websockets/web/creatorgoals/">Source</a></td><td>A EventSub WebSocket CreatorGoals Example</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/charity/">Charity EventSub WebSocket</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/websockets/web/charity/">Source</a></td><td>A EventSub WebSocket Charity Example</td></tr>
+        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/eventsub/websockets/web/creatorgoals/">Creator Goals EventSub WebSocket</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/websockets/web/creatorgoals/">Source</a></td><td>A EventSub WebSocket CreatorGoals Example</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/poll_tool/">Simple Poll Tool/Results Display</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/poll_tool">Source</a></td><td>A simple tool to create a poll and monitor the results via EventSub WebSocket.</td></tr>
     </tbody>
     <thead><tr><th colspan="3">Extension Type Things</th></tr></thead>
@@ -64,33 +52,32 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
     </tbody>
 </table>
 
-## Twitch Extensions
+    <p>For further help checkout the <a href="https://github.com/BarryCarlyon/twitch_misc">Repo</a> or <a href="https://link.twitch.tv/devchat">Join us on Discord</a></p>
 
-There are some useful bits for Twitch Extensions in this repo, mainly for the [API side of things](https://github.com/BarryCarlyon/twitch_misc/tree/main/extensions).
+    <!-- The examples will borrow this function to handled the implicit access token -->
+    <!-- Then I don't need to add eleventy bajillion redirect URI's to the project -->
+    <script type="text/javascript">
+        if (document.location.hash && document.location.hash != '') {
+            var parsedHash = new URLSearchParams(window.location.hash.slice(1));
+            if (parsedHash.get('access_token')) {
+                if (window.opener) {
+                    window.opener.processToken(parsedHash.get('access_token'));
+                    window.close();
+                } else if (parsedHash.get('state') && parsedHash.get('state') == 'electronexample') {
+                    // try for electron?
+                    window.location.href = `twitch-misc-example://twitchauth/${parsedHash.get('access_token')}`;
+                    document.body.textContent = 'It is safe to close this window';
+                }
+            }
+        }
 
-If you are after a demo of a Twitch Extension with an EBS that talks to the Twitch API, checkout the [Twitch Profile Extension](https://github.com/BarryCarlyon/twitch_profile_extension) Repository instead
-
-Looking to get started wtih JWT auth, but you just want to start making requests. Try this [insomnia](https://insomnia.rest) plugin: ["twitch extension"](https://github.com/BarryCarlyon/insomnia-plugin-twitch-extension-barrycarlyon) which includes a "predefined" request collection to import too!
-
-Or looking to get started with Extension Development and the various API calls outside of a Rest client in a Desktop Application Similar to the Developer Rig? Check out [BarryCarlyon's Twitch Extension Tools](https://github.com/barrycarlyon/twitch_extension_tools).
-
-## Practical Examples
-
-Most of the code in this repository is various bits and pieces for your to copy/paste in other projects.
-
-However the [examples](examples) folder will contain self contained examples that demonstrate a more full "product".
-
-## Further Help
-
-Some options
-
-- [TwitchDev Documentation](http://dev.twitch.tv/docs)
-- [TwitchDev Support Forums](https://discuss.dev.twitch.tv/)
-- [TwitchDev Discord](https://link.twitch.tv/devchat)
-- [TwitchDev Other Help](https://dev.twitch.tv/support)
-
-[![TwitchDev Discord](https://discordapp.com/api/guilds/504015559252377601/embed.png?style=banner2)](https://link.twitch.tv/devchat)
-
-## OMGLIEKWUT OHMYGOODNESS U SO MUCH HELP
-
-Thank you for the help I want to give you beer/coffee money -> Check the Funding/Sponsor details
+        if (document.location.search && document.location.search != '') {
+            var parsedParams = new URLSearchParams(window.location.search);
+            if (parsedParams.get('error_description')) {
+                document.getElementById('status').classList.add('show');
+                document.getElementById('status').textContent = 'Looks like you Tried to oAuth Authenticate and Somethibg went wrong: ' + parsedParams.get('error') + ' - ' + parsedParams.get('error_description');
+            }
+        }
+    </script>
+</body>
+</html>

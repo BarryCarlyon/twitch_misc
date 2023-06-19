@@ -1,0 +1,70 @@
+* {
+    background: rgb(14, 14, 16);
+    color: rgb(239, 239, 241);
+    font-family: Roobert, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+a {
+    color: rgb(169, 112, 255);
+}
+table {
+    width: 100%;
+    border-top: 1px solid rgb(239, 239, 241);
+    border-left: 1px solid rgb(239, 239, 241);
+}
+th, td {
+    border-right: 1px solid rgb(239, 239, 241);
+    border-bottom: 1px solid rgb(239, 239, 241);
+    padding: 5px 10px;
+}
+table.noborder, table.noborder th, table.noborder td {
+    border: 0px;
+    padding: 0px;
+}
+input[disabled] {
+    background: #3e0000;
+}
+input, select { width: 100%; }
+input[type="submit"] {
+    background: rgb(82, 0, 82);
+    cursor: pointer;
+}
+input[type="submit"]:hover {
+    background: rgb(189, 1, 189);
+}
+input[type="button"], button {
+    background: #7c63ac;
+    cursor: pointer;
+}
+
+#status {
+    display: none;
+    background: red;
+    padding: 5px;
+}
+#status.show {
+    display: block;
+}
+
+#authorize,
+#authorize_public,
+#authorize_email {
+    background-image: url('/twitch_misc/twitch_login.png');
+    height: 32px;
+    display: block;
+    padding-left: 180px;
+    background-repeat: no-repeat;
+    line-height: 32px;
+}
+
+.disableit {
+    position: relative;
+}
+.disableit:after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: rgba(0,0,0,0.5);
+}
