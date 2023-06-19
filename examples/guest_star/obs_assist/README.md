@@ -1,6 +1,6 @@
 ## What is this example
 
-This is an exmaple tool to help streamers interact Guest Start with OBS 29+
+This is an example tool to help streamers interact Guest Start with OBS 29+
 
 ## Instruction for Use
 
