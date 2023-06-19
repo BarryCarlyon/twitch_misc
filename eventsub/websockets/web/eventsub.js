@@ -1,5 +1,5 @@
 class initSocket {
-    counter: 0
+    counter = 0
     closeCodes = {
         4000: 'Internal Server Error',
         4001: 'Client sent inbound traffic',
