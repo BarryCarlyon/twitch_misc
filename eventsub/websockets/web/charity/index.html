@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>EventSub Websockets with Implicit Auth Example</title>
+    <title>Charity EventSub Websockets with Implicit Auth Example</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
 
     <style>
@@ -232,10 +232,10 @@
 
         function requestHooks(user_id) {
             let topics = {
-                'channel.charity_campaign.start': { version: 'beta', condition: { broadcaster_user_id: user_id } },
-                'channel.charity_campaign.progress': { version: 'beta', condition: { broadcaster_user_id: user_id } },
-                'channel.charity_campaign.stop': { version: 'beta', condition: { broadcaster_user_id: user_id } },
-                'channel.charity_campaign.donate': { version: 'beta', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.start': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.progress': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.stop': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.donate': { version: '1', condition: { broadcaster_user_id: user_id } },
             }
 
             log(`Spawn Topics for ${user_id}`);
