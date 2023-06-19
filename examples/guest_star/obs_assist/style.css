@@ -41,7 +41,7 @@ input[type="button"], button {
 }
 
 #authorize {
-    background-image: url('/twitch_misc/github/twitch_login.png');
+    background-image: url('/twitch_misc/twitch_login.png');
     height: 32px;
     display: block;
     padding-left: 180px;
