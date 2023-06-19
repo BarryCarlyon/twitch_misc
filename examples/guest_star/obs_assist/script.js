@@ -1,9 +1,3 @@
-// remove ssl since OBS webSockets are not over SSL...
-// save the mixed content warning
-if (window.location.protocol == 'https') {
-    window.location = window.location.href.replace('https://', 'http://');
-}
-
 // These are set for the GitHub Pages Example
 // Substitute as needed
 var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
