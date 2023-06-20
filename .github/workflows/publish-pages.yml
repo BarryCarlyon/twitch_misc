@@ -12,6 +12,13 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Deploy Index 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: github
+
       - name: Deploy Implicit Auth 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -29,13 +36,6 @@ jobs:
           folder: authentication/electron/webpage
           target-folder: authentication/electron/webpage
           clean: true
-
-      - name: Deploy Index 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: github
 
       - name: Deploy Examples 🚀
         uses: JamesIves/github-pages-deploy-action@v4
