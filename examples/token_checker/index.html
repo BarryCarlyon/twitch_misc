@@ -79,7 +79,7 @@
                         let rightcell = document.createElement('td');
                         row.append(rightcell);
 
-                        if (key == 'scopes') {
+                        if (key == 'scopes' && resp[key] !== null) {
                             let ul = document.createElement('ul');
                             rightcell.append(ul);
                             for (let x=0;x<resp[key].length;x++) {
