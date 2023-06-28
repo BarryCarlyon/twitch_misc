@@ -45,7 +45,7 @@ fetch(
         })
     }
 )
-.then(resp => {
+.then(async resp => {
     // console log out the useful information
     // keeping track of rate limits is important
     // you can only set the config 12 times a minute per segment
@@ -53,6 +53,9 @@ fetch(
 
     // we don't care too much about the statusCode here
     // but you should test it for a 204
+    if (resp.status != 204) {
+        console.error('Send Chat Error', await resp.text());
+    }
 })
 .catch(err => {
     console.error(err);

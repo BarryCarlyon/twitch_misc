@@ -1,5 +1,5 @@
 class initSocket {
-    counter: 0,
+    counter = 0
     closeCodes = {
         4000: 'Internal Server Error',
         4001: 'Client sent inbound traffic',
@@ -29,7 +29,7 @@ class initSocket {
         log(`Connecting to ${url}|${is_reconnect}`);
         this.eventsub = new WebSocket(url);
         this.eventsub.is_reconnecting = is_reconnect;
-        this.eventsub.counter = counter;
+        this.eventsub.counter = this.counter;
 
         this.eventsub.addEventListener('open', () => {
             log(`Opened Connection to Twitch`);

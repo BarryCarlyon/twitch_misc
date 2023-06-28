@@ -1,13 +1,13 @@
 ## What is this example
 
-This is an exmaple tool to help streamers interact Guest Start with OBS 29+
+This is an example tool to help streamers interact Guest Start with OBS 29+
 
 ## Instruction for Use
 
 - Connect to OBS
 
 First it'll ask you to connect to OBS 29+ via OBS WebSocket.
-So you will need to have configured the OBS WebSocket if you have no already.
+So you will need to have configured the OBS WebSocket if you have not already.
 
 - Select a Scene
 
@@ -15,7 +15,7 @@ Then Select a Scene to operate against
 
 - Login with Twitch
 
-Click on Connect with Twitch to autheticate, it'll request Read Only permission for your Guest Star settings.
+Click on Connect with Twitch to autheticate, it'll request Read Only permission for your channels Guest Star settings.
 
 - Add/Remove Slots
 
@@ -24,7 +24,7 @@ It'll see how many Slots you have configured on Guest Star, and provide Add/Remo
 - Click Add or Remove
 
 This button will then add (or remove) a browser source to the selected OBS scene.
-It'll be 640x360 with OBS Controls Volume enabled.
+It'll be 640x360 with "OBS Controls Volume" enabled.
 
 You'll then want to move it in OBS as needed (or resize)
 
