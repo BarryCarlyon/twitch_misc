@@ -100,6 +100,10 @@ async function loadGuestStar() {
         }
     }
 }
+refreshGuestStar.addEventListener('click', (e) => {
+    loadGuestStar();
+});
+
 guest_star_slots.addEventListener('click', async (e) => {
     if (!e.target.classList.contains('guest_star_slot_control')) {
         return;
