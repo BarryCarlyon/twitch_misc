@@ -44,7 +44,8 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/guest
 
 ### OBS
 
-The following calls from [OBS Websocket Protocol](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md) are utilised
+The following calls from [OBS Websocket Protocol](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md) are utilised.
+And to utilise the OBS websocket we use [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js)
 
 #### Requests
 
