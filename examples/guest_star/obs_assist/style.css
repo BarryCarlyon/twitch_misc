@@ -31,6 +31,12 @@ input[type="button"], button {
     background: #7c63ac;
     cursor: pointer;
 }
+input[type="range"] {
+    -webkit-appearance: slider-vertical; /* Chromium */
+    width: 8px;
+    height: 175px;
+    padding: 0 5px;
+}
 
 .row {
     display: flex;
@@ -38,6 +44,14 @@ input[type="button"], button {
 .col {
     flex-grow: 1;
     min-width: 50%;
+}
+@media only screen and (max-width: 600px)  {
+    .row {
+        flex-direction: column;
+    }
+    .col {
+        width: 100%;
+    }
 }
 
 #authorize {
@@ -91,6 +105,10 @@ input[type="button"], button {
 #guest_star_slots .guest_star_slot:last-child {
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
+}
+
+button[data-muted="true"] {
+    background: red;
 }
 
 
