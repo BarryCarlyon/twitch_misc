@@ -73,16 +73,15 @@ async function loadGuestStar() {
     let obsExistingInputs = await obs.call('GetInputList', {
         inputKind: 'browser_source'
     });
+    let obsSceneInputs = await obs.call('GetSceneItemList', {
+        sceneName: obsControllingScene
+    });
 
     guest_star_slots.textContent = '';
     for (let x=1;x<=slot_count;x++) {
         let gs = document.createElement('div');
         gs.classList.add('guest_star_slot');
         guest_star_slots.append(gs);
-
-        let sl = document.createElement('div');
-        gs.append(sl);
-        sl.textContent = `Slot ${x}`;
 
         let bt = document.createElement('button');
         gs.append(bt);
@@ -91,12 +90,41 @@ async function loadGuestStar() {
 
         bt.textContent = 'Add';
 
-        let inputName = `Guest Star: Slot ${x}`;
+        let targetInputName = `Guest Star: Slot ${x}`;
         for (var y=0;y<obsExistingInputs.inputs.length;y++) {
-            if (obsExistingInputs.inputs[y].inputName == inputName) {
+            let { inputName } = obsExistingInputs.inputs[y];
+            if (inputName == targetInputName) {
                 bt.textContent = 'Remove';
             }
         }
+
+        let sl = document.createElement('div');
+        gs.append(sl);
+        sl.textContent = `Slot ${x}`;
+
+        // spacer....
+
+        let vbt = document.createElement('button');
+        gs.append(vbt);
+        vbt.classList.add('guest_star_visible_control');
+        vbt.setAttribute('data-slot', x);
+
+        vbt.textContent = 'Hide';
+
+        for (var y=0;y<obsSceneInputs.sceneItems.length;y++) {
+            let { sourceName, sceneItemId, sceneItemEnabled } = obsSceneInputs.sceneItems[y];
+            console.log(sourceName, sceneItemId, sceneItemEnabled);
+
+            if (sourceName == targetInputName) {
+                vbt.setAttribute('data-obs-sceneItemId', sceneItemId);
+            }
+
+            if (sourceName == targetInputName && !sceneItemEnabled) {
+                vbt.textContent = 'Show';
+                vbt.setAttribute('data-hidden', true);
+            }
+        }
+
 
         let volControl = document.createElement('div');
         gs.append(volControl);
@@ -106,7 +134,7 @@ async function loadGuestStar() {
         volControl.append(volDB);
         volDB.classList.add('guest_star_db');
         volDB.setAttribute('data-slot', x);
-        volDB.setAttribute('data-obs-inputName', inputName);
+        volDB.setAttribute('data-obs-inputName', targetInputName);
 
         // volume control
         let vol = document.createElement('input');
@@ -116,7 +144,7 @@ async function loadGuestStar() {
         vol.setAttribute('min', '0');
         vol.classList.add('guest_star_volume_control');
         vol.setAttribute('data-slot', x);
-        vol.setAttribute('data-obs-inputName', inputName);
+        vol.setAttribute('data-obs-inputName', targetInputName);
         volControl.append(vol);
 
         let muteControl = document.createElement('div');
@@ -126,10 +154,10 @@ async function loadGuestStar() {
         muteControl.append(mute);
         mute.classList.add('guest_star_mute_control');
         mute.setAttribute('data-slot', x);
-        mute.setAttribute('data-obs-inputName', inputName);
+        mute.setAttribute('data-obs-inputName', targetInputName);
         mute.textContent = 'Mute';
 
-        checkVolume(inputName, vol, mute);
+        checkVolume(targetInputName, vol, mute);
     }
 }
 refreshGuestStar.addEventListener('click', (e) => {
@@ -148,6 +176,10 @@ guest_star_slots.addEventListener('click', async (e) => {
     }
     if (e.target.classList.contains('guest_star_mute_control')) {
         do_guest_star_mute_control(e);
+        return;
+    }
+    if (e.target.classList.contains('guest_star_visible_control')) {
+        do_guest_star_visible_control(e);
         return;
     }
 });
@@ -222,7 +254,7 @@ async function initOBS(ip, port, password) {
     try {
         await obs.connect(`ws://${ip}:${port}`, password, {
             rpcVersion: 1,
-            eventSubscriptions: OBSWebSocket.EventSubscription.InputVolumeChanged
+            eventSubscriptions: OBSWebSocket.EventSubscription.All
         });
         obs_status_bar.textContent = 'Connected to OBS';
     } catch (error) {
@@ -252,9 +284,9 @@ async function initOBS(ip, port, password) {
     });
 
     // the meters!
-    obs.on('InputVolumeMeters', (data) => {
-        console.log(data);
-    });
+    //obs.on('InputVolumeMeters', (data) => {
+    //    console.log(data);
+    //});
     obs.on('InputVolumeChanged', (data) => {
         //console.log(data);
         updateVolume(data);
@@ -262,6 +294,11 @@ async function initOBS(ip, port, password) {
     obs.on('InputMuteStateChanged', (data) => {
         //console.log('Mute Event', data);
         updateMute(data);
+    });
+
+    obs.on('SceneItemEnableStateChanged', (data) => {
+        //console.log(data);
+        updateState(data);
     });
 }
 
@@ -343,6 +380,46 @@ async function initOBS(ip, port, password) {
             'ToggleInputMute',
             {
                 inputName
+            }
+        );
+    }
+
+    function updateState(data) {
+        let { sceneItemEnabled, sceneItemId, sceneName } = data;
+        console.log('State', { sceneItemEnabled, sceneItemId, sceneName });
+        if (sceneName != obsControllingScene) {
+            return;
+        }
+        let vbt = document.querySelector(`.guest_star_visible_control[data-obs-sceneitemid="${sceneItemId}"]`);
+        if (!vbt) {
+            return;
+        }
+        if (sceneItemEnabled) {
+            vbt.textContent = 'Hide';
+        } else {
+            vbt.textContent = 'Show';
+        }
+        vbt.setAttribute('data-hidden', !sceneItemEnabled);
+    }
+    async function do_guest_star_visible_control(e) {
+        let inputName = e.target.getAttribute('data-obs-inputName');
+        // consider moving to a live lookup...
+        let sceneItemId = parseInt(e.target.getAttribute('data-obs-sceneItemId'));
+
+        let { sceneItemEnabled } = await obs.call(
+            'GetSceneItemEnabled',
+            {
+                sceneName: obsControllingScene,
+                sceneItemId
+            }
+        );
+        sceneItemEnabled = sceneItemEnabled ? false : true;
+        await obs.call(
+            'SetSceneItemEnabled',
+            {
+                sceneName: obsControllingScene,
+                sceneItemId,
+                sceneItemEnabled
             }
         );
     }

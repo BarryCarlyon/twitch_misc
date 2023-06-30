@@ -107,6 +107,7 @@ input[type="range"] {
     border-bottom-right-radius: 10px;
 }
 
+button[data-hidden="true"],
 button[data-muted="true"] {
     background: red;
 }
