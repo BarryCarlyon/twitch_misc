@@ -44,9 +44,24 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/guest
 
 ### OBS
 
-The following Requests from [OBS Websocket Protocol](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md)
+The following calls from [OBS Websocket Protocol](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md) are utilised
+
+#### Requests
+
+Asking or telling OBS to do things
 
 - [GetSceneList](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getscenelist) - to get what scenes you have
 - [GetInputList](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getinputlist) - to see what inputs you have
 - [CreateInput](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#createinput) - to add/create a Guest Star Slot into OBS
 - [RemoveInput](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#removeinput) - to remove/delete a Guest Star Slot into OBS
+- [GetInputVolume](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#GetInputVolume) - to get the input volume of the source in OBS
+- [SetInputVolume](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#SetInputVolume) - to set the input volume of the source in OBS
+- [GetInputMute](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#GetInputMute) - to get the inputs mute status of the source in OBS
+- [ToggleInputMute](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#ToggleInputMute) - to toggle the inputs mute status of the source in OBS
+
+#### Events
+
+Asking OBS to send us information _as it happens_
+
+- [InputVolumeChanged](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#inputvolumechanged) - Monitor for Volume changes
+- [InputMuteStateChanged](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#InputMuteStateChanged) - Monitor for Mute state changes
