@@ -271,6 +271,7 @@
 
             let cclData = await cclResp.json();
             let items = cclData.data;
+            // hack patch for https://github.com/twitchdev/issues/issues/806
             if (cclData.hasOwnProperty('Data')) {
                 items = cclData.Data;
             }
