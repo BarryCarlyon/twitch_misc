@@ -41,6 +41,7 @@
         <li><a href="https://dev.twitch.tv/docs/api/reference/#get-user-active-extensions">Get User Active Extensions</a> - See what Extensions are active</li>
         <li><a href="https://dev.twitch.tv/docs/api/reference/#update-user-extensions">Update User Extensions</a></li>
         <li><a href="https://dev.twitch.tv/docs/api/reference/#search-categories">Search Categories</a> - In order to change your game as gameID is needed, not a name</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-content-classification-labels">Content Classification Labels</a> - ways a channel can be categorised</li>
     </ul>
 
     <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_dashboard">Github</a> or just View the source instead</p>
@@ -119,14 +120,18 @@
                             </td>
                         </tr>
                         
+                        <tr>
+                            <th>CCLs - Content Classification Labels</th>
+                            <td>
+                                <div id="ccl_space"></div>
+                                <a href="https://safety.twitch.tv/s/article/Content-Classification-Guidelines">Learn More</a>
+                            </td>
+                        </tr>
 
-                        <tr class="disableit" title="Not Supported via the API">
+                        <tr>
                             <th>Branded Content</th>
                             <td>
                                 <input type="checkbox" name="channel_branded" id="channel_branded"/>
-                                <br />
-                                Not Supported via the API
-                                <br />
                                 <a href="https://help.twitch.tv/s/article/branded-content-policy?language=en_US">Learn More</a>
                             </td>
                         </tr>
@@ -242,6 +247,58 @@
                 return;
             }
 
+            // get CCLS
+            let cclResp = await fetch(
+                `https://api.twitch.tv/helix/content_classification_labels`,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            );
+            if (cclResp.status != 200) {
+                state('Failed to get CCLs. Non 200');
+                return;
+            }
+
+            // a dyanamic rebuild
+            // on the off chance the ccls change whilst using
+            ccl_space.textContent = '';
+            state('Got CCLs');
+
+            let cclData = await cclResp.json();
+            let items = cclData.data;
+            if (cclData.hasOwnProperty('Data')) {
+                items = cclData.Data;
+            }
+            for (let x=0;x<items.length;x++) {
+                let { id, description, name } = items[x];
+
+                let div = document.createElement('div');
+                ccl_space.append(div);
+
+                let l = document.createElement('label');
+                div.append(l);
+                l.textContent = name;
+                l.setAttribute('title', description);
+
+                let c = document.createElement('input');
+                div.append(c);
+                c.classList.add('ccl_selector');
+                c.setAttribute('type', 'checkbox');
+                c.value = id;
+                c.setAttribute('name', `ccl_${id}`);
+                c.setAttribute('id', `ccl_${id}`);
+
+                // mature is only settable via game/category selection
+                if (id == 'MatureGame') {
+                    c.setAttribute('disabled', 'disabled');
+                }
+            }
+
             // get channel information
             let channelResp = await fetch(
                 `https://api.twitch.tv/helix/channels?broadcaster_id=${user_id}`,
@@ -269,7 +326,7 @@
             }
 
             if (channelData.data && channelData.data.length == 1) {
-                let { title, delay, game_id, game_name, tags, broadcaster_language } = channelData.data[0];
+                let { title, delay, game_id, game_name, tags, broadcaster_language, content_classification_labels, is_branded_content } = channelData.data[0];
 
                 channel_title.value = title;
                 channel_delay.value = delay;
@@ -283,6 +340,17 @@
                 for (var x=0;x<tags.length;x++) {
                     tagFields[x].value = tags[x];
                 }
+
+                // ccls
+                for (var x=0;x<content_classification_labels.length;x++) {
+                    let targetCB = document.getElementById(`ccl_${content_classification_labels[x]}`);
+                    if (targetCB) {
+                        targetCB.checked = true;
+                    }
+                }
+
+                // branded
+                channel_branded.checked = is_branded_content;
             } else {
                 state('Failed to get channel. Invalid Data');
                 return;
@@ -431,12 +499,31 @@
                 }
             });
 
+            // build ccls
+            let content_classification_labels = [];
+            let cclFields = document.querySelectorAll('input[class="ccl_selector"]');
+
+            for (var x=0;x<cclFields.length;x++) {
+                let cclField = cclFields[x];
+                if (cclField.getAttribute('disabled')) {
+                    // cannot set this one
+                    continue;
+                }
+                content_classification_labels.push({
+                    id: cclField.value,
+                    is_enabled: cclField.checked
+                });
+            }
+
             let channel = {
                 game_id: channel_game_id.textContent,
                 title: channel_title.value,
                 tags,
 
-                broadcaster_language: channel_broadcaster_language.language
+                broadcaster_language: channel_broadcaster_language.language,
+
+                content_classification_labels,
+                is_branded_content: channel_branded.checked
             }
 
             if (!channel_delay.hasAttribute('disabled')) {
