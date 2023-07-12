@@ -8,6 +8,12 @@ These are pretty basic/dumb examples so it just works TM
 
 - [API to get Ingest URLS](https://dev.twitch.tv/docs/video-broadcast)
 
+## Gotcha
+
+Twitch has a maximum stream length of 48 hours.
+
+So make sure you are able to restart the stream automatically if needed if FFMPEG stops sending, and you didn't get review yet...
+
 ## Running the examples
 
 First install ffmpeg, how to do this varies by platform.
