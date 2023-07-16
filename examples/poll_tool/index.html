@@ -67,6 +67,7 @@
             </fieldset>
         </form>
         <div>Last KeepAlive: <span id="keepalive"></span></div>
+        <div id="eventsub_log"></div>
     </div>
     <div id="right"></div>
 
@@ -129,16 +130,19 @@
             });
 
                 socket_space.on('channel.poll.begin', (msg) => {
+                    writeESLog('begin');
                     let { metadata, payload } = msg;
                     let { event } = payload;
                     drawNewPoll(event);
                 });
                 socket_space.on('channel.poll.progress', (msg) => {
+                    writeESLog('progress');
                     let { metadata, payload } = msg;
                     let { event } = payload;
                     drawUpdatePoll(event);
                 });
                 socket_space.on('channel.poll.end', (msg) => {
+                    writeESLog('end');
                     let { metadata, payload } = msg;
                     let { event } = payload;
                     drawEndPoll(event);
@@ -354,6 +358,12 @@
             if (el) {
                 el.classList.add('winner');
             }
+        }
+
+        function writeESLog(evt) {
+            let l = document.createElement('p');
+            l.textContent = `${new Date().toString()} - ${evt}`;
+            eventsub_log.prepend(l);
         }
     </script>
 </body>
