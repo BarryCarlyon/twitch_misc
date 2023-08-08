@@ -49,27 +49,80 @@
             .then(resp => {
                 total_streams += resp.data.length;
 
-                resp.data.forEach(stream => {
-                    let { title, user_name, viewer_count } = stream;
+                let ids = [];
+                for (var x=0;x<resp.data.length;x++) {
+                    let { id, title, user_name, game_name, started_at, viewer_count } = resp.data[x];
+                    ids.push([ 'broadcaster_id', id ]);
 
                     let ltitle = title.toLowerCase();
                     if (ltitle.includes('#ad') || ltitle.includes('#sponsored') || ltitle.includes('#sponsored') || ltitle.includes('sponsor')) {
                         let r = streams.insertRow();
+                        r.setAttribute('data-channel_id', id);
+
                         var t = r.insertCell();
                         t.textContent = user_name;
                         var t = r.insertCell();
                         t.textContent = title;
+
+                        var t = r.insertCell();
+                        t.textContent = game_name;
+                        var t = r.insertCell();
+                        t.textContent = started_at;
+
+                        var t = r.insertCell();
+                        t.setAttribute('id', `mature_${id}`);
+                        t.textContent('?');
+                        var t = r.insertCell();
+                        t.setAttribute('id', `branded_${id}`);
+                        t.textContent('?');
+
                         var t = r.insertCell();
                         t.textContent = viewer_count;
                     }
-                });
+                }
 
                 document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams} ViewR0: ${page_record_viewer}`;
+
+                chainChannelInfo(ids);
 
                 if (resp.pagination && resp.pagination.cursor) {
                     getPage(resp.pagination.cursor);
 
                     drawTop();
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'Something went wrong';
+            });
+        }
+
+        function chainChannelInfo(ids) {
+            let url = new URL('https://api.twitch.tv/helix/channels');
+            url.searchParams(ids);
+
+            fetch(
+                url,
+                {
+                    method: 'GET',
+                    headers: {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                for (var x=0;x<resp.data.length;x++) {
+                    let { broadcaster_id, is_branded_content, content_classification_labels } = resp.data[x];
+                    let m = document.getElementById(`mature_${broadcaster_id}`);
+                    if (m) {
+                        m.textContent = content_classification_labels.contains('MatureGame') ? 'Yes' : 'No';
+                    }
+                    let b = document.getElementById(`branded_${broadcaster_id}`);
+                    if (b) {
+                        b.textContent = is_branded_content ? 'Yes' : 'No';
+                    }
                 }
             })
             .catch(err => {
