@@ -99,7 +99,7 @@
 
         function chainChannelInfo(ids) {
             let url = new URL('https://api.twitch.tv/helix/channels');
-            url.searchParams(ids);
+            url.search = new URLSearchParams(ids).toString();
 
             fetch(
                 url,
