@@ -51,13 +51,13 @@
 
                 let ids = [];
                 for (var x=0;x<resp.data.length;x++) {
-                    let { id, title, user_name, game_name, started_at, viewer_count } = resp.data[x];
-                    ids.push([ 'broadcaster_id', id ]);
+                    let { user_id, title, user_name, game_name, started_at, viewer_count } = resp.data[x];
+                    ids.push([ 'broadcaster_id', user_id ]);
 
                     let ltitle = title.toLowerCase();
                     if (ltitle.includes('#ad') || ltitle.includes('#sponsored') || ltitle.includes('#sponsored') || ltitle.includes('sponsor')) {
                         let r = streams.insertRow();
-                        r.setAttribute('data-channel_id', id);
+                        r.setAttribute('data-channel_id', user_id);
 
                         var t = r.insertCell();
                         t.textContent = user_name;
@@ -70,10 +70,10 @@
                         t.textContent = started_at;
 
                         var t = r.insertCell();
-                        t.setAttribute('id', `mature_${id}`);
+                        t.setAttribute('id', `mature_${user_id}`);
                         t.textContent = '?';
                         var t = r.insertCell();
-                        t.setAttribute('id', `branded_${id}`);
+                        t.setAttribute('id', `branded_${user_id}`);
                         t.textContent = '?';
 
                         var t = r.insertCell();
@@ -87,8 +87,6 @@
 
                 if (resp.pagination && resp.pagination.cursor) {
                     getPage(resp.pagination.cursor);
-
-                    drawTop();
                 }
             })
             .catch(err => {
