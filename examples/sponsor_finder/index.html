@@ -11,7 +11,11 @@
     <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
     <div id="loading"></div>
 
-    <table id="streams"></table>
+    <table id="streams">
+        <thead>
+
+        </thead>
+    </table>
 
     <script type="text/javascript">
         // go populate this with a client_id
@@ -52,10 +56,11 @@
                 let ids = [];
                 for (var x=0;x<resp.data.length;x++) {
                     let { user_id, title, user_name, game_name, started_at, viewer_count } = resp.data[x];
-                    ids.push([ 'broadcaster_id', user_id ]);
 
                     let ltitle = title.toLowerCase();
                     if (ltitle.includes('#ad') || ltitle.includes('#sponsored') || ltitle.includes('#sponsored') || ltitle.includes('sponsor')) {
+                        ids.push([ 'broadcaster_id', user_id ]);
+
                         let r = streams.insertRow();
                         r.setAttribute('data-channel_id', user_id);
 
@@ -83,7 +88,9 @@
 
                 document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams} ViewR0: ${page_record_viewer}`;
 
-                chainChannelInfo(ids);
+                if (ids.length > 0) {
+                    chainChannelInfo(ids);
+                }
 
                 if (resp.pagination && resp.pagination.cursor) {
                     getPage(resp.pagination.cursor);
@@ -115,7 +122,7 @@
                     let { broadcaster_id, is_branded_content, content_classification_labels } = resp.data[x];
                     let m = document.getElementById(`mature_${broadcaster_id}`);
                     if (m) {
-                        m.textContent = content_classification_labels.contains('MatureGame') ? 'Yes' : 'No';
+                        m.textContent = content_classification_labels.includes('MatureGame') ? 'Yes' : 'No';
                     }
                     let b = document.getElementById(`branded_${broadcaster_id}`);
                     if (b) {
