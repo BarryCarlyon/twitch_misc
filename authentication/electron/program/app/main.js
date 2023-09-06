@@ -14,6 +14,7 @@ if (!gotTheLock) {
 let win;
 
 app.on('second-instance', (event, commandLine, workingDirectory) => {
+    console.log('Second instance');
     // Someone tried to run a second instance, we should focus our window.
     if (win) {
         if (win.isMinimized()) {
@@ -22,8 +23,18 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
         win.focus();
     }
 
+    console.log(commandLine);
     let input = commandLine.pop();
     let url = new URL(input);
+    if (url.host == 'twitchauth') {
+        let pathparts = url.pathname.split('/');
+        runToken(pathparts[1]);
+    }
+});
+app.on('open-url', (event, url) => {
+    console.log('recv', url);
+
+    url = new URL(url);
     if (url.host == 'twitchauth') {
         let pathparts = url.pathname.split('/');
         runToken(pathparts[1]);
