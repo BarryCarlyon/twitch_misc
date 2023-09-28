@@ -187,9 +187,11 @@
 
                     document.getElementById('loading').textContent = `Loaded ${resp.data.length} Videos from ${name}`;
 
-                    var p = document.createElement('p');
-                    document.getElementById('player_zone').append(p);
-                    p.textContent = 'Select a Video to Play';
+                    if (!player) {
+                        var p = document.createElement('p');
+                        document.getElementById('player_zone').append(p);
+                        p.textContent = 'Select a Video to Play';
+                    }
                 } else {
                     document.getElementById('loading').textContent = 'An Error Occured loading Videos: not returned';
                 }
