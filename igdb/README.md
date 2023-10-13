@@ -21,7 +21,7 @@ In production you would generate, retain and utilise a single token until it's c
 ### Game Lookup
 
 We call the Games endpoint but with a `search` filter instead.
-We also use an expanded to collect additional data
+We also use an [expander](https://api-docs.igdb.com/#expander) to collect additional data beyond just the "basic" game endpoint. Expanders work like a datahase JOIN basically.
 
 ## Running the Example
 
