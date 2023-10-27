@@ -128,6 +128,12 @@ class initSocket {
 
                     break;
 
+                case 'revocation':
+                    log(`${this.eventsub.counter} Recv Topic Revocation`);
+                    console.log('revocation', payload);
+                    this.emit('revocation', { metadata, payload });
+                    break;
+
                 default:
                     console.log(`${this.eventsub.counter} unexpected`, metadata, payload);
                     break;
