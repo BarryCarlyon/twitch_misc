@@ -200,10 +200,17 @@
                     });
                     socket_space.on('channel.chat.notification', ({ payload }) => {
                         let { event } = payload;
-                        let { broadcaster_user_login, chatter_user_name, message_id } = event;
+                        let { broadcaster_user_login, chatter_user_login, message_id } = event;
                         let { system_message, notice_type } = event;
 
-                        addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_name} did ${notice_type}/${system_message}`);
+                        switch (notice_type) {
+                            case 'sub_gift':
+                                var { community_gift_id } = event;
+                                addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${community_gift_id}`);
+                                break;
+                            default:
+                                addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message}`);
+                        }
                     });
                 })
                 .catch(err => {
