@@ -105,19 +105,15 @@ class initSocket {
 
                     break;
 
-                case 'websocket_reconnect':
+                case 'session_reconnect':
                     this.eventsub.is_reconnecting = true;
 
-                    //var { websocket } = payload;
-                    //var { reconnect_url } = websocket;
-
-                    let reconnect_url = payload.websocket.reconnect_url;
+                    let reconnect_url = payload.session.reconnect_url;
 
                     console.log('Connect to new url', reconnect_url);
                     log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Reconnect request ${reconnect_url}`)
 
                     //this.eventsub.close();
-
                     //new initSocket(reconnect_url, true);
                     this.connect(reconnect_url, true);
 
