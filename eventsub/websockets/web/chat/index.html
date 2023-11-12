@@ -105,7 +105,7 @@
         var session_id = '';
         var my_user_id = '';
 
-        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:chat+user:bot');
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:chat');
 
         if (document.location.hash && document.location.hash != '') {
             log('Checking for token');
@@ -204,8 +204,14 @@
                         let { system_message, notice_type } = event;
 
                         switch (notice_type) {
+                            case 'community_sub_gift':
+                                var { community_sub_gift } = event;
+                                var { id } = community_sub_gift;
+                                addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${id}`);
+                                break;
                             case 'sub_gift':
-                                var { community_gift_id } = event;
+                                var { sub_gift } = event;
+                                var { community_gift_id } = sub_gift;
                                 addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${community_gift_id}`);
                                 break;
                             default:
@@ -218,6 +224,46 @@
                     log('Error with Users Call');
                 });
         }
+
+        function buildFromFragments(broadcaster_user_login, chatter_user_login, fragments) {
+            let chat = document.createElement('div');
+            document.getElementById('simplelog').prepend(chat);
+
+            let sp = document.createElement('span');
+            sp.textContent = `Chat: ${broadcaster_user_login} - ${chatter_user_login} says `;
+            chat.append(sp);
+
+            for (var x=0;x<fragments.length;x++) {
+                let { type, text, cheermote, emote, mention } = fragments[x];
+                switch (type) {
+                    case 'emote':
+                        var el = document.createElement('img');
+                        el.setAttribute('src', `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/1.0`);
+                        chat.append(el);
+                        break;
+                    case 'text':
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = text;
+                        break;
+                    case 'mention':
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = text;
+                        el.style.backgroundColor = 'red';
+                        break;
+
+                    default:
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = `No Handle ${type}`;
+
+                        console.error(fragments[x]);
+                }
+            }
+        }
+
+
         function addUser(username) {
             let url = new URL('https://api.twitch.tv/helix/users');
             url.search = new URLSearchParams([['login', username]]).toString();
@@ -247,7 +293,7 @@
                 'channel.chat.clear': { version: "beta", condition: { broadcaster_user_id, user_id } },
                 'channel.chat.clear_user_messages': { version: "beta", condition: { broadcaster_user_id, user_id } },
                 'channel.chat.message_delete': { version: "beta", condition: { broadcaster_user_id, user_id } },
-                'channel.chat.notification': { version: "beta", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.notification': { version: "beta", condition: { broadcaster_user_id, user_id } }
             }
 
             log(`Spawn Topics for ${user_id}`);
