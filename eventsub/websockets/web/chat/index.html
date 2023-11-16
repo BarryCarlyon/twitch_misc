@@ -290,10 +290,10 @@
 
         function requestHooks(broadcaster_user_id, user_id) {
             let topics = {
-                'channel.chat.clear': { version: "beta", condition: { broadcaster_user_id, user_id } },
-                'channel.chat.clear_user_messages': { version: "beta", condition: { broadcaster_user_id, user_id } },
-                'channel.chat.message_delete': { version: "beta", condition: { broadcaster_user_id, user_id } },
-                'channel.chat.notification': { version: "beta", condition: { broadcaster_user_id, user_id } }
+                'channel.chat.clear': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.clear_user_messages': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.message_delete': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } }
             }
 
             log(`Spawn Topics for ${user_id}`);
