@@ -16,9 +16,11 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/eventsub/webso
 
 For example you are making a third party chat client, or you are a game client running from the game.
 
-A user access token with the following scopes
+Just generated user access token with the following scopes
 
 - `user:read:chat` from the user you wish to read chat as
+
+You then use that user access token to create subscriptions to your socket.
 
 Thats it
 
@@ -26,23 +28,29 @@ Thats it
 
 For example you are a channel bot that handles moderation
 
-A user access token with the following scopes or permissions:
+Prior generated user access token with the following scopes or permissions:
 
 - `user:read:chat` from the user account you wish to read chat as (usually the bot)
 - `user:bot` from the user account you wish to act as a bot as
 - moderator status in the channel you wish to connect to
 
-### If you are using EventSub over Webhooks:
+You then ignore the user access token(s) and use an [App Access/Client Credentials](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow) token to create subscriptions to your Webhook.
+
+### If you are using EventSub over Webhooks (more common approach):
 
 For example you are the channel bot that just sends/reads chat, such as a game (where a control server is in use) or hydrationBot (as water bot doesn't and shouldn't be given perms)
 
-A user access token with the following scopes or permissions:
+Prior generated user access token with the following scopes or permissions:
 
 - `user:read:chat` from the user account you wish to read chat as (usually the bot)
 - `user:bot` from the user account you wish to act as a bot as
 - `channel:bot` from the channel you wish to connect to
 
+You then ignore the user access token(s) and use an [App Access/Client Credentials](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow) token to create subscriptions to your Webhook.
+
 ## Reference Documentation
+
+For what is used in this example
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#implicit-grant-flow)
 - [EventSub](https://dev.twitch.tv/docs/eventsub)
