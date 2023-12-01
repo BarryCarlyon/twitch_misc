@@ -77,20 +77,22 @@ class initSocket {
 
                     log(`${this.eventsub.counter} This socket declared silence as ${keepalive_timeout_seconds} seconds`);
 
-
                     if (!this.eventsub.is_reconnecting) {
                         log('Dirty disconnect or first spawn');
-                        // spawn hooks
-
                         this.emit('connected', id);
+                        // now you would spawn your topics
                     } else {
                         this.emit('reconnected', id);
+                        // no need to spawn topics as carried over
                     }
 
+                    this.silence(keepalive_timeout_seconds);
+                    
                     break;
                 case 'session_keepalive':
                     //log(`Recv KeepAlive - ${message_type}`);
                     this.emit('session_keepalive');
+                    this.silence();
                     break;
 
                 case 'notification':
@@ -102,6 +104,7 @@ class initSocket {
 
                     this.emit('notification', { metadata, payload });
                     this.emit(type, { metadata, payload });
+                    this.silence();
 
                     break;
 
@@ -144,6 +147,19 @@ class initSocket {
         this.eventsub.close();
     }
 
+    silenceHandler = false;
+    silenceTime = 10;// default per docs is 10 so set that as a good default
+    silence(keepalive_timeout_seconds) {
+        if (keepalive_timeout_seconds) {
+            this.silenceTime = keepalive_timeout_seconds;
+        }
+        clearTimeout(this.silenceHandler);
+        this.silenceHandler = setTimeout(() => {
+            this.emit('session_silenced');// -> self reconnecting
+            this.close();// close it and let it self loop
+        }, (this.silenceTime * 1000));
+    }
+    
     on(name, listener) {
         if (!this._events[name]) {
             this._events[name] = [];
