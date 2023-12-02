@@ -168,6 +168,9 @@
                         requestHooks(resp.data[0].id, my_user_id);
                     });
 
+                    socket_space.on('session_silenced', () => {
+                        addsimplelog('Session mystery died due to silence detected');
+                    });
                     socket_space.on('session_keepalive', () => {
                         document.getElementById('keepalive').textContent = new Date();
                     });
