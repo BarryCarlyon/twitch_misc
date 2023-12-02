@@ -152,6 +152,7 @@ class initSocket {
     silence(keepalive_timeout_seconds) {
         if (keepalive_timeout_seconds) {
             this.silenceTime = keepalive_timeout_seconds;
+            this.silenceTime++;// add a little window as it's too anal
         }
         clearTimeout(this.silenceHandler);
         this.silenceHandler = setTimeout(() => {
