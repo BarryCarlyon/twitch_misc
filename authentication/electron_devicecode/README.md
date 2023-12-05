@@ -18,6 +18,7 @@ The above also works for anything where you can't or **shouldn't** open up a ser
 
 ## Reference Documentation
 
+- [Device code grant flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#device-code-grant-flow)
 - [Public Client Type](https://datatracker.ietf.org/doc/html/rfc6749#section-2.1)
 - [JS QR Code Generator](https://github.com/davidshimjs/qrcodejs)
 
