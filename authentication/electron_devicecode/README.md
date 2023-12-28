@@ -8,7 +8,7 @@ It could also be using in games or other programs that cannot easily capture a r
 
 This example stores the resultant access and refresh token using [Electron Store](https://github.com/sindresorhus/electron-store) at start up it checks for a pre-existing access and if still valid uses it, otherwise attempts to refresh using the refresh token and continue.
 
-## How for Device Code Flow Work
+## How does Device Code Flow Work
 
 A simplified overview
 
