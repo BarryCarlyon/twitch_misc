@@ -12,7 +12,7 @@ An example [capture page](webpage) is provided, it uses a bit of javascript will
 
 Since Twitch has now made available [Device Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#device-code-grant-flow) this approach is redundant as the DCF flow is much preferred.
 
-For a DCF example pop over to [here](../authentication/electron_devicecode/) instead!
+For a DCF example pop over to [here](../electron_devicecode/) instead!
 
 ## Methods
 
