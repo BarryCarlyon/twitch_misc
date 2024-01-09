@@ -221,10 +221,71 @@
                                 addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message}`);
                         }
                     });
+
+                    socket_space.on('channel.chat_settings.update', ({ payload }) => {
+                        let { event } = payload;
+
+                        let { broadcaster_user_id, broadcaster_user_login } = event;
+                        //let { emote_mode } = event;
+                        //let { follower_mode, follower_mode_duration_minutes } = event;
+                        //let { slow_mode, slow_mode_wait_time_seconds } = event;
+                        //let { subscriber_mode, unique_chat_mode } = event;
+
+                        // iterate and detect what changed
+                        let changes = [];
+
+                        for (var key in chatSettings[broadcaster_user_id]) {
+                            let was = chatSettings[broadcaster_user_id][key];
+                            let now = '';
+                            if (key == 'follower_mode_duration') {
+                                chatSettings[broadcaster_user_id][key] = event.follower_mode_duration_minutes;
+                                now = event.follower_mode_duration_minutes;
+                            } else if (key == 'slow_mode_wait_time') {
+                                chatSettings[broadcaster_user_id][key] = event.slow_mode_wait_time_seconds;
+                                now = event.slow_mode_wait_time_seconds;
+                            } else if (!key.startsWith('broadcaster')) {
+                                chatSettings[broadcaster_user_id][key] = event[key];
+                                now = event[key];
+                            }
+                            if (was != now) {
+                                // @todo: english
+                                changes.push(`${key} - ${now}`);
+                            }
+                        }
+
+                        let change = changes.join(', ');
+                        addsimplelog(`On ${broadcaster_user_login} chat settings update ${change}`);
+                    });
                 })
                 .catch(err => {
                     console.log(err);
                     log('Error with Users Call');
+                });
+        }
+
+        let chatSettings = {};
+        function extraData(broadcaster_id) {
+            fetch(
+                `https://api.twitch.tv/helix/chat/settings?broadcaster_id=${broadcaster_id}`,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    let { data } = resp;
+                    if (data) {
+                        let { broadcaster_id } = data[0];
+                        delete data[0].broadcaster_id;
+                        chatSettings[broadcaster_id] = data[0];
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Get Fetch Chat Settings Call');
                 });
         }
 
@@ -284,6 +345,8 @@
                 .then(resp => {
                     log(`Got ${resp.data[0].id} for ${username}`);
                     requestHooks(resp.data[0].id, my_user_id);
+
+                    extraData(resp.data[0].id);
                 })
                 .catch(err => {
                     console.log(err);
@@ -296,7 +359,8 @@
                 'channel.chat.clear': { version: "1", condition: { broadcaster_user_id, user_id } },
                 'channel.chat.clear_user_messages': { version: "1", condition: { broadcaster_user_id, user_id } },
                 'channel.chat.message_delete': { version: "1", condition: { broadcaster_user_id, user_id } },
-                'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } }
+                'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat_settings.update': { version: "beta", condition: { broadcaster_user_id, user_id } }
             }
 
             log(`Spawn Topics for ${user_id}`);
