@@ -166,6 +166,9 @@
                         my_user_id = resp.data[0].id;
 
                         requestHooks(resp.data[0].id, my_user_id);
+
+                        // extra/needed data
+                        extraData(my_user_id);
                     });
 
                     socket_space.on('session_silenced', () => {
@@ -234,6 +237,7 @@
                         // iterate and detect what changed
                         let changes = [];
 
+                        console.log('was', chatSettings[broadcaster_user_id]);
                         for (var key in chatSettings[broadcaster_user_id]) {
                             let was = chatSettings[broadcaster_user_id][key];
                             let now = '';
@@ -252,9 +256,10 @@
                                 changes.push(`${key} - ${now}`);
                             }
                         }
+                        console.log('now', chatSettings[broadcaster_user_id]);
 
                         let change = changes.join(', ');
-                        addsimplelog(`On ${broadcaster_user_login} chat settings update ${change}`);
+                        addsimplelog(`On ${broadcaster_user_login} chat settings update: ${change}`);
                     });
                 })
                 .catch(err => {
