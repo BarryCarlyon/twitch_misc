@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Extension Config Tool | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/hmac-sha256.min.js" integrity="sha512-HMqYytekgCbPoNWBm9oazvuOJ8sFpw+FWBHRi2QM0f/bV5djDV1sRzWzu5Jq7MAUlm+zDAUCgi/vHBBlUGLroQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/enc-base64.min.js" integrity="sha512-IKpu1GFk/bQ+2fOc4sXuA6lm7Rct4P7611iDBxY9LReOZ2PpwoDWWqj6GSYejUce1FLxo/d4lxAnKqGWJuBw7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style type="text/css">
+        label, input, textarea {
+            display: inline-block;
+            width: 500px;
+        }
+        label {
+            vertical-align: top;
+            width: 300px;
+        }
+
+        .error {
+            border: 1px solid red;
+        }
+
+        input[type="button"] {
+            background: red;
+        }
+        input[type="button"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        #status {
+            background: transparent;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <p>This tool serves as a Replacement for the Config Service control options in the Rig. As the Dev Rig likely won't be upgraded and calls the deprecated API's</p>
+
+    <p>This tools lets you read/write to the Twitch Extensions Configuration Service. For a desktop version that will rememebr your Extension Settings checkout <a href="https://github.com/BarryCarlyon/twitch_extension_tools">BarryCarlyons' Twitch Extension Tools</a></p>
+
+    <p>Reference Documentation</p>
+    <ul>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#get-extension-configuration-segment">Get Extension Configuration Segment</a></li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#set-extension-configuration-segment">Set Extension Configuration Segment</a></li>
+    </ul>
+
+    <p>You will need to copy/paste your Credentais in, this tool doesn't collect or store them in any way. and runs as Pure client side javascript</p>
+
+    <p>Version is entirely optional and not a thing I generally use. Included for completeness</p>
+    <p>The tool will attempt to JSON parse/stringify as needed, but the config service can store "flat strings" it doesn't have to be JSON Parsable</p>
+    <p>There is a 5kb limit per segement!</p>
+
+    <form action="" method="get">
+        <fieldset>
+            <legend>Settings</legend>
+            <div>
+                <label for="extension_id">Extension Client ID</label>
+                <input type="text" name="client_id" id="client_id" value="" />
+            </div>
+            <div>
+                <label for="extension_secret">Extension Secret</label>
+                <input type="password" name="extension_secret" id="extension_secret" value="" />
+            </div>
+
+            <div>
+                <label for="owner_id">Your/Extension Owner Twitch User ID</label>
+                <input type="text" name="owner_id" id="owner_id" value="" />
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Interact</legend>
+
+            <div>
+                <label for="segment">Segment</label>
+                <select name="segment" id="segment">
+                    <option value="global">Global</option>
+                    <option value="broadcaster">Broadcaster</option>
+                    <option value="developer">Developer</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="channel_id">Channel ID (when not using Global)</label>
+                <input type="text" name="channel_id" id="channel_id" value="" />
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Data</legend>
+
+            <div>
+                <label for="content">Content</label>
+                <textarea id="content" name="content" rows="10" cols="50"></textarea>
+            </div>
+            <div>
+                <label for="content">Content is JSON</label>
+                <input type="checkbox" name="content_is_json" id="content_is_json" />
+            </div>
+            <div>
+                <label for="version">Version</label>
+                <input type="text" name="version" id="version" />
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend id="status">Controls</legend>
+            <input type="button" id="fetch" value="Fetch" />
+            <input type="button" id="write" value="Write" />
+        </fieldset>
+    </form>
+
+    <script type="text/javascript">
+        function base64url(source) {
+            // Encode in classical base64
+            encodedSource = CryptoJS.enc.Base64.stringify(source);
+
+            // Remove padding equal characters
+            encodedSource = encodedSource.replace(/=+$/, '');
+
+            // Replace characters according to base64url specifications
+            encodedSource = encodedSource.replace(/\+/g, '-');
+            encodedSource = encodedSource.replace(/\//g, '_');
+
+            return encodedSource;
+        }
+
+        function lock() {
+            document.getElementById('status').textContent = 'Going on task';
+            document.getElementById('fetch').setAttribute('disabled', 'disabled');
+            document.getElementById('write').setAttribute('disabled', 'disabled');
+        }
+        function unlock() {
+            document.getElementById('fetch').removeAttribute('disabled');
+            document.getElementById('write').removeAttribute('disabled');
+        }
+
+        document.getElementById('fetch').addEventListener('click', () => {
+            lock();
+            goFetch();
+        });
+        document.getElementById('write').addEventListener('click', () => {
+            lock();
+            goWrite();
+        });
+
+        function validate() {
+            let errors = document.getElementsByClassName('error');
+            for (let x=0;x<errors.length;x++) {
+                errors[x].classList.remove('error');
+            }
+
+            if (document.getElementById('client_id').value == '') {
+                document.getElementById('client_id').classList.add('error');
+            }
+            if (document.getElementById('extension_secret').value == '') {
+                document.getElementById('extension_secret').classList.add('error');
+            }
+            if (document.getElementById('owner_id').value == '') {
+                document.getElementById('owner_id').classList.add('error');
+            }
+        }
+
+        function goFetch() {
+            validate();
+            let errors = document.getElementsByClassName('error');
+            if (errors.length > 0) {
+                return;
+            }
+
+            let url = new URL('https://api.twitch.tv/helix/extensions/configurations');
+            let params = [
+                [ 'extension_id', document.getElementById('client_id').value ],
+                [ 'segment', document.getElementById('segment').value ]
+            ];
+
+            if (document.getElementById('segment').value != 'global') {
+                if (document.getElementById('channel_id').value == '') {
+                    document.getElementById('channel_id').classList.add('error');
+                    return;
+                }
+
+                params.push([ 'broadcaster_id', document.getElementById('channel_id').value ]);
+            }
+
+            url.search = new URLSearchParams(params).toString();;
+
+            fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": document.getElementById('client_id').value,
+                        "Authorization": "Bearer " + getSig()
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                //console.log(resp);
+                document.getElementById('content').value = '';
+                if (resp.data[0]) {
+                    let { version, content } = resp.data[0];
+                    try {
+                        content = JSON.parse(content);
+                        document.getElementById('content').value = JSON.stringify(content, null, 4);
+                        document.getElementById('content_is_json').checked = true;
+                    } catch (e) {
+                        document.getElementById('content').value = resp.data[0].content;
+                        document.getElementById('content_is_json').checked = false;
+                    }
+                    document.getElementById('version').value = version;
+                }
+
+                document.getElementById('status').textContent = 'Looks like I fetched';
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('status').textContent = 'Error Reading. Check console';
+            })
+            .finally(() => {
+                unlock();
+            });
+        }
+
+        function goWrite() {
+            let url = new URL('https://api.twitch.tv/helix/extensions/configurations');
+
+            let content = document.getElementById('content').value;
+            if (document.getElementById('content_is_json').checked) {
+                content = JSON.stringify(JSON.parse(content));
+            }
+
+            let payload = {
+                "extension_id": document.getElementById('client_id').value,
+                "segment": document.getElementById('segment').value,
+                "content": content
+            }
+            if (document.getElementById('segment').value != 'global') {
+                if (document.getElementById('channel_id').value == '') {
+                    document.getElementById('channel_id').classList.add('error');
+                    return;
+                }
+                payload.broadcaster_id = document.getElementById('channel_id').value;
+            }
+
+            if (document.getElementById('version').value != '') {
+                payload.version = document.getElementById('version').value;
+            }
+
+            console.log('Sending', payload);
+
+            fetch(
+                url,
+                {
+                    "method": "PUT",
+                    "headers": {
+                        "Client-ID": document.getElementById('client_id').value,
+                        "Authorization": "Bearer " + getSig(),
+                        "Content-Type": "application/json"
+                    },
+                    "body": JSON.stringify(payload)
+                }
+            )
+            .then(resp => {
+                document.getElementById('status').textContent = 'Looks like I wrote';
+
+                setTimeout(() => {
+                    goFetch();
+                }, 1500);
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('status').textContent = 'Error Writing. Check console';
+            });
+        }
+
+        function getSig() {
+            var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify({
+                "alg": "HS256",
+                "typ": "JWT"
+            }));
+            var encodedHeader = base64url(stringifiedHeader);
+
+            var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify({
+                "exp": Math.floor(new Date().getTime() / 1000) + 10,
+                "user_id": document.getElementById('owner_id').value,
+                "role": "external"
+            }));
+            var encodedData = base64url(stringifiedData);
+
+            var token = encodedHeader + "." + encodedData;
+
+            var signature = CryptoJS.HmacSHA256(token, CryptoJS.enc.Base64.parse(document.getElementById('extension_secret').value));
+            signature = base64url(signature);
+
+            return token + "." + signature;
+        }
+    </script>
+</body>
+</html>
