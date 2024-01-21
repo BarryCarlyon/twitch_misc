@@ -26,27 +26,22 @@ class initSocket {
         url = url ? url : 'wss://eventsub.wss.twitch.tv/ws';
         is_reconnect = is_reconnect ? is_reconnect : false;
 
-        console.log(`Connecting to ${url}|${is_reconnect}`);
+        log(`Connecting to ${url}|${is_reconnect}`);
         this.eventsub = new WebSocket(url);
         this.eventsub.is_reconnecting = is_reconnect;
         this.eventsub.counter = this.counter;
 
         this.eventsub.addEventListener('open', () => {
-            console.log(`Opened Connection to Twitch`);
+            log(`Opened Connection to Twitch`);
         });
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close_event
         // https://github.com/Luka967/websocket-close-codes
         this.eventsub.addEventListener('close', (close) => {
             console.log('EventSub close', close, this.eventsub);
-            console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Closed: ${close.code} Reason - ${this.closeCodes[close.code]}`);
-
-            if (close.code == 4003) {
-                console.log('No Subscribes made will not reconnect');
-                return;
-            }
+            log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Closed: ${close.code} Reason - ${this.closeCodes[close.code]}`);
 
             if (!this.eventsub.is_reconnecting) {
-                console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Is not reconnecting, auto reconnect`);
+                log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Is not reconnecting, auto reconnect`);
                 //new initSocket();
                 this.connect();
             }
@@ -59,77 +54,83 @@ class initSocket {
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event
         this.eventsub.addEventListener('error', (err) => {
             console.log(err);
-            console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Error`);
+            log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Connection Error`);
         });
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/message_event
         this.eventsub.addEventListener('message', (message) => {
-            //console.log('Message');
-            //console.log(this.eventsub.counter, message);
+            //log('Message');
+            console.log(this.eventsub.counter, message);
             let { data } = message;
             data = JSON.parse(data);
 
             let { metadata, payload } = data;
             let { message_id, message_type, message_timestamp } = metadata;
-            //console.log(`Recv ${message_id} - ${message_type}`);
+            //log(`Recv ${message_id} - ${message_type}`);
 
             switch (message_type) {
                 case 'session_welcome':
                     let { session } = payload;
                     let { id, keepalive_timeout_seconds } = session;
 
-                    console.log(`${this.eventsub.counter} This is Socket ID ${id}`);
+                    log(`${this.eventsub.counter} This is Socket ID ${id}`);
                     this.eventsub.twitch_websocket_id = id;
 
-                    console.log(`${this.eventsub.counter} This socket declared silence as ${keepalive_timeout_seconds} seconds`);
+                    log(`${this.eventsub.counter} This socket declared silence as ${keepalive_timeout_seconds} seconds`);
 
                     if (!this.eventsub.is_reconnecting) {
-                        console.log('Dirty disconnect or first spawn');
-                        // spawn hooks
-
+                        log('Dirty disconnect or first spawn');
                         this.emit('connected', id);
+                        // now you would spawn your topics
                     } else {
                         this.emit('reconnected', id);
+                        // no need to spawn topics as carried over
                     }
 
+                    this.silence(keepalive_timeout_seconds);
+                    
                     break;
                 case 'session_keepalive':
-                    //console.log(`Recv KeepAlive - ${message_type}`);
+                    //log(`Recv KeepAlive - ${message_type}`);
                     this.emit('session_keepalive');
+                    this.silence();
                     break;
 
                 case 'notification':
                     console.log('notification', metadata, payload);
-                    console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${JSON.stringify(payload)}`);
+                    log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${JSON.stringify(payload)}`);
 
                     let { subscription, event } = payload;
                     let { type } = subscription;
 
                     this.emit('notification', { metadata, payload });
                     this.emit(type, { metadata, payload });
+                    this.silence();
 
                     break;
 
-                case 'websocket_reconnect':
+                case 'session_reconnect':
                     this.eventsub.is_reconnecting = true;
 
-                    //var { websocket } = payload;
-                    //var { reconnect_url } = websocket;
-
-                    let reconnect_url = payload.websocket.reconnect_url;
+                    let reconnect_url = payload.session.reconnect_url;
 
                     console.log('Connect to new url', reconnect_url);
-                    console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Reconnect request ${reconnect_url}`)
+                    log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Reconnect request ${reconnect_url}`)
 
                     //this.eventsub.close();
-
                     //new initSocket(reconnect_url, true);
                     this.connect(reconnect_url, true);
 
                     break;
                 case 'websocket_disconnect':
-                    console.log(`${this.eventsub.counter} Recv Disconnect`);
+                    log(`${this.eventsub.counter} Recv Disconnect`);
                     console.log('websocket_disconnect', payload);
 
+                    break;
+
+                case 'revocation':
+                    log(`${this.eventsub.counter} Recv Topic Revocation`);
+                    console.log('revocation', payload);
+                    this.emit('revocation', { metadata, payload });
                     break;
 
                 default:
@@ -139,10 +140,27 @@ class initSocket {
         });
     }
 
+    trigger() {
+        this.eventsub.send('cat');
+    }
     close() {
         this.eventsub.close();
     }
 
+    silenceHandler = false;
+    silenceTime = 10;// default per docs is 10 so set that as a good default
+    silence(keepalive_timeout_seconds) {
+        if (keepalive_timeout_seconds) {
+            this.silenceTime = keepalive_timeout_seconds;
+            this.silenceTime++;// add a little window as it's too anal
+        }
+        clearTimeout(this.silenceHandler);
+        this.silenceHandler = setTimeout(() => {
+            this.emit('session_silenced');// -> self reconnecting
+            this.close();// close it and let it self loop
+        }, (this.silenceTime * 1000));
+    }
+    
     on(name, listener) {
         if (!this._events[name]) {
             this._events[name] = [];
@@ -161,4 +179,29 @@ class initSocket {
 
         this._events[name].forEach(fireCallbacks);
     }
+}
+
+function log(msg) {
+    if (!document.getElementById('log')) {
+        return;
+    }
+
+    let div = document.createElement('div');
+    document.getElementById('log').prepend(div);
+
+    let tim = document.createElement('span');
+    div.append(tim);
+    let t = [
+        new Date().getHours(),
+        new Date().getMinutes(),
+        new Date().getSeconds()
+    ]
+    t.forEach((v,i) => {
+        t[i] = v < 10 ? '0'+v : v;
+    });
+    tim.textContent = t.join(':');
+
+    let sp = document.createElement('span');
+    div.append(sp);
+    sp.textContent = msg;
 }
