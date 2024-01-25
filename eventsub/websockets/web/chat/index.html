@@ -237,7 +237,9 @@
                     socket_space.on('channel.chat.notification', ({ payload }) => {
                         let { event } = payload;
                         let { broadcaster_user_login, chatter_user_login, message_id } = event;
-                        let { system_message, notice_type } = event;
+                        let { broadcaster_user_name, chatter_user_name } = event;
+                        let { system_message, notice_type, message } = event;
+                        let { fragments } = message;
 
                         switch (notice_type) {
                             case 'community_sub_gift':
