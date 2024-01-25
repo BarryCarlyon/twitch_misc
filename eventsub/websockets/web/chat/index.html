@@ -245,11 +245,34 @@
                                 var { id } = community_sub_gift;
                                 addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${id}`);
                                 break;
+
                             case 'sub_gift':
                                 var { sub_gift } = event;
                                 var { community_gift_id } = sub_gift;
                                 addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${community_gift_id}`);
                                 break;
+
+                            case 'announcement':
+                                var { announcement } = event;
+                                var { color } = announcement;
+                                // if it's PRIMARY we have no idea what color it is
+
+                                let annBox = document.createElement('div');
+                                document.getElementById('simplelog').prepend(annBox);
+                                annBox.classList.add(`announcement-line`);
+                                annBox.classList.add(`announcement-line--${color.toLowerCase()}`);
+
+                                let annAuthorBox = document.createElement('div');
+                                annBox.append(annAuthorBox);
+                                annAuthorBox.textContent = `${chatter_user_name}: `;
+
+                                let annTextBox = document.createElement('div');
+                                annBox.append(annTextBox);
+
+                                buildFromFragments(annTextBox, fragments);
+
+                                break;
+
                             default:
                                 addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message}`);
                         }
@@ -393,7 +416,7 @@
                 });
         }
 
-        function buildFromFragments(broadcaster_user_login, chatter_user_login, fragments) {
+        function buildFromFragments(chat, fragments) {
             let chat = document.createElement('div');
             document.getElementById('simplelog').prepend(chat);
 
