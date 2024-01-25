@@ -24,7 +24,7 @@ You then use that user access token to create subscriptions to your socket.
 
 Thats it
 
-### If you are using EventSub over Webhooks:
+### If you are using EventSub over Webhooks/Conduits:
 
 For example you are a channel bot that handles moderation
 
@@ -36,7 +36,7 @@ Prior generated user access token with the following scopes or permissions:
 
 You then ignore the user access token(s) and use an [App Access/Client Credentials](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow) token to create subscriptions to your Webhook.
 
-### If you are using EventSub over Webhooks (more common approach):
+### If you are using EventSub over Webhooks/Conduits (more common approach):
 
 For example you are the channel bot that just sends/reads chat, such as a game (where a control server is in use) or hydrationBot (as water bot doesn't and shouldn't be given perms)
 
