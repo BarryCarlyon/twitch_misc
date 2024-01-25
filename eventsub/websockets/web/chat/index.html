@@ -417,13 +417,6 @@
         }
 
         function buildFromFragments(chat, fragments) {
-            let chat = document.createElement('div');
-            document.getElementById('simplelog').prepend(chat);
-
-            let sp = document.createElement('span');
-            sp.textContent = `Chat: ${broadcaster_user_login} - ${chatter_user_login} says `;
-            chat.append(sp);
-
             for (var x=0;x<fragments.length;x++) {
                 let { type, text, cheermote, emote, mention } = fragments[x];
                 switch (type) {
