@@ -48,6 +48,36 @@
             border: 1px solid red;
             cursor: pointer;
         }
+
+
+        .deleted {
+            text-decoration: line-through;
+            color: red;
+        }
+
+        .announcement-line {
+            border-image-slice: 1;
+            border-left: 8px solid #9146ff;
+            border-right: 8px solid #9146ff;
+        }
+        .announcement-line--blue {
+            border-image-source: linear-gradient(#00d6d6,#9146ff);
+        }
+        .announcement-line--green {
+            border-image-source: linear-gradient(#00db84,#57bee6);
+        }
+        .announcement-line--orange {
+            border-image-source: linear-gradient(#ffb31a,#e0e000);
+        }
+        .announcement-line--purple {
+            border-image-source: linear-gradient(#9146ff,#ff75e6);
+        }
+
+        .chat-line__message-body--highlighted {
+            background: #755ebc;
+            border: 4px solid #755ebc;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -168,7 +198,7 @@
                         requestHooks(resp.data[0].id, my_user_id);
 
                         // extra/needed data
-                        extraData(my_user_id);
+                        extraData(resp.data[0].id);
                     });
 
                     socket_space.on('session_silenced', () => {
@@ -225,6 +255,38 @@
                         }
                     });
 
+                    socket_space.on('channel.chat.message', ({ payload }) => {
+                        let { event } = payload;
+
+                        let { badges, color } = event;
+                        let { broadcaster_user_id, broadcaster_user_login, broadcaster_user_name } = event;
+                        let { chatter_user_id, chatter_user_login, chatter_user_name } = event;
+                        let { cheer, channel_points_custom_reward_id, message_type } = event;
+                        let { message_id, message, reply } = event;
+
+                        let { text, fragments } = message;
+
+                        console.log(fragments);
+
+                        let chat = document.createElement('div');
+                        document.getElementById('simplelog').prepend(chat);
+                        chat.setAttribute('data-message-id', message_id);
+                        chat.setAttribute('data-wacking-id', `${broadcaster_user_id}-${chatter_user_id}`);
+
+                        let sp = document.createElement('span');
+                        sp.textContent = `Chat: ${broadcaster_user_name} - ${chatter_user_name}:`;
+                        chat.append(sp);
+
+                        buildFromFragments(chat, fragments);
+
+                        // optional decorator
+                        switch (message_type) {
+                            case 'channel_points_highlighted':
+                                chat.classList.add('chat-line__message-body--highlighted');
+                                break;
+                        }
+                    });
+
                     socket_space.on('channel.chat_settings.update', ({ payload }) => {
                         let { event } = payload;
 
@@ -269,6 +331,8 @@
         }
 
         let chatSettings = {};
+        let knownCheermotes = {};
+
         function extraData(broadcaster_id) {
             fetch(
                 `https://api.twitch.tv/helix/chat/settings?broadcaster_id=${broadcaster_id}`,
@@ -292,6 +356,41 @@
                     console.log(err);
                     log('Error with Get Fetch Chat Settings Call');
                 });
+
+            fetch(
+                `https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=${broadcaster_id}`,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    let { data } = resp;
+                    if (data) {
+                        // iterate and merge
+                        data.forEach(cheermote => {
+                            let { prefix, tiers } = cheermote;
+                            if (tiers && tiers.length > 0) {
+                                knownCheermotes[prefix] = {};
+
+                                tiers.forEach(tier => {
+                                    let { can_cheer, id, images } = tier;
+                                    if (can_cheer) {
+                                        let image = images.dark.animated["1.5"];
+                                        knownCheermotes[prefix][id] = image;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Get Cheermotes Call');
+                });
         }
 
         function buildFromFragments(broadcaster_user_login, chatter_user_login, fragments) {
@@ -306,8 +405,13 @@
                 let { type, text, cheermote, emote, mention } = fragments[x];
                 switch (type) {
                     case 'emote':
+                        var { id, emote_set_id, owner_id, format } = emote;
+
                         var el = document.createElement('img');
                         el.setAttribute('src', `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/1.0`);
+                        el.setAttribute('title', text);
+                        el.setAttribute('alt', text);
+
                         chat.append(el);
                         break;
                     case 'text':
@@ -315,11 +419,24 @@
                         chat.append(el);
                         el.textContent = text;
                         break;
+
                     case 'mention':
                         var el = document.createElement('span');
                         chat.append(el);
                         el.textContent = text;
                         el.style.backgroundColor = 'red';
+                        break;
+
+                    case 'cheermote':
+                        // hmm
+                        var { prefix, bits, tier } = cheermote;
+                        //knownCheermotes[prefix][id]
+                        var el = document.createElement('img');
+                        el.setAttribute('src', knownCheermotes[prefix][tier]);
+                        chat.append(el);
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = bits;
                         break;
 
                     default:
@@ -350,7 +467,7 @@
                 .then(resp => {
                     log(`Got ${resp.data[0].id} for ${username}`);
                     requestHooks(resp.data[0].id, my_user_id);
-
+                    // extra/needed data
                     extraData(resp.data[0].id);
                 })
                 .catch(err => {
@@ -363,15 +480,18 @@
             let topics = {
                 'channel.chat.clear': { version: "1", condition: { broadcaster_user_id, user_id } },
                 'channel.chat.clear_user_messages': { version: "1", condition: { broadcaster_user_id, user_id } },
+
                 'channel.chat.message_delete': { version: "1", condition: { broadcaster_user_id, user_id } },
                 'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.message': { version: "1", condition: { broadcaster_user_id, user_id } },
+
                 'channel.chat_settings.update': { version: "beta", condition: { broadcaster_user_id, user_id } }
             }
 
             log(`Spawn Topics for ${user_id}`);
 
             for (let type in topics) {
-                log(`Attempt create ${type} - ${user_id}`);
+                log(`Attempt create ${type} - ${broadcaster_user_id} via ${user_id}`);
                 let { version, condition } = topics[type];
 
                 fetch(
