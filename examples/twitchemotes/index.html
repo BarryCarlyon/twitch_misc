@@ -205,7 +205,7 @@
             tbl.append(cheer);
 
             emotesData.data.forEach(emote => {
-                let { name, images, tier, emote_type } = emote;
+                let { id, name, images, tier, emote_type } = emote;
                 let { url_2x, url_4x } = images;
 
                 switch (emote_type) {
@@ -218,7 +218,13 @@
                         var c = r.insertCell();
                         var d = document.createElement('div');
                         d.classList.add('emote');
-                        d.style.backgroundImage = `url(${url_2x})`;
+                        //d.style.backgroundImage = `url(${url_2x})`;
+                        let u = emotesData.template.replace('{{id}}', id);
+                        u = u.replace('{{format}}', 'default');
+                        u = u.replace('{{theme_mode}}', 'dark');
+                        u = u.replace('{{scale}}', '2.0');
+                        d.style.backgroundImage = `url(${u})`;
+                        
                         c.append(d);
                         break;
                     case 'follower':
