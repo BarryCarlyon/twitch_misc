@@ -141,7 +141,6 @@ class initSocket {
     }
 
     trigger() {
-        // this function lets you test the disconnect on send method
         this.eventsub.send('cat');
     }
     close() {
