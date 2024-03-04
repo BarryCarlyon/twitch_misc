@@ -18,10 +18,9 @@ So make sure you are able to restart the stream automatically if needed if FFMPE
 
 First install ffmpeg, how to do this varies by platform.
 
-- Pick a ingest to use
-- update the file(s) to replace `INGEST` with the URL
-- Fetch your stream key for the channel
-- update the file(s) to replace `STREAMKEY` with the StreamKey
+- On your server/location do `curl https://ingest.twitch.tv/ingests | more` (or if JQ installed `curl https://ingest.twitch.tv/ingests | jq '.ingests[0]'`
+- This will give you the "best"/"cloest" ingest to you server/location
+- Using the `url_template` replace `{stream_key}` with your stream key and update `FROMTEMPLATE` with this value
 
 Then just
 
