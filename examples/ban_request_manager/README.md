@@ -2,6 +2,15 @@
 
 An example project to manage unban requests on any channel the logged in user is a moderator on
 
+This is an example on how to
+
+- Obtain a token
+- Use that token to get the channels that logged in user is a moderator for
+- Upon selecting a channel, get the unban requests for that channel
+- Update/Resolve the unban requests
+
+Resoling an unban request to "unban the user" will mark the request as accepted and unban the user, so you do not need to make a second API request to unban the user.
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via GitHub Pages!
