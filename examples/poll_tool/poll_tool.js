@@ -10,8 +10,8 @@ var socket_space = false;
 
 let status = document.getElementById('status');
 
-// setuo authorise link
-document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:manage:polls')
+// setup authorise link
+document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:manage:polls');
 
 async function processToken(token) {
     access_token = token;
