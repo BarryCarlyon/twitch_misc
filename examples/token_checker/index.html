@@ -26,7 +26,6 @@
     </form>
 
     <h2>Output</h2>
-    <div id="revoke_output"></div>
     <div id="output"></div>
 
     <script type="text/javascript">
@@ -106,11 +105,11 @@
                     return;
                 }
 
-                document.getElementById('output').textContent = 'Unexpected output!';
+                document.getElementById('output').textContent = 'Token Check: Unexpected output!';
             })
             .catch(err => {
                 console.log(err);
-                document.getElementById('output').textContent = 'An Error Occured loading token data';
+                document.getElementById('output').textContent = 'Token Check: An Error Occured loading token data';
             });
         }
 
@@ -156,7 +155,7 @@
             })
             .catch(err => {
                 console.log(err);
-                document.getElementById('user_data').textContent = 'Something went wrong';
+                document.getElementById('user_data').textContent = 'Something went wrong getting user data';
             });
         }
 
@@ -173,14 +172,14 @@
             )
             .then(async resp => {
                 if (resp.status != 200) {
-                    document.getElementById('revoke_output').textContent = 'Token Revoke Error: ' + resp.status + ' -- ' + await resp.text();
+                    document.getElementById('output').textContent = 'Revoke: Token Revoke Error: ' + resp.status + ' -- ' + await resp.text();
                 } else {
-                    document.getElementById('revoke_output').textContent = 'Token Revoked';
+                    document.getElementById('output').textContent = 'Revoke: Token Revoked';
                 }
             })
             .catch(err => {
                 console.log(err);
-                document.getElementById('revoke_output').textContent = 'Something went wrong revoking the token';
+                document.getElementById('output').textContent = 'Revoke: Something went wrong revoking the token';
             });
         }
     </script>
