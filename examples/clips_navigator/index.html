@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Clips Naivgator | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <style>
+        .disabled {
+            position: relative;
+        }
+        .disabled:after {
+            content: '';
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        #loading {
+            height: 200px;
+            overflow: scroll;
+        }
+        #loading p {
+            margin: 2px;
+        }
+        .clip_viewer {
+            text-decoration: underline;
+        }
+        table { width: 100%; }
+        #outer {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: rgba(0,0,0,0.5);
+        }
+        #inner {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            margin: auto;
+
+            width: 60%;
+            aspect-ratio: 16/9;
+        }
+    </style>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a>.
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/clips_navigator">Github</a> or just View the source instead</p>
+
+    <p>After authenticating to get a Key, it calls</p>
+    <ul>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#get-clips" target="_blank">Get Clips</a>, to well, Get Clips</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a>, to convert a name to an ID</li>
+    </ul>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="loading"></div>
+
+    <form action="" method="post" id="form" class="disabled">
+        <fieldset id="clipform">
+            <label for="streamer">Streamer</label>
+            <input type="text" name="streamer" id="streamer" />
+
+            <select name="months" id="months">
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">Jume</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">Septmebr</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+            <select name="years" id="years"></select>
+
+            <input type="submit" value="Lookup" id="streamer_lookup" />
+        </fieldset>
+    </form>
+
+    <div id="since"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>CreatedAt</th>
+                <th>Views</th>
+                <th>URL</th>
+            </tr>
+        </thead>
+        <tbody id="clips"></tbody>
+    </table>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = `https://${window.location.host}/twitch_misc/`;
+        // setup a memory space for the token
+        var access_token = '';
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        //lazy
+        let baseyear = new Date().getFullYear();
+        for (var x=0;x<10;x++) {
+            let opt = document.createElement('option');
+            opt.value = baseyear - x;
+            opt.textContent = baseyear - x;
+            years.append(opt);
+        }
+        months.value = new Date().getMonth();
+
+        function processToken(token) {
+            loading.textContent = 'Got Token. Specify Streamer!';
+
+            access_token = token;
+
+            form.classList.remove('disabled');
+            streamer.focus();
+        }
+
+        function message(words) {
+            let p = document.createElement('p');
+            document.getElementById('loading').prepend(p);
+            p.textContent = words;
+        }
+
+        let clips_data = [];
+        document.getElementById('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            form.classList.add('disabled');
+            message(`Running Clip Search for ${document.getElementById('streamer').value}`);
+
+            let user_id = false;
+            // input to ID
+            fetch(
+                'https://api.twitch.tv/helix/users?login=' + document.getElementById('streamer').value,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    if (resp.hasOwnProperty('data') && resp.data.length == 1) {
+                        // convert down!
+                        document.getElementById('streamer').value = resp.data[0].login;
+                        user_id = resp.data[0].id;
+
+                    } else {
+                        message('Did not get one user. User Not found');
+                        return;
+                    }
+
+                    let started_at = new Date();
+                    started_at.setDate(1);
+                    started_at.setHours(0);
+                    started_at.setMinutes(0);
+                    started_at.setSeconds(0);
+
+                    console.log('setting started at', months.value, years.value);
+                    //console.log(started_at.toISOString());
+                    started_at.setMonth(months.value);
+                    //console.log(started_at.toISOString());
+                    started_at.setYear(years.value);
+                    //console.log(started_at.toISOString());
+
+                    var started_at_words = started_at.toISOString();
+                    started_at.setMonth(started_at.getMonth() + 1);
+                    var ended_at_words = started_at.toISOString();
+
+                    since.textContent = `${started_at_words} -> ${ended_at_words}`;
+
+                    let url = new URL('https://api.twitch.tv/helix/clips');
+                    url.search = new URLSearchParams([
+                        [ 'broadcaster_id', user_id ],
+                        [ 'first', 100 ],
+                        [ 'started_at', started_at_words ],
+                        [ 'ended_at', ended_at_words]
+                    ]).toString();
+
+                    return fetch(
+                        url,
+                        {
+                            "headers": {
+                                "Client-ID": client_id,
+                                "Authorization": "Bearer " + access_token
+                            }
+                        }
+                    );
+                })
+                .then(resp => resp.json())
+                .then(resp => {
+                    clips.textContent = '';
+                    if (resp.hasOwnProperty('data') && resp.data.length >= 1) {
+                        clips_data = resp.data;
+
+                        resp.data.forEach(row => {
+                            var tr = clips.insertRow();
+
+                            var td = tr.insertCell();
+                            td.textContent = row.id;
+                            var td = tr.insertCell();
+                            td.textContent = row.title;
+                            var td = tr.insertCell();
+                            td.textContent = row.created_at;
+                            var td = tr.insertCell();
+                            td.textContent = row.view_count;
+                            var td = tr.insertCell();
+                            //td.textContent = row.url;
+                            //td.setAttribute('clipID', row.id)
+                            //td.classList.add('clip_viewer');
+                            var a = document.createElement('a');
+                            a.href = row.url;
+                            a.textContent = row.url;
+                            a.classList.add('clip_viewer');
+                            a.setAttribute('target', 'barryclipview');
+                            a.setAttribute('clipID', row.id)
+                            td.append(a);
+
+                            var td = tr.insertCell();
+                            td.textContent = 'Dump';
+                            td.classList.add('dump');
+                            td.setAttribute('clipID', row.id)
+                        })
+                    } else {
+                        var tr = clips.insertRow();
+                        var td = tr.insertCell();
+                        td.setAttribute('colspan', 10);// yeah I know...
+                        td.textContent = 'No Clips Found';
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    document.getElementById('loading').textContent = 'Something went wrong';
+                })
+                .finally(() => {
+                    form.classList.remove('disabled');
+                })
+        });
+
+        document.getElementById('clips').addEventListener('click', (e) => {
+            if (e.target.classList.contains('clip_viewer')) {
+                e.preventDefault();
+
+                var outer = document.createElement('div');
+                outer.setAttribute('id', 'outer');
+                document.body.append(outer);
+
+                outer.addEventListener('click', (e) => {
+                    if (e.target.getAttribute('id') == 'outer') {
+                        outer.remove();
+                    }
+                });
+
+                var inner = document.createElement('div');
+                outer.append(inner);
+                inner.setAttribute('id', 'inner');
+
+                var iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.setAttribute('src', `https://clips.twitch.tv/embed?clip=${e.target.getAttribute('clipID')}&parent=${window.location.host}`)
+                inner.append(iframe);
+            }
+            if (e.target.classList.contains('dump')) {
+                let clipID = e.target.getAttribute('clipID');
+                clips_data.forEach(clip => {
+                    if (clip.id == clipID) {
+                        var outer = document.createElement('div');
+                        outer.setAttribute('id', 'outer');
+                        document.body.append(outer);
+
+                        outer.addEventListener('click', (e) => {
+                            if (e.target.getAttribute('id') == 'outer') {
+                                outer.remove();
+                            }
+                        });
+
+                        var inner = document.createElement('div');
+                        outer.append(inner);
+                        inner.setAttribute('id', 'inner');
+
+                        let pre = document.createElement('pre');
+                        pre.textContent = JSON.stringify(clip, null, 4);
+                        inner.append(pre);
+                    }
+                })
+            }
+        });
+    </script>
+</body>
+</html>
