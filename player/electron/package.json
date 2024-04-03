@@ -11,6 +11,6 @@
   "author": "",
   "license": "WTFPL",
   "devDependencies": {
-    "electron": "^28.1.0"
+    "electron": "^29.1.6"
   }
 }

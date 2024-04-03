@@ -4,7 +4,7 @@
   "description": "This example covers how to recieve Twitch Eventsub Webhooks in NodeJS.",
   "main": "receive.js",
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.19.2",
     "tsscmp": "^1.0.6"
   },
   "scripts": {
