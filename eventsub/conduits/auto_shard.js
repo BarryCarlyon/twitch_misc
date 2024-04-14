@@ -12,24 +12,12 @@ if (!process.env.TWITCH_CLIENT_SECRET) {
     process.exit();
 }
 
-if (!process.env.TWITCH_STORAGE) {
-    console.error('No Twitch Token Storage');
-    process.exit();
-}
-let validStorage = [ 'redis', 'file' ];
-if (!validStorage.includes(process.env.TWITCH_STORAGE)) {
-    console.error('Invalid Twitch Token Storage');
-    process.exit();
-}
-// empty memory space for token
-process.env.TWITCH_ACCESS_TOKEN = '';
-
 import { readFileSync, writeFileSync } from 'fs';
 
 let storeToken = {};
-
 if (process.env.TWITCH_STORAGE == 'redis') {
 } else if (process.env.TWITCH_STORAGE == 'file') {
+    process.env.TWITCH_ACCESS_TOKEN = '';
     try {
         let tokenString = readFileSync('./token.jsonl');
         let { access_token } = JSON.parse(tokenString);
@@ -41,6 +29,9 @@ if (process.env.TWITCH_STORAGE == 'redis') {
         writeFileSync('./token.jsonl', JSON.stringify({ access_token }));
         console.log('Wrote the token to disk');
     }
+} else {
+    console.error('No Storage Defined');
+    process.exit();
 }
 
 async function obtainToken() {
@@ -65,7 +56,6 @@ async function obtainToken() {
     // store/write to storage
     process.env.TWITCH_ACCESS_TOKEN = access_token;
     storeToken(process.env.TWITCH_ACCESS_TOKEN);
-    return;
 }
 async function validateToken() {
     console.log('validate token');
@@ -101,7 +91,7 @@ let twitchHeaders = {
 
 // Conduit time
 if (!process.env.TWITCH_CONDUIT_ID || process.env.TWITCH_CONDUIT_ID == '') {
-    console.error('Please Define a Conduit ID');
+    console.error('Please Define a Conduit ID or method');
     process.exit();
 }
 
@@ -121,10 +111,42 @@ if (conduitsReq.status != 200) {
 let { data } = await conduitsReq.json();
 console.log(`Obtained Conduits we found ${data.length}`);
 
+async function createConduit() {
+    let createReq = await fetch(
+        'https://api.twitch.tv/helix/eventsub/conduits',
+        {
+            method: 'POST',
+            headers: {
+                ...twitchHeaders,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ shard_count: 1 })
+        }
+    );
+    if (createReq.status != 200) {
+        console.error(`Failed to create Conduuit ${createReq.status}//${await createReq.text()}`);
+        process.exit();
+    }
+    let { data } = await createReq.json();
+    let { id } = data[0];
+    //console.log('ass', id);
+    return id;
+}
+
 if (data.length == 0) {
     // no conduits exist
-    console.error('No Conduits Exist');
-    process.exit();
+    if (process.env.TWITCH_CONDUIT_ID != 'auto') {
+        // we will create and use a conduit
+        console.error('No Conduits Exist');
+        process.exit();
+    }
+    // create and overwrite the conduit ID in memory
+    console.log('Zero conduits and defined as auto');
+    process.env.TWITCH_CONDUIT_ID = await createConduit();
+    console.log(`Create a conduit: ${process.env.TWITCH_CONDUIT_ID}`);
+} else if (data.length == 1 && process.env.TWITCH_CONDUIT_ID == 'auto') {
+    process.env.TWITCH_CONDUIT_ID = data[0].id;
+    console.log(`Conduit defined as auto and one conduit found: ${process.env.TWITCH_CONDUIT_ID}`);
 } else {
     // find matching conduit
     let found = false;
@@ -174,4 +196,7 @@ mySocket.on('connected', async (session_id) => {
         console.error(`Failed to assign socket to shard ${conduitUpdate.status}//${await conduitUpdate.text()}`);
         process.exit();
     }
+    // check topic count
+    // theres no conduit ID filter soooooooooooooooooooooooooooo
+    // if we autoed then this thing or another thing _really_ needs to do the topics....
 });
