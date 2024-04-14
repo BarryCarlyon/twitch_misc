@@ -42,3 +42,20 @@ Websockets - just disconnect the websocket Twitch will retry on another BUT ONLY
 if you want to take more than one Websocket offline for maintenance you should Update Conduits to take the effected shards out/moved to another shard.
 
 You can have multiple shards assigned to the same logical endpoint/sessionID.
+
+# HandOver a socket
+
+On a conduit of one shard, doing a hand over theres two approachs
+
+1. Make a new Socket
+2. Update the shard to the new socket
+
+or
+
+1. Make a new socket
+2. Increas shard count by 1 (so 2 shards)
+3. Assign new socket to shard 1
+4. When happy swap shard 1 to shard 0 and shard 0 to shard 1 in the same PATCH request
+5. When happy disconnect shard 1 and descrease shard count back to 1
+
+The second method is more invasive but can mean you don't lose any events whilst handovering
