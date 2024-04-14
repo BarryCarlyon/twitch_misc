@@ -19,6 +19,33 @@ Work in Progress free form notes
 
 [Barry's Twitch Conduit Tools](https://github.com/barrycarlyon/twitch_conduit_tools) can help you visualise your Conduits and Shards
 
+# Whats here
+
+It's all Websocket examples:
+
+## `auto_shard.js`
+
+- Creates a WebSocket
+- If set to auto will create a Conduit if one doesn't exist OR will use the ONLY conduit that exists
+- It assigns itself to the `SHARD_ID` assinged from env, which generally is gonna be shard 0 as if it auto creates it only makes a conduit of 1 shard.
+
+It assumes anotehr process handles subscription creation.
+
+It's not _that_ practical but theres use cases for this. As after connect and the conduit/single shard is ready then the same process can create (or check) that all needed subscriptions are created and assigned to the conduit.
+
+Or you just need to spawn a socket against the ONLY created conduit you have.
+
+## `shard.js`
+
+This one is more practical/expected use cases.
+
+You define the `TWITCH_CONDUIT_ID` and `TWITCH_SHARD_ID` then it creates a WebSocket and assigns itself to the defined Shards.
+
+You might do a auto scale up version, where it iterates the shards on the conduit to find a disconnected/available slot and self assigns itself.
+And if it doesn't find a shard self creates a shard and self assigns.
+
+But if you have multiple disconnected shards you have missed events as Twitch only retries on a new shard once
+
 # Scaling
 
 ## Conduit Scale up
@@ -66,7 +93,7 @@ If you want to take more than one Websocket offline for maintenance you should U
 
 You can have multiple shards assigned to the same logical endpoint/sessionID.
 
-# HandOver a socket
+### HandOver a socket
 
 On a conduit of one shard, doing a hand over theres two approaches
 
