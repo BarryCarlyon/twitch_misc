@@ -196,6 +196,14 @@ mySocket.on('connected', async (session_id) => {
         console.error(`Failed to assign socket to shard ${conduitUpdate.status}//${await conduitUpdate.text()}`);
         process.exit();
     }
+    // check for errors
+    let { data, errors } = await conduitUpdate.json();
+    if (errors && errors.length > 0) {
+        console.error(`Failed to udpate the shard`);
+        console.error(errors);
+        process.exit();
+    }
+
     // check topic count
     // theres no conduit ID filter soooooooooooooooooooooooooooo
     // if we autoed then this thing or another thing _really_ needs to do the topics....

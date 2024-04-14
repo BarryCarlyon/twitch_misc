@@ -174,4 +174,13 @@ mySocket.on('connected', async (session_id) => {
         console.error(`Failed to assign socket to shard ${conduitUpdate.status}//${await conduitUpdate.text()}`);
         process.exit();
     }
+    // check for errors
+    let { data, errors } = await conduitUpdate.json();
+    if (errors && errors.length > 0) {
+        console.error(`Failed to udpate the shard`);
+        console.error(errors);
+        process.exit();
+    }
+    console.log(`ConduitUpdate ${process.env.TWITCH_SHARD_ID}/${conduitUpdate.status}//${await conduitUpdate.text()}`);
+
 });
