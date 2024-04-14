@@ -2,6 +2,23 @@
 
 Work in Progress free form notes
 
+# Documentation
+
+- [Get Conduits](https://dev.twitch.tv/docs/api/reference/#get-conduits)
+- [Create Conduits](https://dev.twitch.tv/docs/api/reference/#create-conduits)
+- [Update Conduits](https://dev.twitch.tv/docs/api/reference/#update-conduits)
+- [Delete Conduits](https://dev.twitch.tv/docs/api/reference/#delete-conduit)
+- [Get Conduit Shards](https://dev.twitch.tv/docs/api/reference/#get-conduit-shards)
+- [Update Conduit Shards](https://dev.twitch.tv/docs/api/reference/#update-conduit-shards)
+
+- [Create EventSub Subscription](https://dev.twitch.tv/docs/api/reference/#create-eventsub-subscription)
+- [Delete EventSub Subscription](https://dev.twitch.tv/docs/api/reference/#delete-eventsub-subscription)
+- [https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions](https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions)
+
+# Tools
+
+[Barry's Twitch Conduit Tools](https://github.com/barrycarlyon/twitch_conduit_tools) can help you visualise your Conduits and Shards
+
 # Scaling
 
 ## Conduit Scale up
