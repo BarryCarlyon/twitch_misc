@@ -212,6 +212,7 @@ class Twitch extends EventEmitter {
 
     validateToken = async () => {
         if (this.twitch_token == '') {
+            console.debug('No Token will generate');
             // can generate?
             this.generateToken();
             return;
@@ -227,6 +228,7 @@ class Twitch extends EventEmitter {
             }
         );
         if (validateReq.status != 200) {
+            console.debug('Token failed', validateReq.status);
             // the token is invalid
             // try to generate
             this.generateToken();
@@ -263,6 +265,7 @@ class Twitch extends EventEmitter {
     }
 
     generateToken = async () => {
+        console.debug('Generating a token');
         if (
             this.twitch_client_id == null ||
             this.twitch_client_secret == null ||
@@ -287,9 +290,10 @@ class Twitch extends EventEmitter {
             throw new Error(`Failed to get a token: ${tokenReq.status}//${await tokenReq.text()}`);
         }
         let { access_token } = await tokenReq.json();
+        this.twitch_token = access_token;
         // emit token as we don't handle storage the program does
         // the program might also need the token itself for whatever reason
-        this.emit('access_token', access_token);
+        this.emit('access_token', this.twitch_token);
         // final check
         this.validateToken();
     }
