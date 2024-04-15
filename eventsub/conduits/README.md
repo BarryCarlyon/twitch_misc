@@ -52,6 +52,8 @@ A given Client ID can have to up 5 Conduits
 
 A given Conduit can have between 1 and 20,000 shards
 
+You assign a Conduit x shards but remember they are 0 indexed, so a Conduit of 1 shard the shard ID is 0
+
 Subscription limits and costings is the same as "regular" EventSub
 
 A Subscription Type exists to help track a Shard dying unexpectedly, [Conduit Shard Disabled](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#conduitsharddisabled)
@@ -79,7 +81,7 @@ But it works real nice to anything you want to connect a lot of subscriptions to
 
 ### Scale down from the end
 
-#### WebScokets
+#### WebSockets
 
 1. Disconnect WebSockets from the end of the list
 2. [Update Conduits](https://dev.twitch.tv/docs/api/reference/#update-conduits) to decrease the shard count
