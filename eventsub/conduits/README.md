@@ -161,3 +161,15 @@ or
 5. When happy disconnect (the new shard 1 that was originall shard 0) shard 1 and descrease shard count back to 1
 
 The second method is more invasive but can mean you don't lose any events whilst handovering
+
+# Userland
+
+Since a conduit uses App Access Tokens to operate generally you wouldn't expose them in userland.
+
+But theres nothing really stopping you doign it in a way that protects the App Access Token from visiblity.
+
+And you can connect a given Transport to a Conduit _and_ also susbcribe non conduit events to the transport.
+
+I run a WebSocket consumer on my home machine that at boot connects to a Shard _and_ connects non conduit/shard topics to the same transport.
+
+In this case it's some chat topics where I don't have the relevant ["Conduit Scopes"](https://github.com/BarryCarlyon/twitch_misc/tree/main/eventsub/websockets/web/chat#how-does-authentication-work) on the target channels.
