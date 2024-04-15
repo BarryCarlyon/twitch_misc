@@ -99,11 +99,12 @@ class eventsubSocket extends EventEmitter {
                     break;
 
                 case 'notification':
-                    console.log('notification', metadata, payload);
-                    console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${JSON.stringify(payload)}`);
+                    //console.log('notification', metadata, payload);
 
                     let { subscription, event } = payload;
                     let { type } = subscription;
+
+                    console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${type}`);
 
                     this.emit('notification', { metadata, payload });
                     this.emit(type, { metadata, payload });
@@ -201,12 +202,18 @@ class Twitch extends EventEmitter {
             this.validateToken();
             return;
         }
+        if (init_client_id && init_client_secret) {
+            // no token so generate
+            this.generateToken();
+            return;
+        }
 
         throw new Error('Did not init with ClientID/Secret pair or a token');
     }
 
     validateToken = async () => {
         if (this.twitch_token == '') {
+            console.debug('No Token will generate');
             // can generate?
             this.generateToken();
             return;
@@ -222,6 +229,7 @@ class Twitch extends EventEmitter {
             }
         );
         if (validateReq.status != 200) {
+            console.debug('Token failed', validateReq.status);
             // the token is invalid
             // try to generate
             this.generateToken();
@@ -258,6 +266,7 @@ class Twitch extends EventEmitter {
     }
 
     generateToken = async () => {
+        console.debug('Generating a token');
         if (
             this.twitch_client_id == null ||
             this.twitch_client_secret == null ||
@@ -282,9 +291,10 @@ class Twitch extends EventEmitter {
             throw new Error(`Failed to get a token: ${tokenReq.status}//${await tokenReq.text()}`);
         }
         let { access_token } = await tokenReq.json();
+        this.twitch_token = access_token;
         // emit token as we don't handle storage the program does
         // the program might also need the token itself for whatever reason
-        this.emit('access_token', access_token);
+        this.emit('access_token', this.twitch_token);
         // final check
         this.validateToken();
     }
@@ -442,6 +452,46 @@ class Twitch extends EventEmitter {
         }
         // all good shard Connected expecting data!
         this.emit('shardUpdate', 'ok');
+    }
+
+
+    /*
+    subscription = {
+        type: 'foo',
+        version: "1",
+        condition: {
+            whatever
+        }
+    }
+    */
+    createSubscription = async (subscription) => {
+        let subscriptionReq = await fetch(
+            'https://api.twitch.tv/helix/eventsub/subscriptions',
+            {
+                method: 'POST',
+                headers: {
+                    ...this.headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...subscription,
+                    transport: {
+                        method: 'conduit',
+                        conduit_id: this.conduit_id
+                    }
+                })
+            }
+        );
+        if (subscriptionReq.status == 202) {
+            return await subscriptionReq.json();
+        }
+        if (subscriptionReq.status == 409) {
+            // its TECHNICALLY not an error....
+            return await subscriptionReq.json();
+        }
+
+        // major fail
+        throw new Error(`Failed to create Subscription ${subscriptionReq.status} - ${await subscriptionReq.text()}`);
     }
 }
 
