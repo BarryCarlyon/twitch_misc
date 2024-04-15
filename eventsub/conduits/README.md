@@ -29,7 +29,7 @@ It's all Websocket examples:
 - If set to auto will create a Conduit if one doesn't exist OR will use the ONLY conduit that exists
 - It assigns itself to the `SHARD_ID` assinged from env, which generally is gonna be shard 0 as if it auto creates it only makes a conduit of 1 shard.
 
-It assumes anotehr process handles subscription creation.
+It assumes another process handles subscription creation.
 
 It's not _that_ practical but theres use cases for this. As after connect and the conduit/single shard is ready then the same process can create (or check) that all needed subscriptions are created and assigned to the conduit.
 
@@ -45,6 +45,28 @@ You might do a auto scale up version, where it iterates the shards on the condui
 And if it doesn't find a shard self creates a shard and self assigns.
 
 But if you have multiple disconnected shards you have missed events as Twitch only retries on a new shard once
+
+# Limits and Death notes
+
+A given Client ID can have to up 5 Conduits
+
+A given Conduit can have between 1 and 20,000 shards
+
+Subscription limits and costings is the same as "regular" EventSub
+
+A Subscription Type exists to help track a Shard dying unexpectedly, [Conduit Shard Disabled](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#conduitsharddisabled)
+
+As per the [Guide](https://dev.twitch.tv/docs/eventsub/handling-conduit-events/)
+
+> NOTE A Webhook shard follows the same disabling logic as a normal Webhook, and is only disabled after an extended outage of consecutive failures. If a notification is sent to an active Webhook shard and the Webhook callback fails, the notification will not be resent to another shard.
+
+For a Shard assigned to a WebSocket it dies the moment the WebSocket Disconnects.
+
+If a message fails to send to a given shard it is retried _ONLY ONCE_ on another Shard.
+
+IMO the general use case of a Conduit is to attach the shards to WebSockets, generally utilising the Chat topics to instantly reconnect a chat bot to the rooms the chat bot needs to be in.
+
+But it works real nice to anything you want to connect a lot of subscriptions to even a single socket connection ala Deprecated PubSub
 
 # Scaling
 
