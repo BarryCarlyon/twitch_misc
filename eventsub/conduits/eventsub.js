@@ -230,6 +230,10 @@ class Twitch extends EventEmitter {
 
         let validateRes = await validateReq.json();
 
+        if (validateRes.hasOwnProperty('user_id')) {
+            throw new Error('Token is NOT app access/client credentials');
+        }
+
         if (this.twitch_client_id != '' && this.twitch_client_id != validateRes.client_id) {
             throw new Error('Token ClientID does not match specified client ID');
         }

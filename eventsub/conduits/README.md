@@ -66,7 +66,9 @@ Another process handles token gernation and conduit create and subscription assi
 
 And away you go, so the bare minimum data is to tell the process a token to use, a conduit to go on and which shard it is. If you were loading a token and "active conduit ID" from storage that can be done in file.
 
-So it just needs a shard, or if you are just filling for dead shards, iterate shards till you find a disconnect shard to self assign to
+So it just needs a shard, or if you are just filling for dead shards, iterate shards till you find a disconnect shard to self assign to.
+
+And you don't even need to pass in the ClientID as the ClientID is obtained from validating the App Access Token. But if you did it would check they both matched
 
 # Sharding
 
