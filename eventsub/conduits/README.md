@@ -54,7 +54,7 @@ For a NEW setup
 2. Create Y websocket processes each assigned the `CONDUIT_ID` and a `SHARD_ID` to go on, on `welcome` they do the PATCH call themself for their `SHARD_ID`
 3. Create Subscriptions to your Conduit
 
-This should ensure you are ready to recieve messages, before messages occur, but sure you could create condiut of 1 shard, connect 1 shard and then create subscriptions on the Conduit and from there scale up if you get a lot of traffic.
+This should ensure you are ready to recieve messages, before messages occur, but sure you could create conduit of 1 shard, connect 1 shard and then create subscriptions on the Conduit and from there scale up if you get a lot of traffic.
 
 # Sharding
 
