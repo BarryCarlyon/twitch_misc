@@ -201,6 +201,11 @@ class Twitch extends EventEmitter {
             this.validateToken();
             return;
         }
+        if (init_client_id && init_client_secret) {
+            // no token so generate
+            this.generateToken();
+            return;
+        }
 
         throw new Error('Did not init with ClientID/Secret pair or a token');
     }
@@ -442,6 +447,46 @@ class Twitch extends EventEmitter {
         }
         // all good shard Connected expecting data!
         this.emit('shardUpdate', 'ok');
+    }
+
+
+    /*
+    subscription = {
+        type: 'foo',
+        version: "1",
+        condition: {
+            whatever
+        }
+    }
+    */
+    createSubscription = async (subscription) => {
+        let subscriptionReq = await fetch(
+            'https://api.twitch.tv/helix/eventsub/subscriptions',
+            {
+                method: 'POST',
+                headers: {
+                    ...this.headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...subscription,
+                    transport: {
+                        method: 'conduit',
+                        conduit_id: this.conduit_id
+                    }
+                })
+            }
+        );
+        if (subscriptionReq.status == 202) {
+            return await subscriptionReq.json();
+        }
+        if (subscriptionReq.status == 409) {
+            // its TECHNICALLY not an error....
+            return await subscriptionReq.json();
+        }
+
+        // major fail
+        throw new Error(`Failed to create Subscription ${subscriptionReq.status} - ${await subscriptionReq.text()}`);
     }
 }
 
