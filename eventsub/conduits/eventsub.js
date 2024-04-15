@@ -99,11 +99,12 @@ class eventsubSocket extends EventEmitter {
                     break;
 
                 case 'notification':
-                    console.log('notification', metadata, payload);
-                    console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${JSON.stringify(payload)}`);
+                    //console.log('notification', metadata, payload);
 
                     let { subscription, event } = payload;
                     let { type } = subscription;
+
+                    console.log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${type}`);
 
                     this.emit('notification', { metadata, payload });
                     this.emit(type, { metadata, payload });
