@@ -90,7 +90,7 @@ class eventsubSocket extends EventEmitter {
                     }
 
                     this.silence(keepalive_timeout_seconds);
-                    
+
                     break;
                 case 'session_keepalive':
                     //console.log(`Recv KeepAlive - ${message_type}`);
@@ -166,4 +166,279 @@ class eventsubSocket extends EventEmitter {
     }
 }
 
-export { eventsubSocket };
+class Twitch extends EventEmitter {
+    twitch_client_id = '';
+    twitch_client_secret = '';
+    twitch_token = '';
+    headers = {};
+
+    constructor({
+        init_client_id,
+        init_client_secret,
+        init_token,
+
+        init_conduit_id,
+        init_shard_id
+    }) {
+        super();
+
+        if (init_conduit_id) {
+            this.conduit_id = init_conduit_id;
+        }
+        if (init_shard_id) {
+            this.shard_id = init_shard_id;
+        }
+
+        if (init_client_id && init_client_secret) {
+            // self managing token
+            this.twitch_client_id = init_client_id;
+            this.twitch_client_secret = init_client_secret;
+        }
+        if (init_token) {
+            // run with token
+            this.twitch_token = init_token;
+            // validate it
+            this.validateToken();
+            return;
+        }
+
+        throw new Error('Did not init with ClientID/Secret pair or a token');
+    }
+
+    validateToken = async () => {
+        if (this.twitch_token == '') {
+            // can generate?
+            this.generateToken();
+            return;
+        }
+
+        let validateReq = await fetch(
+            'https://id.twitch.tv/oauth2/validate',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `OAuth ${this.twitch_token}`
+                }
+            }
+        );
+        if (validateReq.status != 200) {
+            // the token is invalid
+            // try to generate
+            this.generateToken();
+            return;
+        }
+
+        let validateRes = await validateReq.json();
+
+        if (this.twitch_client_id != '' && this.twitch_client_id != validateRes.client_id) {
+            throw new Error('Token ClientID does not match specified client ID');
+        }
+        if (this.twitch_client_id == '') {
+            // infer
+            console.log('Inferring CID');
+            this.twitch_client_id = validateRes.client_id;
+        }
+
+        // token passed validation check
+        this.headers = {
+            'Client-ID':        this.twitch_client_id,
+            'Authorization':    `Bearer ${this.twitch_token}`,
+            'Accept':           'application/json',
+            'Accept-Encoding':  'gzip'
+        };
+        console.log('headers', this.headers);
+        // we'll emit
+        // as the program can force a generate if it wants
+        // ie: close to expire lets go early
+        this.emit('validated', validateRes);
+    }
+
+    generateToken = async () => {
+        if (
+            this.twitch_client_id == null ||
+            this.twitch_client_secret == null ||
+            this.twitch_client_id == '' ||
+            this.twitch_client_secret == ''
+        ) {
+            throw new Error('No Client ID/Secret, cannot generate token');
+        }
+
+        let tokenReq = await fetch(
+            'https://id.twitch.tv/oauth2/token',
+            {
+                method: 'POST',
+                body: new URLSearchParams([
+                    [ 'client_id',      this.twitch_client_id ],
+                    [ 'client_secret',  this.twitch_client_secret ],
+                    [ 'grant_type',     'client_credentials' ]
+                ])
+            }
+        );
+        if (tokenReq.status != 200) {
+            throw new Error(`Failed to get a token: ${tokenReq.status}//${await tokenReq.text()}`);
+        }
+        let { access_token } = await tokenReq.json();
+        // emit token as we don't handle storage the program does
+        // the program might also need the token itself for whatever reason
+        this.emit('access_token', access_token);
+        // final check
+        this.validateToken();
+    }
+
+    conduit_id = '';
+    shard_id = '';
+    setConduitID = (conduit_id) => {
+        this.conduit_id = conduit_id;
+    }
+    setShardID = (shard_id) => {
+        this.shard_id = shard_id;
+    }
+    session_id = '';
+    setSessionID = (session_id) => {
+        this.session_id = session_id;
+    }
+
+    createConduit = async (shard_count) => {
+        if (!shard_count) {
+            shard_count = 1;
+        }
+
+        let createReq = await fetch(
+            'https://api.twitch.tv/helix/eventsub/conduits',
+            {
+                method: 'POST',
+                headers: {
+                    ...twitchHeaders,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ shard_count: 1 })
+            }
+        );
+        if (createReq.status != 200) {
+            throw new Error(`Failed to create Conduit ${createReq.status}//${await createReq.text()}`);
+        }
+
+        let { data } = await createReq.json();
+        this.conduit_id = data[0].id;
+
+        // and return the new conduit
+        return data[0];
+    }
+    updateConduitShardCount = async (shard_count) => {
+        let updateReq = await fetch(
+            'https://api.twitch.tv/helix/eventsub/conduits',
+            {
+                method: 'PATCH',
+                headers: {
+                    ...twitchHeaders,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: this.conduit_id,
+                    shard_count
+                })
+            }
+        );
+        if (updateReq.status != 200) {
+            throw new Error(`Failed to update Conduit ${updateReq.status}//${await updateReq.text()}`);
+        }
+
+        let { data } = await createReq.json();
+        // and return the update conduit
+        return data[0];
+    }
+    deleteConduit = async () => {
+        let deleteReq = await fetch(
+            'https://api.twitch.tv/helix/eventsub/conduits',
+            {
+                method: 'DELETE',
+                headers: {
+                    ...twitchHeaders,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: this.conduit_id
+                })
+            }
+        )
+
+        if (deleteReq.status != 204) {
+            throw new Error(`Failed to delete Conduit ${deleteReq.status}//${await deleteReq.text()}`);
+        }
+
+        return true;
+    }
+
+    findConduit = async () => {
+        let conduitsReq = await fetch(
+            'https://api.twitch.tv/helix/eventsub/conduits',
+            {
+                method: 'GET',
+                headers: {
+                    ...this.headers
+                }
+            }
+        );
+        if (conduitsReq.status != 200) {
+            throw new Error(`Failed to Get Conduits ${conduitsReq.status}//${await conduitsReq.text()}`);
+        }
+        let { data } = await conduitsReq.json();
+        for (var x=0;x<data.length;x++) {
+            let { id } = data[x];
+
+            if (id == this.conduit_id) {
+                this.emit('conduitFound', data[x]);
+                return data[x];
+            }
+        }
+
+        throw new Error('Conduit Not Found');
+    }
+
+    getShards = async () => {
+        // ommited for now
+    }
+
+    // you can update as many shards as you want in one request
+    // that logic just doesn't makes sense in this lib
+    updateShard = async () => {
+        // is the shardID valid?
+
+        // go for update
+        let shardUpdate = await fetch(
+            'https://api.twitch.tv/helix/eventsub/conduits/shards',
+            {
+                method: 'PATCH',
+                headers: {
+                    ...this.headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    conduit_id:     this.conduit_id,
+                    shards: [
+                        {
+                            id:     this.shard_id,
+                            transport: {
+                                method:     'websocket',
+                                session_id: this.session_id
+                            }
+                        }
+                    ]
+                })
+            }
+        );
+        if (shardUpdate.status != 202) {
+            // major fail
+            throw new Error(`Failed to shardUpdate ${shardUpdate.status} - ${await shardUpdate.text()}`);
+        }
+        let { data, errors } = await shardUpdate.json();
+        if (errors && errors.length > 0) {
+            console.error(errors);
+            throw new Error(`Failed to shardUpdate ${shardUpdate.status}`);
+        }
+        // all good shard Connected expecting data!
+        this.emit('shardUpdate', 'ok');
+    }
+}
+
+export { eventsubSocket, Twitch };

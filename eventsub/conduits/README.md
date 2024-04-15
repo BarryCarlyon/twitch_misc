@@ -56,6 +56,18 @@ For a NEW setup
 
 This should ensure you are ready to recieve messages, before messages occur, but sure you could create conduit of 1 shard, connect 1 shard and then create subscriptions on the Conduit and from there scale up if you get a lot of traffic.
 
+### Practical Flow example
+
+Another process handles token gernation and conduit create and subscription assign
+
+1. Externally create a conduit
+2. Assign subscriptions to that conduit
+3. `TWITCH_ACCESS_TOKEN="TOKEN" TWITCH_CONDUIT_ID="conduit-id" TWITCH_SHARD_ID="0" node shard_simple.js`
+
+And away you go, so the bare minimum data is to tell the process a token to use, a conduit to go on and which shard it is. If you were loading a token and "active conduit ID" from storage that can be done in file.
+
+So it just needs a shard, or if you are just filling for dead shards, iterate shards till you find a disconnect shard to self assign to
+
 # Sharding
 
 When you update the shard count subscriptions are rebalanced between the shards, you have no control over whose subscriptiosn go where.

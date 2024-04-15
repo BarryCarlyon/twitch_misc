@@ -21,8 +21,6 @@ if (!validStorage.includes(process.env.TWITCH_STORAGE)) {
     console.error('Invalid Twitch Token Storage');
     process.exit();
 }
-// empty memory space for token
-process.env.TWITCH_ACCESS_TOKEN = '';
 
 import { readFileSync, writeFileSync } from 'fs';
 
@@ -183,4 +181,8 @@ mySocket.on('connected', async (session_id) => {
     }
     console.log(`ConduitUpdate ${process.env.TWITCH_SHARD_ID}/${conduitUpdate.status}//${await conduitUpdate.text()}`);
 
+});
+
+mySocket.on('notification', ({ metadata, payload }) => {
+    // do stuff with the data
 });
