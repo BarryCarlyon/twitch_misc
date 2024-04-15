@@ -166,7 +166,7 @@ The second method is more invasive but can mean you don't lose any events whilst
 
 Since a conduit uses App Access Tokens to operate generally you wouldn't expose them in userland.
 
-But theres nothing really stopping you doign it in a way that protects the App Access Token from visiblity.
+But theres nothing really stopping you doing it in a way that protects the App Access Token from visiblity.
 
 And you can connect a given Transport to a Conduit _and_ also susbcribe non conduit events to the transport.
 
