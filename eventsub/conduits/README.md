@@ -44,7 +44,33 @@ You define the `TWITCH_CONDUIT_ID` and `TWITCH_SHARD_ID` then it creates a WebSo
 You might do a auto scale up version, where it iterates the shards on the conduit to find a disconnected/available slot and self assigns itself.
 And if it doesn't find a shard self creates a shard and self assigns.
 
-But if you have multiple disconnected shards you have missed events as Twitch only retries on a new shard once
+But if you have multiple disconnected shards you have missed events as Twitch only retries on the message on another shard once, so if the second shard is also dead, RIP the entire message
+
+## A practical flow
+
+For a NEW setup
+
+1. Create a conduit, with Y shards
+2. Create Y websocket processes each assigned the `CONDUIT_ID` and a `SHARD_ID` to go on, on `welcome` they do the PATCH call themself for their `SHARD_ID`
+3. Create Subscriptions to your Conduit
+
+This should ensure you are ready to recieve messages, before messages occur, but sure you could create condiut of 1 shard, connect 1 shard and then create subscriptions on the Conduit and from there scale up if you get a lot of traffic.
+
+# Sharding
+
+When you update the shard count subscriptions are rebalanced between the shards, you have no control over whose subscriptiosn go where.
+
+Subscription to Shard balancing is done via the broadcaster ID in the condition of the subscription.
+
+So all Subscription types for a given broadcaster will be sent to the same shard, but you the developer have no control over broadcaster/shard assignment.
+
+If a shard dies due to websocket disconnection/webhook death, it doesn't rebalance the shards, the message is just retried once on another shard.
+
+So in a two shard conduit, where one of the shards is state `websocket_disconnected` all messages will end up on the other shard.
+
+In a three shard contuit, where two of the shards is state `websocket_disconnected` you might lose messages if messages for shard 3 go to shard 2 and both shard 3 and 2 are dead but shard 1 is the alive one.
+
+So you would want to be consuming [Conduit Shard Disabled](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#conduitsharddisabled) and possibly auto updating your shards to take out the dead shards from the stack by an [PATCH to update shards](https://dev.twitch.tv/docs/api/reference/#update-conduit-shards) and decrease the (shard count on the conduit](https://dev.twitch.tv/docs/api/reference/#update-conduits)
 
 # Limits and Death notes
 
