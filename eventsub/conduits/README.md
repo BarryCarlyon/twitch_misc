@@ -13,7 +13,7 @@ Work in Progress free form notes
 
 - [Create EventSub Subscription](https://dev.twitch.tv/docs/api/reference/#create-eventsub-subscription)
 - [Delete EventSub Subscription](https://dev.twitch.tv/docs/api/reference/#delete-eventsub-subscription)
-- [https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions](https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions)
+- [Get EventSub Subscriptions](https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions)
 
 # Tools
 
