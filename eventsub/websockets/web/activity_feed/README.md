@@ -20,7 +20,7 @@ For what is used in this example
 
 ## Notes
 
-This example gives an opinion on how to prcocess and collect the relevat events that would be untilised to run an overlay.
+This example gives an opinion on how to prcocess and collect the relevant events that would be untilised to run an overlay or a notification program for example.
 
 Specifically how to collect sub bombs (aka Community Gifts) into their groupings.
 
