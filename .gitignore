@@ -10,3 +10,5 @@ app_access.json
 dist
 texts
 jsons
+*.jsonl
+sample.js
