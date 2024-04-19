@@ -25,11 +25,7 @@ function runLine({ payload }) {
 
             var cell = r.insertCell();
             cell.style.color = color;
-            if (chatter_user_name.toLowerCase() == chatter_user_login) {
-                cell.textContent = chatter_user_name;
-            } else {
-                cell.textContent = `${chatter_user_name} (${chatter_user_login})`;
-            }
+            cell.textContent = processName(chatter_user_name, chatter_user_login);
 
             var cell = r.insertCell();
             cell.textContent = 'New Sub';
@@ -59,11 +55,7 @@ function runLine({ payload }) {
 
             var cell = r.insertCell();
             cell.style.color = color;
-            if (chatter_user_name.toLowerCase() == chatter_user_login) {
-                cell.textContent = chatter_user_name;
-            } else {
-                cell.textContent = `${chatter_user_name} (${chatter_user_login})`;
-            }
+            cell.textContent = processName(chatter_user_name, chatter_user_login);
 
             var cell = r.insertCell();
             cell.textContent = 'Resub';
@@ -103,11 +95,7 @@ function runLine({ payload }) {
                     //var cell = sr.insertCell();
                     let cell = document.createElement('li')
                     target.append(cell);
-                    if (recipient_user_name.toLowerCase() == recipient_user_login) {
-                        cell.textContent = recipient_user_name;
-                    } else {
-                        cell.textContent = `${recipient_user_name} (${recipient_user_login})`;
-                    }
+                    cell.textContent = processName(recipient_user_name, recipient_user_login);
                 } else {
                     //go = false;
                     console.log('target doesnt exist', notice_type, event);
@@ -138,13 +126,6 @@ function runLine({ payload }) {
                 var cell = r.insertCell();
                 cell.style.color = color;
                 cell.textContent = processName(chatter_user_name, chatter_user_login, chatter_is_anonymous);
-                /*
-                if (chatter_user_name.toLowerCase() == chatter_user_login) {
-                    cell.textContent = chatter_user_name;
-                } else {
-                    cell.textContent = `${chatter_user_name} (${chatter_user_login})`;
-                }
-                */
 
                 var cell = r.insertCell();
                 cell.textContent = 'Direct Gift';
@@ -155,12 +136,7 @@ function runLine({ payload }) {
                 // counts N/A
                 var cell = r.insertCell();
 
-                let text = `Gifted `;
-                if (recipient_user_name.toLowerCase() == recipient_user_login) {
-                    text= `${text} ${recipient_user_name}`;
-                } else {
-                    text = `${text} ${recipient_user_name} (${recipient_user_login})`;
-                }
+                let text = `Gifted ${processName(recipient_user_name, recipient_user_login)}`;
                 if (duration_months > 1) {
                     text = `${text} for ${duration_months} months`;
                 }
@@ -186,13 +162,6 @@ function runLine({ payload }) {
             var cell = r.insertCell();
             cell.style.color = color;
             cell.textContent = processName(chatter_user_name, chatter_user_login, chatter_is_anonymous);
-            /*
-            if (chatter_user_name.toLowerCase() == chatter_user_login) {
-                cell.textContent = chatter_user_name;
-            } else {
-                cell.textContent = `${chatter_user_name} (${chatter_user_login})`;
-            }
-            */
 
             var cell = r.insertCell();
             cell.textContent = 'Community Gift';
@@ -236,13 +205,6 @@ function runLine({ payload }) {
             var cell = r.insertCell();
             cell.style.color = color;
             cell.textContent = processName(chatter_user_name, chatter_user_login);
-            /*
-            if (chatter_user_name.toLowerCase() == chatter_user_login) {
-                cell.textContent = chatter_user_name;
-            } else {
-                cell.textContent = `${chatter_user_name} (${chatter_user_login})`;
-            }
-            */
 
             var cell = r.insertCell();
             cell.textContent = 'Paying it Forward';
@@ -252,19 +214,12 @@ function runLine({ payload }) {
             // counts
             var cell = r.insertCell();
             // message
-            /*
-            if (gifter_is_anonymous) {
-                cell.textContent = `Gifting ${processName(recipient_user_name, recipient_user_login)} in response to Anonymous`;
+            if (!recipient_user_id) {
+                // its a bomb
+                cell.textContent = `Community Gifting in response to a gift from ${processName(gifter_user_name, gifter_user_login, gifter_is_anonymous)}`;
             } else {
-                */
-                if (!recipient_user_id) {
-                    // its a bomb
-                    cell.textContent = `Community Gifting in response to a gift from ${processName(gifter_user_name, gifter_user_login, gifter_is_anonymous)}`;
-                } else {
-                    cell.textContent = `Gifting ${processName(recipient_user_name, recipient_user_login)} in response to a gift from ${processName(gifter_user_name, gifter_user_login, gifter_is_anonymous)}`;
-                }
-            //}
-
+                cell.textContent = `Gifting ${processName(recipient_user_name, recipient_user_login)} in response to a gift from ${processName(gifter_user_name, gifter_user_login, gifter_is_anonymous)}`;
+            }
             // raises a sub_gift
 
             break;
