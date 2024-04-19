@@ -69,11 +69,10 @@ function runLine({ payload }) {
             }
 
             var cell = r.insertCell();
-            var dspText = buildFromFragments(fragments);
             if (is_prime) {
-                dspText = `With Twitch Prime: ${dspText}`;
+                cell.textContent = 'With Twitch Prime: ';
             }
-            cell.textContent = dspText;
+            buildFromFragments(cell, fragments);
 
             break;
 
