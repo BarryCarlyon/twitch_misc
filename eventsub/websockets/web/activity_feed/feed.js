@@ -69,10 +69,11 @@ function runLine({ payload }) {
             }
 
             var cell = r.insertCell();
+            var dspText = buildFromFragments(fragments);
             if (is_prime) {
-                text = `With Twitch Prime: ${text}`;
+                dspText = `With Twitch Prime: ${dspText}`;
             }
-            cell.textContent = text;
+            cell.textContent = dspText;
 
             break;
 
@@ -316,4 +317,53 @@ function processName(display, login, is_anon) {
     }
 
     return display;
+}
+
+function buildFromFragments(chat, fragments) {
+    for (var x=0;x<fragments.length;x++) {
+        let { type, text, cheermote, emote, mention } = fragments[x];
+        switch (type) {
+            case 'emote':
+                var { id, emote_set_id, owner_id, format } = emote;
+
+                var el = document.createElement('img');
+                el.setAttribute('src', `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/1.0`);
+                el.setAttribute('title', text);
+                el.setAttribute('alt', text);
+
+                chat.append(el);
+                break;
+            case 'text':
+                var el = document.createElement('span');
+                chat.append(el);
+                el.textContent = text;
+                break;
+
+            case 'mention':
+                var el = document.createElement('span');
+                chat.append(el);
+                el.textContent = text;
+                el.style.backgroundColor = 'red';
+                break;
+
+            case 'cheermote':
+                // hmm
+                var { prefix, bits, tier } = cheermote;
+                //knownCheermotes[prefix][id]
+                var el = document.createElement('img');
+                el.setAttribute('src', knownCheermotes[prefix][tier]);
+                chat.append(el);
+                var el = document.createElement('span');
+                chat.append(el);
+                el.textContent = bits;
+                break;
+
+            default:
+                var el = document.createElement('span');
+                chat.append(el);
+                el.textContent = `No Handle ${type}`;
+
+                console.error(fragments[x]);
+        }
+    }
 }
