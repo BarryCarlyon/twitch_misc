@@ -87,7 +87,7 @@ class initSocket {
                     }
 
                     this.silence(keepalive_timeout_seconds);
-                    
+
                     break;
                 case 'session_keepalive':
                     //log(`Recv KeepAlive - ${message_type}`);
@@ -96,7 +96,7 @@ class initSocket {
                     break;
 
                 case 'notification':
-                    console.log('notification', metadata, payload);
+                    //console.log('notification', metadata, payload);
                     log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${JSON.stringify(payload)}`);
 
                     let { subscription, event } = payload;
@@ -161,7 +161,7 @@ class initSocket {
             this.close();// close it and let it self loop
         }, (this.silenceTime * 1000));
     }
-    
+
     on(name, listener) {
         if (!this._events[name]) {
             this._events[name] = [];

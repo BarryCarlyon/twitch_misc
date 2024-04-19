@@ -104,7 +104,7 @@
         </form>
     </div>
 
-    <div>Last KeepAlive: <span id="keepalive"></span> CurrentCost: <span id="subscriptions_cost"></span></div>
+    <div>Last KeepAlive: <span id="keepalive"></span> Total/Cost/MaxCost: <span id="subscriptions_cost"></span></div>
     <div id="subscriptions_refresh">Click to Refresh Subscriptions</div>
     <div>
         <table>
@@ -538,6 +538,7 @@
                             log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
                         } else {
                             log(`Created ${type}`);
+                            document.getElementById('subscriptions_cost').textContent = `${resp.total}/${resp.total_cost}/${resp.max_total_cost}`;
                         }
                     })
                     .catch(err => {
@@ -619,7 +620,7 @@
                         });
                     });
 
-                    document.getElementById('subscriptions_cost').textContent = `${resp.total_cost}/${resp.max_total_cost}`;
+                    document.getElementById('subscriptions_cost').textContent = `${resp.total}/${resp.total_cost}/${resp.max_total_cost}`;
 
                     if (resp.pagination) {
                         if (resp.pagination.cursor) {
