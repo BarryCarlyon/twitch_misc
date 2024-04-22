@@ -719,7 +719,12 @@
 
                     hit.textContent = name;
                     hit.style.backgroundImage = `url(${box_art_url})`;
-                    search_results.append(hit);
+                    // if exact match put it first
+                    if (name.toLowerCase() == channel_game_name.value.toLowerCase()) {
+                        search_results.prepend(hit);
+                    } else {
+                        search_results.append(hit);
+                    }
                 });
             }
         }
