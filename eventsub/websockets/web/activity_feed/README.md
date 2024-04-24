@@ -24,6 +24,9 @@ This example gives an opinion on how to prcocess and collect the relevant events
 
 Specifically how to collect sub bombs (aka Community Gifts) into their groupings.
 
+Note the use of trim in the processName function, some users can have a space in their display name (at the end)
+Or in the middle such as `Riot Games` but you are not likely to see middle space names in the data.
+
 ## Running the example
 
 This is so rough that you need to upload it somewhere or know how to start a WebServer on 127.0.0.1 port 80 locally

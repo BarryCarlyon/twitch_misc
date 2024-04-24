@@ -55,7 +55,8 @@
                         document.getElementById('keepalive').textContent = new Date();
                     });
 
-                    socket_space.on('channel.chat.notification', runLine);
+                    socket_space.on('channel.chat.notification', runLineNotification);
+                    socket_space.on('channel.chat.message', runLineMessage);
                 })
                 .catch(err => {
                     console.log(err);
@@ -91,8 +92,8 @@
         function requestHooks(broadcaster_user_id, user_id) {
             let topics = {
                 'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.message': { version: "1", condition: { broadcaster_user_id, user_id } }
             }
-//            'channel.chat.message': { version: "1", condition: { broadcaster_user_id, user_id } }
 
             log(`Spawn Topics for ${user_id}`);
 

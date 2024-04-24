@@ -1,4 +1,4 @@
-function runLine({ payload }) {
+function runLineNotification({ payload }) {
     let { event } = payload;
 
     let { system_message, notice_type, message } = event;
@@ -9,9 +9,6 @@ function runLine({ payload }) {
     let { broadcaster_user_name, broadcaster_user_login, broadcaster_user_id } = event;
     // entity
     let { chatter_user_name, chatter_user_login, chatter_user_id, color, chatter_is_anonymous } = event;
-
-    //let { gifter_user_name, gifter_user_login, gifter_user_id } = event;
-    //let { recipient_user_name, recipient_user_login, recipient_user_id } = event;
 
     switch (notice_type) {
         case 'sub':
@@ -31,7 +28,7 @@ function runLine({ payload }) {
             cell.textContent = 'New Sub';
 
             var cell = r.insertCell();
-            cell.textContent = sub_tier;
+            cell.textContent = processTier(sub_tier);
             var cell = r.insertCell();
             // counts
             var cell = r.insertCell();
@@ -60,7 +57,7 @@ function runLine({ payload }) {
             var cell = r.insertCell();
             cell.textContent = 'Resub';
             var cell = r.insertCell();
-            cell.textContent = sub_tier;
+            cell.textContent = processTier(sub_tier);
             var cell = r.insertCell();
             if (streak_months) {
                 cell.textContent = `${cumulative_months} months for ${streak_months} streak`;
@@ -101,7 +98,7 @@ function runLine({ payload }) {
                     console.log('target doesnt exist', notice_type, event);
                     // now the real question what would be the best way to _wait_
                     // do we draw the line with what we can
-                    // or _wait_
+                    // or _wait_ I don't LIKE this but it works...
                     setTimeout(() => {
                         runLine({ payload })
                     }, 500);
@@ -130,7 +127,7 @@ function runLine({ payload }) {
                 var cell = r.insertCell();
                 cell.textContent = 'Direct Gift';
                 var cell = r.insertCell();
-                cell.textContent = sub_tier;
+                cell.textContent = processTier(sub_tier);
 
                 var cell = r.insertCell();
                 // counts N/A
@@ -166,7 +163,7 @@ function runLine({ payload }) {
             var cell = r.insertCell();
             cell.textContent = 'Community Gift';
             var cell = r.insertCell();
-            cell.textContent = sub_tier;
+            cell.textContent = processTier(sub_tier);
 
             var cell = r.insertCell();
             if (cumulative_total) {
@@ -265,7 +262,7 @@ function runLine({ payload }) {
             var cell = r.insertCell();
             cell.textContent = 'Prime Upgrade';
             var cell = r.insertCell();
-            cell.textContent = sub_tier;
+            cell.textContent = processTier(sub_tier);
             var cell = r.insertCell();
             // counts
             var cell = r.insertCell();
@@ -307,11 +304,102 @@ function runLine({ payload }) {
     }
 }
 
+function runLineMessage({ payload }) {
+    let { event } = payload;
+
+    let { message_type, message } = event;
+
+    let { text, fragments } = message;
+
+    // channel
+    let { broadcaster_user_name, broadcaster_user_login, broadcaster_user_id } = event;
+    // entity
+    let { chatter_user_name, chatter_user_login, chatter_user_id, color } = event;
+
+    let { cheer, channel_points_custom_reward_id } = event;
+
+    let title_of_event = '';
+    switch (message_type) {
+        case 'channel_points_sub_only':
+            title_of_event = 'SubOnly Message';
+        case 'channel_points_highlighted':
+            title_of_event = 'Highlighted';
+        case 'user_intro':
+            title_of_event = 'User Intro';
+        default:
+            if (channel_points_custom_reward_id) {
+                title_of_event = 'ChannelPoints';
+            }
+    }
+
+    if (title_of_event != '') {
+        var r = activity_feed.insertRow(0);
+
+        var cell = r.insertCell();
+        cell.textContent = broadcaster_user_login;
+
+        var cell = r.insertCell();
+        cell.style.color = color;
+        cell.textContent = processName(chatter_user_name, chatter_user_login);
+
+        // what span tier
+        var cell = r.insertCell();
+        cell.textContent = title_of_event;
+        cell.setAttribute('colspan', 2);
+        // counts
+        var cell = r.insertCell();
+        //message
+        var cell = r.insertCell();
+        buildFromFragments(cell, fragments);
+    } else {
+        if (cheer) {
+            // it's a cheer message
+            // bits is the total bits used
+            let { bits } = cheer;
+            var r = activity_feed.insertRow(0);
+
+            var cell = r.insertCell();
+            cell.textContent = broadcaster_user_login;
+
+            var cell = r.insertCell();
+            cell.style.color = color;
+            cell.textContent = processName(chatter_user_name, chatter_user_login);
+            // what span tier
+            var cell = r.insertCell();
+            cell.textContent = 'Cheer';
+            cell.setAttribute('colspan', 2);
+            // count
+            var cell = r.insertCell();
+            cell.textContent = bits;
+            //message
+            var cell = r.insertCell();
+            buildFromFragments(cell, fragments);
+        } else {
+            go = false;
+            console.log('Unexpected', message_type, event);
+        }
+    }
+}
+
+
+
+
+function processTier(tier) {
+    switch (tier) {
+        case '3000':
+            return 'T3';
+        case '2000':
+            return 'T2';
+        case '1000':
+            return 'T1';
+    }
+    return tier;
+}
 function processName(display, login, is_anon) {
     if (is_anon) {
        return 'Anonymous';
     }
-    if (display.toLowerCase() != login) {
+    if (display.trim().toLowerCase() != login.trim()) {
         return `${display} (${login})`;
     }
 
