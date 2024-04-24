@@ -11,10 +11,10 @@
     "start": "electron ."
   },
   "devDependencies": {
-    "electron": "^28.1.0"
+    "electron": "^30.0.1"
   },
   "dependencies": {
     "electron-fetch": "^1.9.1",
-    "electron-store": "^8.1.0"
+    "electron-store": "^8.2.0"
   }
 }
