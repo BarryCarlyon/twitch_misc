@@ -100,7 +100,7 @@ function runLineNotification({ payload }) {
                     // do we draw the line with what we can
                     // or _wait_ I don't LIKE this but it works...
                     setTimeout(() => {
-                        runLine({ payload })
+                        runLineNotification({ payload })
                     }, 500);
 
                     let hasProc = document.getElementById(`processing_for_${community_gift_id}`);
@@ -368,6 +368,7 @@ function runLineMessage({ payload }) {
             var cell = r.insertCell();
             cell.textContent = 'Cheer';
             cell.setAttribute('colspan', 2);
+            //cell.style.textAlign = 'right';
             // count
             var cell = r.insertCell();
             cell.textContent = bits;
@@ -375,8 +376,8 @@ function runLineMessage({ payload }) {
             var cell = r.insertCell();
             buildFromFragments(cell, fragments);
         } else {
-            go = false;
-            console.log('Unexpected', message_type, event);
+            //go = false;
+            //console.log('Unexpected', message_type, event);
         }
     }
 }
@@ -405,6 +406,8 @@ function processName(display, login, is_anon) {
 
     return display;
 }
+
+let knownCheermotes = {};
 
 function buildFromFragments(chat, fragments) {
     for (var x=0;x<fragments.length;x++) {
@@ -437,12 +440,16 @@ function buildFromFragments(chat, fragments) {
                 // hmm
                 var { prefix, bits, tier } = cheermote;
                 //knownCheermotes[prefix][id]
-                var el = document.createElement('img');
-                el.setAttribute('src', knownCheermotes[prefix][tier]);
-                chat.append(el);
-                var el = document.createElement('span');
-                chat.append(el);
-                el.textContent = bits;
+                if (knownCheermotes[prefix] && knownCheermotes[prefix][tier]) {
+                    var el = document.createElement('img');
+                    el.setAttribute('src', knownCheermotes[prefix][tier]);
+                    chat.append(el);
+                    var el = document.createElement('span');
+                    chat.append(el);
+                } else {
+                    el.textContent = prefix;
+                }
+                el.textContent += bits;
                 break;
 
             default:

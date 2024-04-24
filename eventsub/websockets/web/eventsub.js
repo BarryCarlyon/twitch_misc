@@ -59,7 +59,7 @@ class initSocket {
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/message_event
         this.eventsub.addEventListener('message', (message) => {
             //log('Message');
-            console.log(this.eventsub.counter, message);
+            //console.log(this.eventsub.counter, message);
             let { data } = message;
             data = JSON.parse(data);
 
@@ -97,7 +97,7 @@ class initSocket {
 
                 case 'notification':
                     //console.log('notification', metadata, payload);
-                    log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification ${JSON.stringify(payload)}`);
+                    //log(`${this.eventsub.twitch_websocket_id}/${this.eventsub.counter} Recv notification`);// ${JSON.stringify(payload)}`);
 
                     let { subscription, event } = payload;
                     let { type } = subscription;

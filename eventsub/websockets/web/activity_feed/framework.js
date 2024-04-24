@@ -49,7 +49,7 @@
                     });
 
                     socket_space.on('session_silenced', () => {
-                        addsimplelog('Session mystery died due to silence detected');
+                        document.getElementById('keepalive').textContent = 'Session mystery died due to silence detected';
                     });
                     socket_space.on('session_keepalive', () => {
                         document.getElementById('keepalive').textContent = new Date();
