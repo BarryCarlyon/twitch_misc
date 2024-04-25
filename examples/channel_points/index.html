@@ -40,6 +40,8 @@
             background: red;
         }
 
+        tr td:nth-child(6),
+        tr td:nth-child(7),
         .delete_reward {
             cursor: pointer;
         }
@@ -321,8 +323,13 @@
 
                         cell(reward.title, tr);
                         cell(reward.cost, tr);
-                        colorCell((reward.is_enabled ? 'Enabled' : 'Disabled'), tr, reward.is_enabled);
-                        colorCell((reward.is_paused ? 'Paused' : 'Running'), tr, !reward.is_paused);
+
+                        let enabler = colorCell((reward.is_enabled ? 'Enabled' : 'Disabled'), tr, reward.is_enabled);
+                        enabler.setAttribute('data-toggle', 'is_enabled');
+                        enabler.setAttribute('data-id', reward.id);
+                        let pauser = colorCell((reward.is_paused ? 'Paused' : 'Running'), tr, !reward.is_paused);
+                        pauser.setAttribute('data-toggle', 'is_paused');
+                        pauser.setAttribute('data-id', reward.id);
                         cell((reward.should_redemptions_skip_request_queue ? 'Skips' : 'Need Mod'), tr);
                         cell(reward.prompt, tr);
                         colorCell((reward.is_user_input_required ? 'user Input' : ''), tr, reward.is_user_input_required);
@@ -391,6 +398,7 @@
             } else {
                 td.style.backgroundColor = 'red';
             }
+            return td;
         }
 
         function cell(value, row) {
@@ -474,19 +482,13 @@
             });
         });
 
-        document.getElementById('output').addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete_reward')) {
-                deleteReward(e.target.getAttribute('data-id'));
-            }
-        });
-
         function deleteReward(id) {
             message(`Attempt to delete reward ${id}`);
             let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
             url.search = new URLSearchParams([
                 [ 'broadcaster_id', user_id ],
                 [ 'id', id ]
-            ]).toString();
+            ]);
 
             fetch(
                 url,
@@ -539,6 +541,74 @@
             }
         });
         global_cooldown_seconds.setAttribute('disabled', 'disabled');
+
+        output.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete_reward')) {
+                deleteReward(e.target.getAttribute('data-id'));
+            } else if (e.target.getAttribute('data-toggle')) {
+                // we have a jerb
+                let toggle = e.target.getAttribute('data-toggle');
+                let rewardID = e.target.getAttribute('data-id');
+
+                // build a patch
+                patcher(rewardID, toggle);
+            }
+        });
+        async function patcher(id, field) {
+            // get current value
+            let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+            url.search = new URLSearchParams([
+                [ 'broadcaster_id', user_id ],
+                [ 'id', id ]
+            ]);
+
+            let currentReq = await fetch(
+                url,
+                {
+                    "method": 'GET',
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`,
+                    }
+                }
+            );
+            if (currentReq.status != 200) {
+                message(`Reward Update GET Error: ${await currentReq.text()}`);
+                // balls
+                return;
+            }
+            let currentData = await currentReq.json();
+            // find it
+            let { data } = currentData;
+            if (data.length != 1) {
+                message(`Reward Update Error: Failed to get current value`);
+                return;
+            }
+            // find the field
+            let currentValue = data[0][field];
+            // invert it
+            let pl = {};
+            pl[field] = !currentValue;
+            console.log('Patching', pl);
+            // and patch it
+            let patchReq = await fetch(
+                url,
+                {
+                    "method": 'PATCH',
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(pl)
+                }
+            );
+            if (patchReq.status != 200) {
+                // balls
+                message(`Reward Update Error: ${await patchReq.text()}`);
+            }
+            getRewards();
+        }
     </script>
 </body>
 </html>
