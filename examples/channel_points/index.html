@@ -229,52 +229,6 @@
             document.getElementById('loading').prepend(p);
             p.textContent = words;
         }
-        function tabulate(title, data, override, id_link = false) {
-            let div = document.createElement('div');
-            if (override) {
-                override.append(div);
-            } else {
-                output.append(div);
-                div.classList.add('infoblock');
-            }
-            if (title) {
-                let p = document.createElement('p');
-                div.append(p);
-                p.textContent = title;
-            }
-
-            let table = document.createElement('table');
-            div.append(table);
-            for (var key in data) {
-                let tr = document.createElement('tr');
-                table.append(tr);
-                let th = document.createElement('th');
-                tr.append(th);
-                th.textContent = key;
-
-                let td = document.createElement('td');
-                tr.append(td);
-                if (typeof data[key] == 'object') {
-                    tabulate('', data[key], td, id_link);
-                } else {
-                    if (typeof data[key] == 'string' && data[key].indexOf('https://') == 0) {
-                        let a = document.createElement('a');
-                        a.setAttribute('href', data[key]);
-                        a.textContent = data[key];
-                        a.setAttribute('target', '_blank');
-                        td.append(a);
-                    } else if (key == 'id' && id_link) {
-                        let a = document.createElement('a');
-                        a.setAttribute('href', 'https://dashboard.twitch.tv/extensions/' + data[key]);
-                        a.textContent = data[key];
-                        a.setAttribute('target', '_blank');
-                        td.append(a);
-                    } else {
-                        td.textContent = data[key];
-                    }
-                }
-            }
-        }
 
         function getRewards() {
             message('Loading Rewards');
@@ -313,7 +267,7 @@
 
                         cell('Cannot', tr);
                         cell(reward.id, tr);
-                        //cell(reward.image, tr);
+
                         let itd = cell('', tr);
                         if (reward.image && reward.image.url_1x) {
                             let iti = document.createElement('img');
@@ -321,7 +275,20 @@
                             iti.setAttribute('src', reward.image.url_1x);
                         }
 
-                        cell(reward.title, tr);
+                        let titleCell = cell('', tr);
+                            var d = document.createElement('div');
+                            titleCell.append(d);
+                            var i = document.createElement('input');
+                            d.append(i);
+                            i.value = reward.title;
+                            i.setAttribute('id', `field_${reward.id}_title`);
+                            var u = document.createElement('input');
+                            d.append(u);
+                            u.setAttribute('type', 'button');
+                            u.setAttribute('data-linked', `field_${reward.id}_title`);
+                            u.setAttribute('data-update', 'title');
+                            u.setAttribute('data-id', reward.id);
+                            u.value = 'U';
                         cell(reward.cost, tr);
 
                         let enabler = colorCell((reward.is_enabled ? 'Enabled' : 'Disabled'), tr, reward.is_enabled);
@@ -331,8 +298,21 @@
                         pauser.setAttribute('data-toggle', 'is_paused');
                         pauser.setAttribute('data-id', reward.id);
                         cell((reward.should_redemptions_skip_request_queue ? 'Skips' : 'Need Mod'), tr);
-                        cell(reward.prompt, tr);
-                        colorCell((reward.is_user_input_required ? 'user Input' : ''), tr, reward.is_user_input_required);
+                        let promptCell = cell('', tr);
+                            var d = document.createElement('div');
+                            promptCell.append(d);
+                            var i = document.createElement('input');
+                            d.append(i);
+                            i.value = reward.prompt;
+                            i.setAttribute('id', `field_${reward.id}_prompt`);
+                            var u = document.createElement('input');
+                            d.append(u);
+                            u.setAttribute('type', 'button');
+                            u.setAttribute('data-linked', `field_${reward.id}_prompt`);
+                            u.setAttribute('data-update', 'prompt');
+                            u.setAttribute('data-id', reward.id);
+                            u.value = 'U';
+                        colorCell((reward.is_user_input_required ? 'IsReq' : ''), tr, reward.is_user_input_required);
 
                         let del = cell('x', tr);
                         del.classList.add('delete_reward');
@@ -543,18 +523,23 @@
         global_cooldown_seconds.setAttribute('disabled', 'disabled');
 
         output.addEventListener('click', (e) => {
+            let rewardID = e.target.getAttribute('data-id');
+
             if (e.target.classList.contains('delete_reward')) {
                 deleteReward(e.target.getAttribute('data-id'));
             } else if (e.target.getAttribute('data-toggle')) {
                 // we have a jerb
                 let toggle = e.target.getAttribute('data-toggle');
-                let rewardID = e.target.getAttribute('data-id');
 
                 // build a patch
-                patcher(rewardID, toggle);
+                togglePatcher(rewardID, toggle);
+            } else if (e.target.getAttribute('data-update')) {
+                let pl = {};
+                pl[e.target.getAttribute('data-update')] = document.getElementById(e.target.getAttribute('data-linked')).value;
+                patcher(rewardID, pl);
             }
         });
-        async function patcher(id, field) {
+        async function togglePatcher(id, field) {
             // get current value
             let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
             url.search = new URLSearchParams([
@@ -591,6 +576,16 @@
             pl[field] = !currentValue;
             console.log('Patching', pl);
             // and patch it
+            patcher(id, pl);
+        }
+
+        async function patcher(id, pl) {
+            let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+            url.search = new URLSearchParams([
+                [ 'broadcaster_id', user_id ],
+                [ 'id', id ]
+            ]);
+
             let patchReq = await fetch(
                 url,
                 {
