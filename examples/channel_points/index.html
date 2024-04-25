@@ -118,6 +118,25 @@
                     <input type="checkbox" name="reward_should_redemptions_skip_request_queue" id="reward_should_redemptions_skip_request_queue" />
                 </div>
             </div>
+            <div>
+                <div>
+                    <label for="is_max_per_stream_enabled">Max Per Stream</label>
+                    <input type="checkbox" name="is_max_per_stream_enabled" id="is_max_per_stream_enabled" />
+                    <input type="number" name="max_per_stream" id="max_per_stream" min="1" max="100" step="1" />
+                </div>
+                <div>
+                    <label for="is_max_per_user_per_stream_enabled">Max Per User Per Stream</label>
+                    <input type="checkbox" name="is_max_per_user_per_stream_enabled" id="is_max_per_user_per_stream_enabled" />
+                    <input type="number" name="max_per_user_per_stream" id="max_per_user_per_stream" min="1" max="100" step="1" />
+                </div>
+            </div>
+            <div>
+                <div>
+                    <label for="is_global_cooldown_enabled">Cool Down between (seconds)</label>
+                    <input type="checkbox" name="is_global_cooldown_enabled" id="is_global_cooldown_enabled" />
+                    <input type="number" name="global_cooldown_seconds" id="global_cooldown_seconds" min="30" max="86400" step="30" />
+                </div>
+            </div>
 
             <div>
                 <input type="submit" value="Create" />
@@ -128,7 +147,7 @@
     <script type="text/javascript">
         // go populate this with a client_id
         var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
-        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        var redirect = window.location.origin + '/twitch_misc/';
         // setup a memory space for the token/userID
         var access_token = '';
         var user_id = '';
@@ -154,10 +173,10 @@
                 if (resp.client_id) {
                     client_id = resp.client_id;
                     processToken(token);
-                    
+
                     return;
                 }
-                
+
                 document.getElementById('loading').textContent = 'The token seems invalid';
             })
             .catch(err => {
@@ -169,7 +188,7 @@
             e.preventDefault();
             provideAccessToken(input_access_token.value);
         });
-        
+
         function processToken(token) {
             access_token = token;
 
@@ -299,7 +318,7 @@
                             itd.append(iti);
                             iti.setAttribute('src', reward.image.url_1x);
                         }
-                        
+
                         cell(reward.title, tr);
                         cell(reward.cost, tr);
                         colorCell((reward.is_enabled ? 'Enabled' : 'Disabled'), tr, reward.is_enabled);
@@ -386,23 +405,42 @@
             e.preventDefault();
 
             let payload = {
-                title: document.getElementById('reward_title').value,
-                cost: document.getElementById('reward_cost').value,
+                title: reward_title.value,
+                cost: reward_cost.value,
 
-                prompt: document.getElementById('reward_prompt').value,
-                is_enabled: document.getElementById('reward_is_enabled') == 'on' ? true : false,
+                prompt: reward_prompt.value,
+                is_enabled: reward_is_enabled.checked,
 
-                background_color: document.getElementById('reward_background_color'),
+                background_color: reward_background_color.value,
 
-                is_user_input_required: document.getElementById('reward_is_user_input_required') == 'on' ? true : false,
-                should_redemptions_skip_request_queue: document.getElementById('reward_should_redemptions_skip_request_queue') == 'on' ? true : false
+                is_user_input_required: reward_is_user_input_required.checked,
+
+                is_max_per_stream_enabled: is_max_per_stream_enabled.checked,
+                is_max_per_user_per_stream_enabled: is_max_per_user_per_stream_enabled.checked,
+                is_global_cooldown_enabled: is_global_cooldown_enabled.checked,
+
+                should_redemptions_skip_request_queue: reward_should_redemptions_skip_request_queue.checked
+            }
+            //max_per_stream
+            //max_per_user_per_stream
+            //global_cooldown_seconds
+            if (payload.is_max_per_stream_enabled) {
+                payload.max_per_stream = max_per_stream.value;
+            }
+            if (payload.is_max_per_user_per_stream_enabled) {
+                payload.max_per_user_per_stream = max_per_user_per_stream.value;
+            }
+            if (payload.is_global_cooldown_enabled) {
+                payload.global_cooldown_seconds = global_cooldown_seconds.value;
             }
 
             for (key in payload) {
-                if (payload[key] == '') {
+                if (payload[key] === '') {
                     delete payload[key];
                 }
             }
+
+            console.log(payload);//return;
 
             let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
             url.search = new URLSearchParams([
@@ -473,6 +511,34 @@
                 message('An Error Occured deleting a reward: error');
             });
         }
+
+        // ui
+        is_max_per_stream_enabled.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                max_per_stream.removeAttribute('disabled');
+            } else {
+                max_per_stream.setAttribute('disabled', 'disabled');
+            }
+        });
+        max_per_stream.setAttribute('disabled', 'disabled');
+
+        is_max_per_user_per_stream_enabled.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                max_per_user_per_stream.removeAttribute('disabled');
+            } else {
+                max_per_user_per_stream.setAttribute('disabled', 'disabled');
+            }
+        });
+        max_per_user_per_stream.setAttribute('disabled', 'disabled');
+
+        is_global_cooldown_enabled.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                global_cooldown_seconds.removeAttribute('disabled');
+            } else {
+                global_cooldown_seconds.setAttribute('disabled', 'disabled');
+            }
+        });
+        global_cooldown_seconds.setAttribute('disabled', 'disabled');
     </script>
 </body>
 </html>
