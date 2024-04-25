@@ -25,10 +25,8 @@ function runLineNotification({ payload }) {
             cell.textContent = processName(chatter_user_name, chatter_user_login);
 
             var cell = r.insertCell();
-            cell.textContent = 'New Sub';
+            cell.textContent = `New Sub ${processTier(sub_tier)}`;
 
-            var cell = r.insertCell();
-            cell.textContent = processTier(sub_tier);
             var cell = r.insertCell();
             // counts
             var cell = r.insertCell();
@@ -55,9 +53,7 @@ function runLineNotification({ payload }) {
             cell.textContent = processName(chatter_user_name, chatter_user_login);
 
             var cell = r.insertCell();
-            cell.textContent = 'Resub';
-            var cell = r.insertCell();
-            cell.textContent = processTier(sub_tier);
+            cell.textContent = `Resub ${processTier(sub_tier)}`;
             var cell = r.insertCell();
             if (streak_months) {
                 cell.textContent = `${cumulative_months} months for ${streak_months} streak`;
@@ -125,9 +121,7 @@ function runLineNotification({ payload }) {
                 cell.textContent = processName(chatter_user_name, chatter_user_login, chatter_is_anonymous);
 
                 var cell = r.insertCell();
-                cell.textContent = 'Direct Gift';
-                var cell = r.insertCell();
-                cell.textContent = processTier(sub_tier);
+                cell.textContent = `Direct Gift ${processTier(sub_tier)}`;
 
                 var cell = r.insertCell();
                 // counts N/A
@@ -161,9 +155,7 @@ function runLineNotification({ payload }) {
             cell.textContent = processName(chatter_user_name, chatter_user_login, chatter_is_anonymous);
 
             var cell = r.insertCell();
-            cell.textContent = 'Community Gift';
-            var cell = r.insertCell();
-            cell.textContent = processTier(sub_tier);
+            cell.textContent = `Community Gift ${processTier(sub_tier)}`;
 
             var cell = r.insertCell();
             if (cumulative_total) {
@@ -206,8 +198,6 @@ function runLineNotification({ payload }) {
             var cell = r.insertCell();
             cell.textContent = 'Paying it Forward';
             var cell = r.insertCell();
-            // tier
-            var cell = r.insertCell();
             // counts
             var cell = r.insertCell();
             // message
@@ -238,8 +228,6 @@ function runLineNotification({ payload }) {
             var cell = r.insertCell();
             cell.textContent = 'Gift Upgrade';
             var cell = r.insertCell();
-            // tier
-            var cell = r.insertCell();
             // counts
             var cell = r.insertCell();
             // message
@@ -260,9 +248,7 @@ function runLineNotification({ payload }) {
             cell.style.color = color;
             cell.textContent = processName(chatter_user_name, chatter_user_login);
             var cell = r.insertCell();
-            cell.textContent = 'Prime Upgrade';
-            var cell = r.insertCell();
-            cell.textContent = processTier(sub_tier);
+            cell.textContent = `Prime Upgrade: ${processTier(sub_tier)}`;
             var cell = r.insertCell();
             // counts
             var cell = r.insertCell();
@@ -288,7 +274,6 @@ function runLineNotification({ payload }) {
 
             var cell = r.insertCell();
             cell.textContent = 'Raid';
-            var cell = r.insertCell();
             var cell = r.insertCell();
             var cell = r.insertCell();
             cell.textContent = `Raiding with ${viewer_count} viewers`;
@@ -345,7 +330,6 @@ function runLineMessage({ payload }) {
         // what span tier
         var cell = r.insertCell();
         cell.textContent = title_of_event;
-        cell.setAttribute('colspan', 2);
         // counts
         var cell = r.insertCell();
         //message
@@ -367,8 +351,6 @@ function runLineMessage({ payload }) {
             // what span tier
             var cell = r.insertCell();
             cell.textContent = 'Cheer';
-            cell.setAttribute('colspan', 2);
-            //cell.style.textAlign = 'right';
             // count
             var cell = r.insertCell();
             cell.textContent = bits;
@@ -437,19 +419,22 @@ function buildFromFragments(chat, fragments) {
                 break;
 
             case 'cheermote':
+                var el = document.createElement('span');
+                chat.append(el);
+
                 // hmm
                 var { prefix, bits, tier } = cheermote;
                 //knownCheermotes[prefix][id]
                 if (knownCheermotes[prefix] && knownCheermotes[prefix][tier]) {
-                    var el = document.createElement('img');
-                    el.setAttribute('src', knownCheermotes[prefix][tier]);
-                    chat.append(el);
-                    var el = document.createElement('span');
-                    chat.append(el);
+                    var iel = document.createElement('img');
+                    iel.setAttribute('src', knownCheermotes[prefix][tier]);
+                    el.append(iel);
+                    var iel = document.createElement('span');
+                    el.append(iel);
                 } else {
                     el.textContent = prefix;
                 }
-                el.textContent += bits;
+                el.textContent += bits + ' ';
                 break;
 
             default:
