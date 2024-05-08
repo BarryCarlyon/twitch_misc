@@ -59,10 +59,16 @@ function runLineNotification({ payload }) {
             var cell = r.insertCell();
             cell.textContent = `Resub ${processTier(sub_tier)}`;
             var cell = r.insertCell();
+
+            let durational = `${cumulative_months} months`;
+            if (cumulative_months % 12 === 0) {
+                durational = `${cumulative_months / 12} years`;
+            }
+
             if (streak_months) {
-                cell.textContent = `${cumulative_months} months for ${streak_months} streak`;
+                cell.textContent = `${durational} for ${streak_months} streak`;
             } else {
-                cell.textContent = `${cumulative_months} months`;
+                cell.textContent = `${durational}`;
             }
 
             var cell = r.insertCell();
