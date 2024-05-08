@@ -296,6 +296,31 @@ function runLineNotification({ payload }) {
 
             break;
 
+        case 'bits_badge_tier':
+            // to consider...
+            let { bits_badge_tier } = event;
+            var { tier } = bits_badge_tier;
+
+            var r = activity_feed.insertRow(0);
+            r.setAttribute('title', system_message);
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
+            cell.textContent = broadcaster_user_login;
+
+            var cell = r.insertCell();
+            cell.style.color = color;
+            cell.textContent = processName(chatter_user_name, chatter_user_login);
+
+            var cell = r.insertCell();
+            cell.textContent = 'Bits Tier';
+            var cell = r.insertCell();
+            cell.textContent = tier;
+            var cell = r.insertCell();
+            buildFromFragments(cell, fragments);
+
+            break;
+
         case 'announcement':
             // skip
             break;
