@@ -457,6 +457,7 @@ function buildFromFragments(chat, fragments) {
 
                 // hmm
                 var { prefix, bits, tier } = cheermote;
+                prefix = prefix.toLowerCase();
                 //knownCheermotes[prefix][id]
                 if (knownCheermotes[prefix] && knownCheermotes[prefix][tier]) {
                     var iel = document.createElement('img');
@@ -501,6 +502,7 @@ async function loadCheermotes(broadcaster_id) {
     data.forEach(cheermote => {
         let { prefix, tiers } = cheermote;
         if (tiers && tiers.length > 0) {
+            prefix = prefix.toLowerCase();
             knownCheermotes[prefix] = {};
 
             tiers.forEach(tier => {
