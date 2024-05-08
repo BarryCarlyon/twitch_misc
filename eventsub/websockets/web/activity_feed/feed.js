@@ -18,6 +18,8 @@ function runLineNotification({ payload }) {
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
             var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
             var cell = r.insertCell();
@@ -45,6 +47,8 @@ function runLineNotification({ payload }) {
 
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
             var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
@@ -114,6 +118,8 @@ function runLineNotification({ payload }) {
                 var r = activity_feed.insertRow(0);
                 r.setAttribute('title', system_message);
                 var cell = r.insertCell();
+                cell.textContent = dateTime();
+                var cell = r.insertCell();
                 cell.textContent = broadcaster_user_login;
 
                 var cell = r.insertCell();
@@ -147,6 +153,8 @@ function runLineNotification({ payload }) {
 
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
             var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
@@ -189,6 +197,8 @@ function runLineNotification({ payload }) {
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
             var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
             var cell = r.insertCell();
@@ -220,6 +230,8 @@ function runLineNotification({ payload }) {
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
             var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
             var cell = r.insertCell();
@@ -242,6 +254,8 @@ function runLineNotification({ payload }) {
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
             var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
             var cell = r.insertCell();
@@ -263,6 +277,8 @@ function runLineNotification({ payload }) {
 
             var r = activity_feed.insertRow(0);
             r.setAttribute('title', system_message);
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
             var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
@@ -321,6 +337,8 @@ function runLineMessage({ payload }) {
         var r = activity_feed.insertRow(0);
 
         var cell = r.insertCell();
+        cell.textContent = dateTime();
+        var cell = r.insertCell();
         cell.textContent = broadcaster_user_login;
 
         var cell = r.insertCell();
@@ -342,6 +360,8 @@ function runLineMessage({ payload }) {
             let { bits } = cheer;
             var r = activity_feed.insertRow(0);
 
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
             var cell = r.insertCell();
             cell.textContent = broadcaster_user_login;
 
@@ -366,6 +386,19 @@ function runLineMessage({ payload }) {
 
 
 
+function dateTime() {
+    let n = new Date();
+    let d = [];
+    d.push(n.getHours());
+    d.push(n.getMinutes());
+    d.push(n.getSeconds());
+    for (var x=0;x<d.length;x++) {
+        if (d[x] < 10) {
+            d[x] = `0${d[x]}`;
+        }
+    }
+    return d.join(':');
+}
 
 function processTier(tier) {
     switch (tier) {
