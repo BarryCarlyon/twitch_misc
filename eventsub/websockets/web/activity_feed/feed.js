@@ -479,3 +479,37 @@ function buildFromFragments(chat, fragments) {
         }
     }
 }
+
+async function loadCheermotes(broadcaster_id) {
+    let url = new URL('https://api.twitch.tv/helix/bits/cheermotes');
+    url.search = new URLSearchParams([['broadcaster_id', broadcaster_id]]).toString();
+
+    let bitsRequest = await fetch(
+        url,
+        {
+            "headers": {
+                "Client-ID": client_id,
+                "Authorization": `Bearer ${access_token}`
+            }
+        }
+    );
+    if (bitsRequest.status != 200) {
+        return;
+    }
+    let { data } = await bitsRequest.json();
+
+    data.forEach(cheermote => {
+        let { prefix, tiers } = cheermote;
+        if (tiers && tiers.length > 0) {
+            knownCheermotes[prefix] = {};
+
+            tiers.forEach(tier => {
+                let { can_cheer, id, images } = tier;
+                if (can_cheer) {
+                    let image = images.dark.animated["1.5"];
+                    knownCheermotes[prefix][id] = image;
+                }
+            });
+        }
+    });
+}
