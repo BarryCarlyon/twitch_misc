@@ -498,7 +498,7 @@ function eventsub() {
         if (image && image.url_1x) {
             let iti = document.createElement('img');
             cells[2].append(iti);
-            iti.setAttribute('src', reward.image.url_1x);
+            iti.setAttribute('src', image.url_1x);
         }
 
         // 3 is the title
