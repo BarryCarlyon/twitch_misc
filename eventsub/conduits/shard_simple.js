@@ -4,10 +4,10 @@ let twitch;
 
 try {
     twitch = new Twitch({
-        init_token: process.env.TWITCH_ACCESS_TOKEN,
+        token: process.env.TWITCH_ACCESS_TOKEN,
 
-        init_conduit_id: process.env.TWITCH_CONDUIT_ID,
-        init_shard_id: process.env.TWITCH_SHARD_ID
+        conduit_id: process.env.TWITCH_CONDUIT_ID,
+        shard_id: process.env.TWITCH_SHARD_ID
     });
 
     twitch.once('validated', (dat) => {
