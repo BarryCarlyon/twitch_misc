@@ -46,6 +46,14 @@ And if it doesn't find a shard self creates a shard and self assigns.
 
 But if you have multiple disconnected shards you have missed events as Twitch only retries on the message on another shard once, so if the second shard is also dead, RIP the entire message
 
+## `simple_shard.js`
+
+This one has most of the logic moved into `eventsub.js` so it just invokves the class and away it goes.
+
+Feed in a token, a conduit ID and a shard ID from `.env` and it connects, self updates the shard of the specified index on the conduit, and does stuff with incoming `notification`s.
+
+# Flow Notes
+
 ## A practical flow
 
 For a NEW setup
@@ -56,7 +64,7 @@ For a NEW setup
 
 This should ensure you are ready to recieve messages, before messages occur, but sure you could create conduit of 1 shard, connect 1 shard and then create subscriptions on the Conduit and from there scale up if you get a lot of traffic.
 
-### Practical Flow example
+## Practical Flow example
 
 Another process handles token gernation and conduit create and subscription assign
 
@@ -76,13 +84,21 @@ So it just needs a shard, or if you are just filling for dead shards, iterate sh
 
 And you don't even need to pass in the ClientID as the ClientID is obtained from validating the App Access Token. But if you did it would check they both matched
 
+## Alterantive flow
+
+Conceptually you'd also want to approach it where the shard connects to the socket.
+
+Broadcasts the socketID it's using to another service, and that service handles the shard update request.
+
+So you pass noting to the shard, other than it's shard ID, so that when it relays data to other services you know the source shard.
+
 # Sharding
 
-When you update the shard count subscriptions are rebalanced between the shards, you have no control over whose subscriptiosn go where.
+When you update the shard count subscriptions are rebalanced between the shards, you have no control over whose subscriptions go where.
 
 Subscription to Shard balancing is done via the broadcaster ID in the condition of the subscription.
 
-So all Subscription types for a given broadcaster will be sent to the same shard, but you the developer have no control over broadcaster/shard assignment.
+So all Subscription types for a given broadcaster will/should be sent to the same shard, but you the developer have no control over broadcaster/shard assignment.
 
 If a shard dies due to websocket disconnection/webhook death, it doesn't rebalance the shards, the message is just retried once on another shard.
 
