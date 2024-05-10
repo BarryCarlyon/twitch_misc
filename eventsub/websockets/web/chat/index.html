@@ -1,0 +1,680 @@
+<html>
+
+<head>
+    <title>EventSub WebSockets Chat edition with Implicit Auth Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <style>
+        #tabbed_area {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+        #dumblog { left: 0px; }
+        #simplelog { right: 0px; }
+
+        .log {
+            position: absolute;
+            top: 0px;
+
+            box-sizing: border-box;
+            padding: 5px;
+            width: 90%;
+            height: 300px;
+            overflow: auto;
+            border: 1px solid #FFFFFF;
+            border-radius: 20px;
+
+            margin-bottom: 20px;
+            z-index: 9000;
+        }
+        .log.top {
+            z-index: 9001;
+        }
+
+        .log span {
+            margin-right: 5px;
+        }
+
+        #subscriptions_refresh {
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .delete_button {
+            border: 1px solid red;
+            cursor: pointer;
+        }
+
+
+        .deleted {
+            text-decoration: line-through;
+            color: red;
+        }
+
+        .announcement-line {
+            border-image-slice: 1;
+            border-left: 8px solid #9146ff;
+            border-right: 8px solid #9146ff;
+        }
+        .announcement-line--blue {
+            border-image-source: linear-gradient(#00d6d6,#9146ff);
+        }
+        .announcement-line--green {
+            border-image-source: linear-gradient(#00db84,#57bee6);
+        }
+        .announcement-line--orange {
+            border-image-source: linear-gradient(#ffb31a,#e0e000);
+        }
+        .announcement-line--purple {
+            border-image-source: linear-gradient(#9146ff,#ff75e6);
+        }
+
+        .chat-line__message-body--highlighted {
+            background: #755ebc;
+            border: 4px solid #755ebc;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <p>This example demonstrates how to connect to, create subscriptions and recieve data from EventSub WebSockets</p>
+    <p>It'll use Implicit auth to obtain a token to use</p>
+
+    <p><a href="" id="authorize" target="barrysgithubtwitchauth">Authorize and Connect</a></p>
+
+    <div id="tabbed_area">
+        <div class="log" id="dumblog"></div>
+        <div class="log" id="simplelog"></div>
+    </div>
+    <p>Click on a window to switch which is visible/on top. (Barrys Crap Tabs). Left is a brain dump right is a easy to read.</p>
+
+    <div>
+        <p>Add another broadcaster channel to your socket to listen to</p>
+        <form action="" method="post" id="form">
+            <fieldset>
+                <label for="add_user">Username</label>
+                <input type="text" name="add_user" id="add_user" />
+                <input type="submit" value="Add User" id="add_user_go" />
+            </fieldset>
+        </form>
+    </div>
+
+    <div>Last KeepAlive: <span id="keepalive"></span> Total/Cost/MaxCost: <span id="subscriptions_cost"></span></div>
+    <div id="subscriptions_refresh">Click to Refresh Subscriptions</div>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subscription ID</th>
+                    <th>Topic</th>
+                    <th>Condition User ID</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="subscriptions"></tbody>
+        </table>
+    </div>
+
+    <div id="drawing"></div>
+
+    <script type="text/javascript" src="../eventsub.js"></script>
+    <script type="text/javascript">
+        // These are set for the GitHub Pages Example
+        // Substitute as needed
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = window.location.origin + '/twitch_misc/';
+        var access_token = '';
+        var socket_space = '';
+        var session_id = '';
+        var my_user_id = '';
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:chat');
+
+        if (document.location.hash && document.location.hash != '') {
+            log('Checking for token');
+            var parsedHash = new URLSearchParams(window.location.hash.slice(1));
+            if (parsedHash.get('access_token')) {
+                log('Got a token');
+                processToken(parsedHash.get('access_token'));
+            }
+        }
+
+        function addsimplelog(message) {
+            let p = document.createElement('div');
+            document.getElementById('simplelog').prepend(p);
+            p.textContent = message;
+        }
+        function log(message) {
+            let p = document.createElement('div');
+            document.getElementById('dumblog').prepend(p);
+
+            let tim = document.createElement('span');
+            let t = [
+                new Date().getHours(),
+                new Date().getMinutes(),
+                new Date().getSeconds()
+            ]
+            t.forEach((v, i) => {
+                t[i] = v < 10 ? '0' + v : v;
+            });
+            tim.textContent = t.join(':');
+            p.append(tim);
+
+            let l = document.createElement('span');
+            p.append(l);
+            l.textContent = message;
+        }
+
+        function processToken(token) {
+            access_token = token;
+
+            authorize.style.display = 'none';//remove link to avoid relinks....
+
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    socket_space = new initSocket(true);
+                    // and build schnanaigans
+                    socket_space.on('connected', (id) => {
+                        log(`Connected to WebSocket with ${id}`);
+                        session_id = id;
+                        my_user_id = resp.data[0].id;
+
+                        requestHooks(resp.data[0].id, my_user_id);
+
+                        // extra/needed data
+                        extraData(resp.data[0].id);
+                    });
+
+                    socket_space.on('session_silenced', () => {
+                        addsimplelog('Session mystery died due to silence detected');
+                    });
+                    socket_space.on('session_keepalive', () => {
+                        document.getElementById('keepalive').textContent = new Date();
+                    });
+                    socket_space.on('revocation', ({ payload }) => {
+                        let { event, subscription } = payload;
+                        //let { subscription_type, subscription_version } = event;
+                        let { status, condition, type } = subscription;
+                        let { broadcaster_user_id } = condition;
+
+                        addsimplelog(`On ${broadcaster_user_id} you were ${status} and ${type} was revoked`);
+                    });
+
+                    socket_space.on('channel.chat.clear', ({ payload }) => {
+                        let { event } = payload;
+                        let { broadcaster_user_login } = event;
+
+                        addsimplelog(`On ${broadcaster_user_login} chat cleared`);
+                    });
+                    socket_space.on('channel.chat.clear_user_messages', ({ payload }) => {
+                        let { event } = payload;
+                        let { broadcaster_user_login, target_user_login } = event;
+
+                        addsimplelog(`On ${broadcaster_user_login} user ${target_user_login} messages cleared`);
+                    });
+                    socket_space.on('channel.chat.message_delete', ({ payload }) => {
+                        let { event } = payload;
+                        let { broadcaster_user_login, target_user_login, message_id } = event;
+
+                        addsimplelog(`On ${broadcaster_user_login} user ${target_user_login} message deleted ${message_id}`);
+                    });
+                    socket_space.on('channel.chat.notification', ({ payload }) => {
+                        let { event } = payload;
+                        let { broadcaster_user_login, chatter_user_login, message_id } = event;
+                        let { broadcaster_user_name, chatter_user_name } = event;
+                        let { system_message, notice_type, message } = event;
+                        let { fragments } = message;
+
+                        switch (notice_type) {
+                            case 'community_sub_gift':
+                                var { community_sub_gift } = event;
+                                var { id } = community_sub_gift;
+                                addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${id}`);
+                                break;
+
+                            case 'sub_gift':
+                                var { sub_gift } = event;
+                                var { community_gift_id } = sub_gift;
+                                addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message} with ${community_gift_id}`);
+                                break;
+
+                            case 'announcement':
+                                var { announcement } = event;
+                                var { color } = announcement;
+                                // if it's PRIMARY we have no idea what color it is
+
+                                let annBox = document.createElement('div');
+                                document.getElementById('simplelog').prepend(annBox);
+                                annBox.classList.add(`announcement-line`);
+                                annBox.classList.add(`announcement-line--${color.toLowerCase()}`);
+
+                                let annAuthorBox = document.createElement('div');
+                                annBox.append(annAuthorBox);
+                                annAuthorBox.textContent = `${chatter_user_name}: `;
+
+                                let annTextBox = document.createElement('div');
+                                annBox.append(annTextBox);
+
+                                buildFromFragments(annTextBox, fragments);
+
+                                break;
+
+                            default:
+                                addsimplelog(`On ${broadcaster_user_login} user ${chatter_user_login} did ${notice_type}/${system_message}`);
+                        }
+                    });
+
+                    socket_space.on('channel.chat.message', ({ payload }) => {
+                        let { event } = payload;
+
+                        let { badges, color } = event;
+                        let { broadcaster_user_id, broadcaster_user_login, broadcaster_user_name } = event;
+                        let { chatter_user_id, chatter_user_login, chatter_user_name } = event;
+                        let { cheer, channel_points_custom_reward_id, message_type } = event;
+                        let { message_id, message, reply } = event;
+
+                        let { text, fragments } = message;
+
+                        console.log(fragments);
+
+                        let chat = document.createElement('div');
+                        document.getElementById('simplelog').prepend(chat);
+                        chat.setAttribute('data-message-id', message_id);
+                        chat.setAttribute('data-wacking-id', `${broadcaster_user_id}-${chatter_user_id}`);
+
+                        let sp = document.createElement('span');
+                        sp.textContent = `Chat: ${broadcaster_user_name} - ${chatter_user_name}:`;
+                        chat.append(sp);
+
+                        buildFromFragments(chat, fragments);
+
+                        // optional decorator
+                        switch (message_type) {
+                            case 'channel_points_highlighted':
+                                chat.classList.add('chat-line__message-body--highlighted');
+                                break;
+                        }
+                    });
+
+                    socket_space.on('channel.chat_settings.update', ({ payload }) => {
+                        let { event } = payload;
+
+                        let { broadcaster_user_id, broadcaster_user_login } = event;
+                        //let { emote_mode } = event;
+                        //let { follower_mode, follower_mode_duration_minutes } = event;
+                        //let { slow_mode, slow_mode_wait_time_seconds } = event;
+                        //let { subscriber_mode, unique_chat_mode } = event;
+
+                        // iterate and detect what changed
+                        let changes = [];
+
+                        console.log('was', chatSettings[broadcaster_user_id]);
+                        for (var key in chatSettings[broadcaster_user_id]) {
+                            let was = chatSettings[broadcaster_user_id][key];
+                            let now = '';
+                            if (key == 'follower_mode_duration') {
+                                chatSettings[broadcaster_user_id][key] = event.follower_mode_duration_minutes;
+                                now = event.follower_mode_duration_minutes;
+                            } else if (key == 'slow_mode_wait_time') {
+                                chatSettings[broadcaster_user_id][key] = event.slow_mode_wait_time_seconds;
+                                now = event.slow_mode_wait_time_seconds;
+                            } else if (!key.startsWith('broadcaster')) {
+                                chatSettings[broadcaster_user_id][key] = event[key];
+                                now = event[key];
+                            }
+                            if (was != now) {
+                                // @todo: english
+                                changes.push(`${key} - ${now}`);
+                            }
+                        }
+                        console.log('now', chatSettings[broadcaster_user_id]);
+
+                        let change = changes.join(', ');
+                        addsimplelog(`On ${broadcaster_user_login} chat settings update: ${change}`);
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Users Call');
+                });
+        }
+
+        let chatSettings = {};
+        let knownCheermotes = {};
+
+        function extraData(broadcaster_id) {
+            fetch(
+                `https://api.twitch.tv/helix/chat/settings?broadcaster_id=${broadcaster_id}`,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    let { data } = resp;
+                    if (data) {
+                        let { broadcaster_id } = data[0];
+                        delete data[0].broadcaster_id;
+                        chatSettings[broadcaster_id] = data[0];
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Get Fetch Chat Settings Call');
+                });
+
+            fetch(
+                `https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=${broadcaster_id}`,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    let { data } = resp;
+                    if (data) {
+                        // iterate and merge
+                        data.forEach(cheermote => {
+                            let { prefix, tiers } = cheermote;
+                            if (tiers && tiers.length > 0) {
+                                knownCheermotes[prefix] = {};
+
+                                tiers.forEach(tier => {
+                                    let { can_cheer, id, images } = tier;
+                                    if (can_cheer) {
+                                        let image = images.dark.animated["1.5"];
+                                        knownCheermotes[prefix][id] = image;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Get Cheermotes Call');
+                });
+        }
+
+        function buildFromFragments(chat, fragments) {
+            for (var x=0;x<fragments.length;x++) {
+                let { type, text, cheermote, emote, mention } = fragments[x];
+                switch (type) {
+                    case 'emote':
+                        var { id, emote_set_id, owner_id, format } = emote;
+
+                        var el = document.createElement('img');
+                        el.setAttribute('src', `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/1.0`);
+                        el.setAttribute('title', text);
+                        el.setAttribute('alt', text);
+
+                        chat.append(el);
+                        break;
+                    case 'text':
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = text;
+                        break;
+
+                    case 'mention':
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = text;
+                        el.style.backgroundColor = 'red';
+                        break;
+
+                    case 'cheermote':
+                        // hmm
+                        var { prefix, bits, tier } = cheermote;
+                        //knownCheermotes[prefix][id]
+                        var el = document.createElement('img');
+                        el.setAttribute('src', knownCheermotes[prefix][tier]);
+                        chat.append(el);
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = bits;
+                        break;
+
+                    default:
+                        var el = document.createElement('span');
+                        chat.append(el);
+                        el.textContent = `No Handle ${type}`;
+
+                        console.error(fragments[x]);
+                }
+            }
+        }
+
+
+        function addUser(username) {
+            let url = new URL('https://api.twitch.tv/helix/users');
+            url.search = new URLSearchParams([['login', username]]).toString();
+
+            fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    log(`Got ${resp.data[0].id} for ${username}`);
+                    requestHooks(resp.data[0].id, my_user_id);
+                    // extra/needed data
+                    extraData(resp.data[0].id);
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Users Call');
+                });
+        }
+
+        function requestHooks(broadcaster_user_id, user_id) {
+            let topics = {
+                'channel.chat.clear': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.clear_user_messages': { version: "1", condition: { broadcaster_user_id, user_id } },
+
+                'channel.chat.message_delete': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } },
+                'channel.chat.message': { version: "1", condition: { broadcaster_user_id, user_id } },
+
+                'channel.chat_settings.update': { version: "1", condition: { broadcaster_user_id, user_id } }
+            }
+
+            log(`Spawn Topics for ${user_id}`);
+
+            for (let type in topics) {
+                log(`Attempt create ${type} - ${broadcaster_user_id} via ${user_id}`);
+                let { version, condition } = topics[type];
+
+                fetch(
+                    'https://api.twitch.tv/helix/eventsub/subscriptions',
+                    {
+                        "method": "POST",
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": `Bearer ${access_token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        "body": JSON.stringify({
+                            type,
+                            version,
+                            condition,
+                            transport: {
+                                method: "websocket",
+                                session_id
+                            }
+                        })
+                    }
+                )
+                    .then(resp => resp.json())
+                    .then(resp => {
+                        if (resp.error) {
+                            log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
+                        } else {
+                            log(`Created ${type}`);
+                            document.getElementById('subscriptions_cost').textContent = `${resp.total}/${resp.total_cost}/${resp.max_total_cost}`;
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
+                    });
+            }
+        }
+
+        document.getElementById('subscriptions_refresh').addEventListener('click', (e) => {
+            fetchSubs();
+        });
+
+        let subscriptions = document.getElementById('subscriptions');
+        function fetchSubs(after) {
+            let url = new URL('https://api.twitch.tv/helix/eventsub/subscriptions');
+            let params = {
+                first: 100,
+                status: 'enabled'
+            };
+            if (after) {
+                params.after = after;
+            }
+
+            url.search = new URLSearchParams(params).toString();
+
+            fetch(
+                url,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+
+                    subscriptions.textContent = '';
+
+                    resp.data.forEach(sub => {
+                        let tr = document.createElement('tr');
+                        subscriptions.append(tr);
+
+                        add(tr, sub.id);
+                        add(tr, sub.type);
+
+                        let keys = Object.keys(sub.condition);
+                        if (sub.condition[keys[0]]) {
+                            add(tr, sub.condition[keys[0]]);
+                        } else {
+                            add(tr, sub.condition[keys[1]]);
+                        }
+                        add(tr, sub.cost);
+
+                        add(tr, sub.status);
+
+                        let td = document.createElement('td');
+                        tr.append(td);
+                        td.textContent = 'Delete';
+                        td.classList.add('delete_button');
+                        td.addEventListener('click', (e) => {
+                            deleteSub(sub.id)
+                                .then(resp => {
+                                    console.log('Delete', resp.status);
+
+                                    if (resp.status) {
+                                        td.textContent = 'Deleted';
+                                    } else {
+                                        td.textContent = `Err ${resp.status}`;
+                                    }
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    log(`Error with eventsub delete`);
+                                });
+                        });
+                    });
+
+                    document.getElementById('subscriptions_cost').textContent = `${resp.total}/${resp.total_cost}/${resp.max_total_cost}`;
+
+                    if (resp.pagination) {
+                        if (resp.pagination.cursor) {
+                            fetchSubs(resp.pagination.cursor);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log(`Error with eventsub Fetch`);
+                });
+        }
+
+        function add(tr, text) {
+            let td = document.createElement('td');
+            td.textContent = text;
+            tr.append(td);
+        }
+
+        function deleteSub(id) {
+            let url = new URL('https://api.twitch.tv/helix/eventsub/subscriptions');
+            url.search = new URLSearchParams([['id', id]]).toString();
+
+            return fetch(
+                url,
+                {
+                    "method": "DELETE",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": `Bearer ${access_token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+        }
+
+        document.getElementById('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            let username = document.getElementById('add_user').value;
+            log(`Lets lookup and add ${username}`);
+            addUser(username);
+            document.getElementById('add_user').value = '';
+        });
+
+        // "tabs"
+        dumblog.addEventListener('click', (e) => {
+            dumblog.classList.add('top');
+            simplelog.classList.remove('top');
+        });
+        simplelog.addEventListener('click', (e) => {
+            dumblog.classList.remove('top');
+            simplelog.classList.add('top');
+        });
+    </script>
+</body>
+
+</html>
