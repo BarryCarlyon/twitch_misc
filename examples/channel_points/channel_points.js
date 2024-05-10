@@ -464,7 +464,7 @@ async function patcher(id, pl) {
 function eventsub() {
     let socket_space = new initSocket(true);
     socket_space.on('connected', (id) => {
-        log(`Connected to WebSocket with ${id}`);
+        message(`Connected to WebSocket with ${id}`);
         requestHooks(id, user_id);
     });
     socket_space.on('session_keepalive', () => {
