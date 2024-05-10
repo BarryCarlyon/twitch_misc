@@ -475,6 +475,8 @@ function eventsub() {
         let { event } = payload;
 
         let { id } = event;
+        message(`Process a channel.channel_points_custom_reward.update on ${id}`);
+
         let { image, title, cost } = event;
 
         let { is_enabled, is_paused } = event;
@@ -523,16 +525,17 @@ function eventsub() {
 
 
 function requestHooks(session_id, user_id) {
+    message('Requesting Topics');
     let topics = {
         'channel.channel_points_custom_reward.add':     { version: 1, condition: { broadcaster_user_id: user_id } },
         'channel.channel_points_custom_reward.update':  { version: 1, condition: { broadcaster_user_id: user_id } },
         'channel.channel_points_custom_reward.remove':  { version: 1, condition: { broadcaster_user_id: user_id } },
     }
 
-    log(`Spawn Topics for ${user_id}`);
+    message(`Spawn Topics for ${user_id}`);
 
     for (let type in topics) {
-        log(`Attempt create ${type} - ${user_id}`);
+        message(`Attempt create ${type} - ${user_id}`);
         let { version, condition } = topics[type];
 
         fetch(
@@ -558,14 +561,14 @@ function requestHooks(session_id, user_id) {
         .then(resp => resp.json())
         .then(resp => {
             if (resp.error) {
-                log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
+                message(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
             } else {
-                log(`Created ${type}`);
+                message(`Eventsub Created ${type}`);
             }
         })
         .catch(err => {
             console.log(err);
-            log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
+            message(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
         });
     }
 }
