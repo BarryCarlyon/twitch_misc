@@ -84,7 +84,7 @@ So it just needs a shard, or if you are just filling for dead shards, iterate sh
 
 And you don't even need to pass in the ClientID as the ClientID is obtained from validating the App Access Token. But if you did it would check they both matched
 
-## Alterantive flow
+## Alternative flow
 
 Conceptually you'd also want to approach it where the shard connects to the socket.
 

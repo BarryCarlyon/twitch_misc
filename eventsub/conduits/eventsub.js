@@ -36,6 +36,8 @@ class eventsubSocket extends EventEmitter {
 
         this.eventsub.addEventListener("open", () => {
             console.log(`Opened Connection to Twitch`);
+            // tidy/reset flags
+            this.eventsub.is_reconnecting = false;
         });
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close_event
         // https://github.com/Luka967/websocket-close-codes
@@ -346,7 +348,8 @@ class Twitch extends EventEmitter {
         // initiate maintaince timer
         if (this.twitch_refresh != "" || this.twitch_client_secret != "") {
             var n = new Date();
-            n.getMinutes(n.getMinutes() + 15);
+            console.log("now maintian", n);
+            n.setMinutes(n.getMinutes() + 15);
             console.log("next maintian", n);
             // we got here as a client secret exists as well
             // otherwise we threw earlier
