@@ -13,7 +13,7 @@
   "dependencies": {
     "dotenv": "^16.0.2",
     "node-fetch": "^3.3.0",
-    "ws": "^8.8.1"
+    "ws": "^8.17.1"
   },
   "engines": {
     "node": ">=18"
