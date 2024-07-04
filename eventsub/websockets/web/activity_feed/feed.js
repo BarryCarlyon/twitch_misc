@@ -358,6 +358,10 @@ function runLineMessage({ payload }) {
             title_of_event = 'Highlighted';
         case 'user_intro':
             title_of_event = 'User Intro';
+        case 'power_ups_gigantified_emote':
+            title_of_event = 'Big Emote';
+        case 'power_ups_message_effect':
+            title_of_event = 'Pretty Chat';
         default:
             if (channel_points_custom_reward_id) {
                 title_of_event = 'ChannelPoints';
