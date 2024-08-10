@@ -354,10 +354,19 @@ function runLineMessage({ payload }) {
     switch (message_type) {
         case 'channel_points_sub_only':
             title_of_event = 'SubOnly Message';
+            break;
         case 'channel_points_highlighted':
             title_of_event = 'Highlighted';
+            break;
         case 'user_intro':
             title_of_event = 'User Intro';
+            break;
+        case 'power_ups_gigantified_emote':
+            title_of_event = 'Big Emote';
+            break;
+        case 'power_ups_message_effect':
+            title_of_event = 'Pretty Chat';
+            break;
         default:
             if (channel_points_custom_reward_id) {
                 title_of_event = 'ChannelPoints';
