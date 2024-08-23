@@ -465,6 +465,13 @@ function processName(display, login, is_anon) {
 let knownCheermotes = {};
 
 function buildFromFragments(chat, fragments) {
+    if (fragments == null) {
+        var el = document.createElement('span');
+        chat.append(el);
+        el.textContent = "Fragments is null";
+
+        return;
+    }
     for (var x=0;x<fragments.length;x++) {
         let { type, text, cheermote, emote, mention } = fragments[x];
         switch (type) {
