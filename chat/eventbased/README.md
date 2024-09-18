@@ -14,7 +14,6 @@ I'm not one for libraries too much but I'll shunt the parse logic into a includa
 
 - [Chat Guide](https://dev.twitch.tv/docs/irc/guide)
 
-
 ## General Notes/Usage
 
 - All IRC commands are emitted as `EVENTNAME` and `eventname`, so you can listen on `PRIVMSG` or `privmsg`
@@ -22,3 +21,7 @@ I'm not one for libraries too much but I'll shunt the parse logic into a includa
 - All `USERNOTICE`s are also sent as `usernotice_tagName` so `usernotice_resub` for example
 
 - All Tags exist as their `hypen-name` and `hypen_name` so JS objects can destructure magically
+
+# Notes
+
+The eventbased_space version is likely more performant this version is just super legacy.
