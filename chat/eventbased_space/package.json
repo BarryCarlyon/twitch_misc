@@ -11,11 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.0.2",
-    "node-fetch": "^3.3.0",
-    "ws": "^8.17.1"
+    "dotenv": "^16.4.5",
+    "ws": "^8.18.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=21"
   }
 }

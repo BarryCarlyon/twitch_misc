@@ -1,7 +1,5 @@
 'use strict';
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
 const EventEmitter = require('events').EventEmitter;
 
 const WebSocket = require('ws');
@@ -19,6 +17,7 @@ class ChatBot extends EventEmitter {
         this.reconnect = opts.reconnect || true;
         this._autoMaintainece = false;//memory space for the timer
         this.autoMaintainece = opts.autoMaintainece || true;// should auto maintain run
+        this.sharedChatPrefix = opts.sharedChatPrefix || true;
 
         this.access_token = opts.access_token || '';
         this.refresh_token = opts.refresh_token || '';
@@ -238,7 +237,6 @@ class ChatBot extends EventEmitter {
 
         this.ws.send('CAP REQ :twitch.tv/commands');
         this.ws.send('CAP REQ :twitch.tv/tags');
-        //this.ws.send('CAP REQ :twitch.tv/membership');
 
         this.emit('opened');
 
@@ -519,7 +517,7 @@ class ChatBot extends EventEmitter {
             case '002':
             case '003':
             case '004':
-            // startup
+                // startup
             case '353':
             case '366':
                 // names
@@ -544,22 +542,23 @@ class ChatBot extends EventEmitter {
             case 'PONG':
 
             case 'JOIN':
-            // You joined a room
+                // You joined a room
             case 'PART':
-            // as the result of a PART command
-            // you left a room
+                // generally as the result of a PART command
+                // you left a room
 
             case 'GLOBALUSERSTATE':
-            // You connected to the server
-            // here is some info about the user
+                // You connected to the server
+                // here is some info about the user you are logged in as
             case 'USERSTATE':
-            // Often sent when you send a PRIVMSG to a room
+                // Often sent when in response to sending a PRIVMSG to a room
+                // but not every time
             case 'ROOMSTATE':
-            // You joined a room here is the intial state (followers only etc)
-            // The Room state was changed, on change only sends what changed, not the whole settings blob
+                // You joined a room here is the intial state (followers only etc)
+                // The Room state was changed, on change only sends what changed, not the whole settings blob
 
             case 'WHISPER':
-            // you received a whisper, good luck replying!
+                // you received a whisper, good luck replying!
             case 'PRIVMSG':
                 // heres where the magic happens
 
@@ -567,7 +566,7 @@ class ChatBot extends EventEmitter {
                     if (message.tags.hasOwnProperty('bits')) {
                         // it's a cheer message
                         // but it's also a privmsg
-                        this.emit(
+                        this._roomMatch(
                             'cheer',
                             message
                         );
@@ -580,12 +579,12 @@ class ChatBot extends EventEmitter {
 
                 if (message.hasOwnProperty('tags')) {
                     if (message.tags.hasOwnProperty('msg-id')) {
-                        this.emit(
+                        this._roomMatch(
                             message.tags['msg-id'],
                             message
                         );
 
-                        this.emit(
+                        this._roomMatch(
                             `usernotice_${message.tags['msg-id']}`,
                             message
                         );
@@ -593,42 +592,31 @@ class ChatBot extends EventEmitter {
                 }
 
             case 'NOTICE':
-            // General notices about Twitch/rooms you are in
-            // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
+                // General notices about Twitch/rooms you are in
+                // https://dev.twitch.tv/docs/irc/commands#notice-twitch-commands
 
             // moderationy stuff
             case 'CLEARCHAT':
-            // A users message is to be removed
-            // as the result of a ban or timeout
+                // A users message is to be removed
+                // as the result of a ban or timeout
             case 'CLEARMSG':
-            // a single users message was deleted
-            case 'HOSTTARGET':
-                // the room you are in, is now hosting someone or has ended the host
+                // a single users message was deleted
 
-                // all things that dropped here
-                // send/relay the event
-                this.emit(
+                // default emit all events using the command name
+                this._roomMatch(
                     message.command,
                     message
                 );
-                this.emit(
+                this._roomMatch(
                     message.command.toLowerCase(),
                     message
                 );
                 break;
 
+            // service stuff
             case 'RECONNECT':
                 // The server you are connected to is restarted
                 // you should restart the bot and reconnect
-
-                this.emit(
-                    message.command,
-                    message
-                );
-                this.emit(
-                    message.command.toLowerCase(),
-                    message
-                );
 
                 // close the socket and let the close handler grab it
                 this.ws.close();
@@ -637,6 +625,38 @@ class ChatBot extends EventEmitter {
             default:
                 console.log('No Process', message.command, message);
         }
+    }
+
+    _roomMatch = function(event, message) {
+        /*
+        if the channel is in shared chat mode
+        and the message recieved is from the other channel
+        prepend shared_ to the event name
+
+        so you would have
+
+        privmsg
+        shared_privmsg
+
+        for example
+        */
+        if (this.sharedChatPrefix) {
+            if (message.hasOwnProperty('tags')) {
+                if (message.tags.hasOwnProperty('source-room-id')) {
+                    // the room connected to is in shared chat mode
+                    let room_id = message.tags['room-id'];
+                    let source_room_id = message.tags['source-room-id'];
+                    if (room_id != source_room_id) {
+                        event = `shared_${event}`;
+                    }
+                }
+            }
+        }
+
+        this.emit(
+            event,
+            message
+        )
     }
 
     _roomHash = function (room) {
@@ -955,7 +975,7 @@ class ChatBot extends EventEmitter {
         if (!method) {
             method = 'GET';
         }
-        
+
         let response = await fetch(
             `https://api.twitch.tv/helix/${path}`,
             {
@@ -970,7 +990,7 @@ class ChatBot extends EventEmitter {
         )
 
         let text = await response.text();
-        
+
         let json = false;
         if (response.headers.get('content-type').includes('application/json')) {
             try {

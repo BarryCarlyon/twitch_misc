@@ -60,6 +60,23 @@ At `validation` the account UserID and UserName are determined so these do not n
 
 If you were to provide an implict token, or a token without refresh. When the token dies the bot will no longer be able to run moderation tasks or chat commands. And if the Twitch Chat Service restarts or the bot needs to reconnect. It won't be able to go/run/reconnect.
 
+### Shared Chat
+
+Twitch's Shared Chat feature can result in the bot responding to `!commands` or filters for not the main channel the bot expecteds
+
+To this end the library can prepend `shared_` to the event names. Which is the default unless you pass `sharedChatPrefix: false` to the constructor.
+
+Or the bot can consume, the tags of a message for that information.
+
+```js
+    let room_id = message.tags['room-id'];
+    let source_room_id = message.tags['source-room-id'];
+```
+
+and decide for itself.
+
+If `room_id` and `source_room_id` are the same then it's the expected room, so `!command` away.
+
 ## Helper Functions
 
 ### join
@@ -138,7 +155,7 @@ twitch token -u -s 'channel:moderate chat:edit chat:read whispers:read whispers:
 
 Notably we do not ask for `channel:moderate` which will be a dead scope when the Chat Commands APIs are the only way to Chat Commands.
 
-This is a _very verbose_ way to get a token with a lot of scopes. Depending on what you bot/client is and wants to do will determine the scopes you want to operate with. Generally you would request as few scopes as possible. 
+This is a _very verbose_ way to get a token with a lot of scopes. Depending on what you bot/client is and wants to do will determine the scopes you want to operate with. Generally you would request as few scopes as possible.
 
 Generally if you have a `:manage:` scope it will imply the equivalent `:read:` scope.
 
