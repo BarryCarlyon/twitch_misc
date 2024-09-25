@@ -22,7 +22,7 @@ class ChatBot extends EventEmitter {
         super();
 
         opts = opts || {};
-        this.sharedChatPrefix = opts.sharedChatPrefix || true;
+        this.sharedChatPrefix = opts.sharedChatPrefix ?? true;
 
         this.reconnect = true;
         this.ws = null;

@@ -14,17 +14,17 @@ class ChatBot extends EventEmitter {
         this._autoTokenTime = 3600;//an hour
         this._username = '';
         this._userId = '';
-        this.reconnect = opts.reconnect || true;
+        this.reconnect = opts.reconnect ?? true;
         this._autoMaintainece = false;//memory space for the timer
-        this.autoMaintainece = opts.autoMaintainece || true;// should auto maintain run
-        this.sharedChatPrefix = opts.sharedChatPrefix || true;
+        this.autoMaintainece = opts.autoMaintainece ?? true;// should auto maintain run
+        this.sharedChatPrefix = opts.sharedChatPrefix ?? true;
 
-        this.access_token = opts.access_token || '';
-        this.refresh_token = opts.refresh_token || '';
-        this.client_secret = opts.client_secret || '';
-        this.client_id = opts.client_id || '';
+        this.access_token = opts.access_token ?? '';
+        this.refresh_token = opts.refresh_token ?? '';
+        this.client_secret = opts.client_secret ?? '';
+        this.client_id = opts.client_id ?? '';
 
-        this.channels = opts.channels || [];
+        this.channels = opts.channels ?? [];
 
         // check if string/convert to an array
         if (typeof this.channels == 'string') {
