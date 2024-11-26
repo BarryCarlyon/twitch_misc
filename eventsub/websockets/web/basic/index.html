@@ -198,18 +198,19 @@
                 });
         }
 
-        let eventSubTypes = {
-            'channel.update': { version: "1", condition: { broadcaster_user_id: user_id } },
-            'channel.follow': { version: "2", condition: { broadcaster_user_id: user_id, moderator_user_id: my_id } },
-            //inbound raid
-            'channel.raid': { version: "1", condition: { to_broadcaster_user_id: user_id } },
-
-            'stream.online': { version: "1", condition: { broadcaster_user_id: user_id } },
-            'stream.offline': { version: "1", condition: { broadcaster_user_id: user_id } },
-
-            'user.update': { version: "1", condition: { user_id: user_id } }
-        }
         function requestHooks(user_id, my_id) {
+            let eventSubTypes = {
+                'channel.update': { version: "1", condition: { broadcaster_user_id: user_id } },
+                'channel.follow': { version: "2", condition: { broadcaster_user_id: user_id, moderator_user_id: my_id } },
+                //inbound raid
+                'channel.raid': { version: "1", condition: { to_broadcaster_user_id: user_id } },
+    
+                'stream.online': { version: "1", condition: { broadcaster_user_id: user_id } },
+                'stream.offline': { version: "1", condition: { broadcaster_user_id: user_id } },
+    
+                'user.update': { version: "1", condition: { user_id: user_id } }
+            }
+            
             log(`Spawn Topics for ${user_id}`);
 
             for (let type in eventSubTypes) {
