@@ -1,0 +1,196 @@
+<html>
+  <head>
+    <title>Twitch Embed example</title>
+    <script src= "https://embed.twitch.tv/embed/v1.js"></script>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+  </head>
+  <body>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/player/html">Github</a> or just View the source instead</p>
+
+
+<div id="test"></div>
+
+<div id="controls">
+    <div id="status"></div>
+
+    <button id="play">Play</button>
+    <button id="pause">Pause</button>
+
+    <select id="volume_value">
+        <option>0</option>
+        <option>0.1</option>
+        <option>0.2</option>
+        <option>0.3</option>
+        <option>0.4</option>
+        <option>0.5</option>
+        <option>0.6</option>
+        <option>0.7</option>
+        <option>0.8</option>
+        <option>0.9</option>
+        <option>1</option>
+    </select>
+    <button id="volume">Set Volume</button>
+    <button id="volume_get">Get Volume</button>
+
+    <button id="muted">Get Muted</button>
+    <button id="mute">Mute</button>
+    <button id="unmute">Unmute</button>
+
+<br />
+
+    <input type="text" id="channel" value="monstercat" />
+    <button id="change">Change Channel</button>
+
+    <select id="quality"></select>
+    <button id="quality_change">Change Quality</button>
+    <button id="qualities_get">Get Qualities</button>
+    <button id="quality_get">Get Quality</button>
+</div>
+
+<div style="width: 800px; position: relative;">
+  <div id="log"></div>
+  <div id="logb" style="position: absolute; top: 0px; right: 0px;"></div>
+</div>
+
+<script type="text/javascript">
+const urlParams = new URLSearchParams(window.location.search);
+const runtest = urlParams.get('test');
+
+  var options = {
+    width: 800,
+    height: 500,
+    channel: "asot",
+    allowfullscreen: false,
+    layout: 'video-with-chat'
+  };
+  var player = new Twitch.Embed("test", options);
+
+  if (runtest) {
+    log('run test');
+    player.addEventListener(Twitch.Embed.VIDEO_READY, function() {
+      log('Attempt volumne and unmute');
+      player.setVolume(0.1);
+      player.setMuted(false);
+    });
+  }
+
+  function log(txt, other) {
+    var sp = document.createElement('div');
+    sp.textContent = new Date().getTime() + ': ' + txt;
+
+    var t = other ? 'logb' : 'log';
+    document.getElementById(t).prepend(sp);
+  }
+
+  player.addEventListener(Twitch.Embed.VIDEO_READY, function() {
+    log('The video is ready');
+  })
+  player.addEventListener(Twitch.Embed.VIDEO_PLAY, function() {
+    log('The video is playing');
+  })
+
+  document.getElementById('play').addEventListener('click', (e) => {
+    log('Attempt Play');
+    player.play();
+  });
+  document.getElementById('pause').addEventListener('click', (e) => {
+    log('Attempt Pause');
+    player.pause();
+  });
+  document.getElementById('volume').addEventListener('click', (e) => {
+    log('Attempt Volume: ' + document.getElementById('volume_value').value);
+    var val = parseFloat(document.getElementById('volume_value').value);
+    player.setVolume(val);
+  });
+  document.getElementById('volume_get').addEventListener('click', (e) => {
+    log('Attempt Get Volume');
+    log('Volume ' + player.getVolume());
+  });
+
+  document.getElementById('mute').addEventListener('click', (e) => {
+    log('Attempt Mute');
+    player.setMuted(true);
+  });
+  document.getElementById('unmute').addEventListener('click', (e) => {
+    log('Attempt UnMute');
+    player.setMuted(false);
+  });
+  document.getElementById('muted').addEventListener('click', (e) => {
+    log('Attempt Get muted');
+    log(player.getMuted());
+  });
+
+  setInterval(() => {
+    var status = '';
+
+    if (player.isPaused()) {
+      status += 'Paused ';
+    } else {
+      status += 'Playing ';
+    }
+
+    if (player.getMuted()) {
+      status += 'Muted ';
+    } else {
+      status += 'UnMuted ';
+    }
+    status += 'Vol: ' + player.getVolume();
+
+    status += ' ' + player.getQuality();
+
+    document.getElementById('status').textContent = status;
+  }, 250);
+
+  document.getElementById('change').addEventListener('click', (e) => {
+    var channel = document.getElementById('channel').value;
+    log('Change channel ' + channel);
+    player.setChannel(channel);
+  });
+
+  document.getElementById('quality_get').addEventListener('click', (e) => {
+    log('Fetch Quality');
+    log(player.getQuality());
+  });
+  document.getElementById('qualities_get').addEventListener('click', (e) => {
+    log('Fetch Qualities');
+
+    var target = document.getElementById('quality');
+    target.textContent = '';
+
+    var qol = player.getQualities()
+    for (var x=0;x<qol.length;x++) {
+      var opt = document.createElement('option');
+      opt.value = qol[x].group;
+      opt.textContent = qol[x].name;
+      target.append(opt);
+    }
+  });
+  document.getElementById('quality_change').addEventListener('click', (e) => {
+    var target = document.getElementById('quality').value;
+    log('Set quality to ' + target);
+    player.setQuality(target);
+  });
+
+  var events = [
+    Twitch.Player.ENDED,
+    Twitch.Player.PAUSE,
+    Twitch.Player.PLAY,
+    Twitch.Player.PLAYBACK_BLOCKED,
+    Twitch.Player.PLAYING,
+    Twitch.Player.OFFLINE,
+    Twitch.Player.ONLINE,
+    Twitch.Player.READY
+  ]
+  for (var x=0;x<events.length;x++) {
+    quickBind(events[x]);
+  }
+  function quickBind(evt) {
+    player.addEventListener(evt, (e) => {
+      log('Captured ' + evt, true);
+    });
+  }
+</script>
+
+  </body>
+</html>
