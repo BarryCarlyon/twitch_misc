@@ -198,58 +198,60 @@
                 });
         }
 
+        let eventSubTypes = {
+            'channel.update': { version: "1", condition: { broadcaster_user_id: user_id } },
+            'channel.follow': { version: "2", condition: { broadcaster_user_id: user_id, moderator_user_id: my_id } },
+            //inbound raid
+            'channel.raid': { version: "1", condition: { to_broadcaster_user_id: user_id } },
+
+            'stream.online': { version: "1", condition: { broadcaster_user_id: user_id } },
+            'stream.offline': { version: "1", condition: { broadcaster_user_id: user_id } },
+
+            'user.update': { version: "1", condition: { user_id: user_id } }
+        }
         function requestHooks(user_id, my_id) {
-            let topics = {
-                'channel.update': { version: "1", condition: { broadcaster_user_id: user_id } },
-                'channel.follow': { version: "2", condition: { broadcaster_user_id: user_id, moderator_user_id: my_id } },
-                //inbound raid
-                'channel.raid': { version: "1", condition: { to_broadcaster_user_id: user_id } },
-
-                'stream.online': { version: "1", condition: { broadcaster_user_id: user_id } },
-                'stream.offline': { version: "1", condition: { broadcaster_user_id: user_id } },
-
-                'user.update': { version: "1", condition: { user_id: user_id } }
-            }
-
             log(`Spawn Topics for ${user_id}`);
 
-            for (let type in topics) {
+            for (let type in eventSubTypes) {
                 log(`Attempt create ${type} - ${user_id}`);
-                let { version, condition } = topics[type];
+                let { version, condition } = eventSubTypes[type];
 
-                fetch(
-                    'https://api.twitch.tv/helix/eventsub/subscriptions',
-                    {
-                        "method": "POST",
-                        "headers": {
-                            "Client-ID": client_id,
-                            "Authorization": "Bearer " + access_token,
-                            'Content-Type': 'application/json'
-                        },
-                        "body": JSON.stringify({
-                            type,
-                            version,
-                            condition,
-                            transport: {
-                                method: "websocket",
-                                session_id
-                            }
-                        })
-                    }
-                )
-                    .then(resp => resp.json())
-                    .then(resp => {
-                        if (resp.error) {
-                            log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
-                        } else {
-                            log(`Created ${type}`);
+                spawnHook(type, version, condition);
+            }
+        }
+        function spawnHook(type, version, condition) {
+            fetch(
+                'https://api.twitch.tv/helix/eventsub/subscriptions',
+                {
+                    "method": "POST",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token,
+                        'Content-Type': 'application/json'
+                    },
+                    "body": JSON.stringify({
+                        type,
+                        version,
+                        condition,
+                        transport: {
+                            method: "websocket",
+                            session_id
                         }
                     })
-                    .catch(err => {
-                        console.log(err);
-                        log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
-                    });
-            }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    if (resp.error) {
+                        log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
+                    } else {
+                        log(`Created ${type}`);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
+                });
         }
 
         document.getElementById('subscriptions_refresh').addEventListener('click', (e) => {
