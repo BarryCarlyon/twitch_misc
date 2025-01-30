@@ -97,6 +97,19 @@
     </div>
     <p>Click on a window to switch which is visible/on top. (Barrys Crap Tabs). Left is a brain dump right is a easy to read.</p>
 
+    <h3>Supported Features</h3>
+
+    <ul>
+        <li>Chat</li>
+        <ii>Message Delete/remove</ii>
+        <li>Announcment Decoration</li>
+        <li>Notifications such as subscriptions/resubs</li>
+        <li>Powerup Decoration, for gigantic emote (without making it gigantic) and highlighted message</li>
+        <li>Channel Point reward Decoration for ones that have a chat message left by the user</li>
+        <li>Shared Chat (messages with orange boxes to the left are shared in)</li>
+    </ul>
+
+    <hr />
     <div>
         <p>Add another broadcaster channel to your socket to listen to</p>
         <form action="" method="post" id="form">
@@ -307,9 +320,9 @@
                         typ.textContent = 'Chat';
                         chat.append(typ);
 
-                        let sp = document.createElement('span');
-                        sp.textContent = `: ${broadcaster_user_name} - ${chatter_user_name}:`;
-                        chat.append(sp);
+                        let sourcec = document.createElement('span');
+                        sourcec.textContent = `: ${broadcaster_user_name} - ${chatter_user_name}:`;
+                        chat.append(sourcec);
 
                         buildFromFragments(chat, fragments);
 
@@ -335,6 +348,7 @@
                         if (source_message_id) {
                             chat.classList.add('thatchat');
                             chat.setAttribute('data-source-message-id', source_message_id);
+                            sourcec.textContent = `: ${source_broadcaster_user_name} - ${chatter_user_name}:`;
                         } else {
                             chat.classList.add('thischat');
                         }
