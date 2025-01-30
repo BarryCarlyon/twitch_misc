@@ -55,6 +55,10 @@
             color: red;
         }
 
+        .achatmessage.thatchat {
+            border-left: 20px solid orange;
+        }
+
         .announcement-line {
             border-image-slice: 1;
             border-left: 8px solid #9146ff;
@@ -291,15 +295,20 @@
 
                         let { text, fragments } = message;
 
-                        console.log(fragments);
+                        //console.log(fragments);
 
                         let chat = document.createElement('div');
+                        chat.classList.add('achatmessage');
                         document.getElementById('simplelog').prepend(chat);
                         chat.setAttribute('data-message-id', message_id);
                         chat.setAttribute('data-wacking-id', `${broadcaster_user_id}-${chatter_user_id}`);
 
+                        let typ = document.createElement('span');
+                        typ.textContent = 'Chat';
+                        chat.append(typ);
+
                         let sp = document.createElement('span');
-                        sp.textContent = `Chat: ${broadcaster_user_name} - ${chatter_user_name}:`;
+                        sp.textContent = `: ${broadcaster_user_name} - ${chatter_user_name}:`;
                         chat.append(sp);
 
                         buildFromFragments(chat, fragments);
@@ -308,7 +317,26 @@
                         switch (message_type) {
                             case 'channel_points_highlighted':
                                 chat.classList.add('chat-line__message-body--highlighted');
+                                typ.textContent = `Highlight: `;
                                 break;
+                            case 'power_ups_gigantified_emote':
+                                // how should we draw this different?
+                                // the last element in fragments will be the large emote
+                                typ.textContent = `BigEmote: `;
+                                break;
+                            case 'power_ups_message_effect':
+                                let { channel_points_animation_id } = event;
+                                typ.textContent = `Decoration: ${channel_points_animation_id}`;
+                                break;
+                        }
+
+                        // shared chat check
+                        let { source_message_id, source_broadcaster_user_name } = event;
+                        if (source_message_id) {
+                            chat.classList.add('thatchat');
+                            chat.setAttribute('data-source-message-id', source_message_id);
+                        } else {
+                            chat.classList.add('thischat');
                         }
                     });
 
