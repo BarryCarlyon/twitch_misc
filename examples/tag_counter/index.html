@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Tag Counter | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <style>
+div {
+    box-sizing: content-box;
+}
+#tags>div {
+    display: inline-block;
+    padding: 2px 5px;
+    border: 1px solid #FFFFFF;
+    width: 15%;
+}
+#tags div div {
+    display: inline-block;
+    overflow: hidden;
+    width: 50%;
+}
+.acount {
+    text-align: right;
+}
+#tags {
+    display: block;
+    overflow: scroll;
+    max-height: 300px;
+}
+    </style>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will return a page similar to <a href="https://www.twitch.tv/directory" target="_blank">The Directorty</a>.  Generally calls will be done/cached server side with an <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow" target="_blank">App Access Token</a></p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/tag_counter">Github</a> or just View the source instead</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="loading"></div>
+
+    <h3>Top 15 Tags</h3>
+    <p>Ignoring most language tags....</p>
+    <table id="tagsTop"></table>
+    <h3>All Tags</h3>
+    <p>Unordered</p>
+    <div id="tags"></div>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://' + window.location.host + '/twitch_misc/';
+        // setup a memory space for the token
+        var access_token = '';
+        var page_counter = 0;
+        var total_streams = 0;
+        var page_record_viewer = 0;
+        var tagsCounts = {};
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        function processToken(token) {
+            access_token = token;
+
+            document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams} ViewR0: ${page_record_viewer}`;
+
+            getPage();
+        }
+
+        function getPage(after) {
+            page_counter++;
+            fetch(
+                'https://api.twitch.tv/helix/streams?first=100' + (after ? '&after='+after : ''),
+                {
+                    method: 'GET',
+                    headers: {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                total_streams += resp.data.length;
+
+                resp.data.forEach(stream => {
+                    let { tags, viewer_count } = stream;
+                    page_record_viewer = viewer_count;
+
+                    if (tags && tags.length) {
+                        tags.forEach(tag => {
+                            var ltag = tag.toLowerCase();
+
+                            if (!tagsCounts.hasOwnProperty(ltag)) {
+                                tagsCounts[ltag] = 0;
+                            }
+                            tagsCounts[ltag]++;
+
+                            let el = document.getElementById('tag_'+ltag);
+                            if (!el) {
+                                let row = document.createElement('div');
+                                document.getElementById('tags').append(row);
+
+                                var word = document.createElement('div');
+                                word.textContent = tag;
+                                row.append(word);
+
+                                el = document.createElement('div');
+                                row.append(el);
+                                el.setAttribute('id', 'tag_'+ltag);
+                                el.classList.add('acount');
+                            }
+
+                            el.textContent = tagsCounts[ltag];
+                        });
+                    }
+                });
+
+                document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams} ViewR0: ${page_record_viewer}`;
+
+                if (resp.pagination && resp.pagination.cursor) {
+                    getPage(resp.pagination.cursor);
+
+                    drawTop();
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'Something went wrong';
+            });
+        }
+
+        let langs = [
+            'english',
+            'deutsch',
+            'français',
+            'русский',
+            'español',
+            'português',
+            'polski',
+            'türkçe',
+            'italiano',
+
+            'dropsenabled',
+            'dropsaktiviert'
+        ]
+
+        function drawTop() {
+            let stack = Object.entries(tagsCounts).sort((a,b) => b[1]-a[1]);
+            tagsTop.textContent = '';
+            //console.log(stack);
+            let end = 15;
+            for (var x=0;x<end;x++) {
+                if (stack[x]) {
+                    if (langs.indexOf(stack[x][0]) >= 0) {
+                        end++;
+                    } else {
+                        var r = tagsTop.insertRow();
+                        var l = r.insertCell();
+                        l.textContent = stack[x][0];
+                        var l = r.insertCell();
+                        l.classList.add('acount');
+                        l.textContent = stack[x][1];
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
