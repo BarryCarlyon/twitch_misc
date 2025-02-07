@@ -336,6 +336,86 @@ function runLineNotification({ payload }) {
     }
 }
 
+function runLineBitsUse({ payload }) {
+    let { event } = payload;
+
+    let {type } = event;
+
+    switch (type) {
+        case 'cheer':
+            renderCheer(event);
+            break;
+        case 'power_up':
+            renderPowerUp(event);
+            break;
+        default:
+            console.log(`Unexpected bits usage: ${type}`);
+    }
+}
+function renderCheer(event) {
+    let { bits, message } = event;
+    let { text, fragments } = message;
+
+    // channel
+    let { broadcaster_user_name, broadcaster_user_login, broadcaster_user_id } = event;
+    // entity
+    let { user_name, user_login, user_id } = event;
+
+    var r = activity_feed.insertRow(0);
+
+    var cell = r.insertCell();
+    cell.textContent = dateTime();
+    var cell = r.insertCell();
+    cell.textContent = broadcaster_user_login;
+
+    var cell = r.insertCell();
+    //cell.style.color = color;
+    cell.textContent = processName(user_name, user_login);
+    // what span tier
+    var cell = r.insertCell();
+    cell.textContent = 'Cheer';
+    // count
+    var cell = r.insertCell();
+    cell.textContent = bits;
+    //message
+    var cell = r.insertCell();
+    buildFromFragments(cell, fragments);
+}
+function renderPowerUp(event) {
+    let { bits, message, power_up } = event;
+    let { text, fragments } = message;
+
+    let { type, emote, message_effect_id } = power_up;
+
+    // channel
+    let { broadcaster_user_name, broadcaster_user_login, broadcaster_user_id } = event;
+    // entity
+    let { user_name, user_login, user_id } = event;
+
+    var r = activity_feed.insertRow(0);
+
+    var cell = r.insertCell();
+    cell.textContent = dateTime();
+    var cell = r.insertCell();
+    cell.textContent = broadcaster_user_login;
+
+    var cell = r.insertCell();
+    //cell.style.color = color;
+    cell.textContent = processName(user_name, user_login);
+    // what span tier
+    var cell = r.insertCell();
+    cell.textContent = type.replace(/_/g, ' ');
+    if (message_effect_id) {
+        cell.textContent = `${cell.textContent} - ${message_effect_id}`;
+    }
+    // count
+    var cell = r.insertCell();
+    cell.textContent = bits;
+    //message
+    var cell = r.insertCell();
+    buildFromFragments(cell, fragments);
+}
+
 function runLineMessage({ payload }) {
     let { event } = payload;
 

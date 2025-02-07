@@ -7,7 +7,7 @@ var socket_space = '';
 var session_id = '';
 var my_user_id = '';
 
-document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:chat');
+document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=user:read:chat+bits:read');
 
 if (document.location.hash && document.location.hash != '') {
     log('Checking for token');
@@ -56,6 +56,8 @@ function processToken(token) {
             });
 
             socket_space.on('channel.chat.notification', runLineNotification);
+            socket_space.on('channel.bits.use', runLineBitsUse);
+            // signal to noise in channels that not auth'ed in
             socket_space.on('channel.chat.message', runLineMessage);
         })
         .catch(err => {
@@ -93,7 +95,11 @@ function addUser(username) {
 function requestHooks(broadcaster_user_id, user_id) {
     let topics = {
         'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } },
-        'channel.chat.message': { version: "1", condition: { broadcaster_user_id, user_id } }
+    }
+    if (broadcaster_user_id == user_id) {
+        topics['channel.bits.use'] = { version: "beta", condition: { broadcaster_user_id } }
+    } else {
+        topics['channel.chat.message'] = { version: "1", condition: { broadcaster_user_id, user_id } }
     }
 
     log(`Spawn Topics for ${user_id}`);
