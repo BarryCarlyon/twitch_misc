@@ -595,7 +595,9 @@ function buildFromFragments(chat, fragments) {
                 } else {
                     el.textContent = prefix;
                 }
-                el.textContent += bits + ' ';
+                var el = document.createElement("span");
+                chat.append(el);
+                el.textContent = bits + " ";
                 break;
 
             default:
