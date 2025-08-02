@@ -519,7 +519,12 @@ function eventsub() {
         promptCell.value = prompt;
         // 9 user input
         colorCell((is_user_input_required ? 'IsReq' : ''), cells[9], is_user_input_required);
-
+    });
+    socket_space.on('channel.channel_points_custom_reward.add', ({ metadata, payload }) => {
+        getRewards();
+    });
+    socket_space.on('channel.channel_points_custom_reward.remove', ({ metadata, payload }) => {
+        getRewards();
     });
 }
 
