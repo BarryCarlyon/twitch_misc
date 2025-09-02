@@ -81,7 +81,9 @@ div {
 
             let tags = e.target.querySelectorAll('.tag');
             for (var x=0;x<tags.length;x++) {
-                tagSearch.push(tags[x].value.toLowerCase());
+                if (tags[x].value != '') {
+                    tagSearch.push(tags[x].value.toLowerCase());
+                }
             }
 
             getPage(null);
