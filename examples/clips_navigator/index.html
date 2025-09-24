@@ -153,6 +153,24 @@
             p.textContent = words;
         }
 
+        function dumbPopup() {
+            var outer = document.createElement('div');
+            outer.setAttribute('id', 'outer');
+            document.body.append(outer);
+
+            outer.addEventListener('click', (e) => {
+                if (e.target.getAttribute('id') == 'outer') {
+                    outer.remove();
+                }
+            });
+
+            var inner = document.createElement('div');
+            outer.append(inner);
+            inner.setAttribute('id', 'inner');
+
+            return { outer, inner };
+        }
+
         let clips_data = [];
         document.getElementById('form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -289,19 +307,7 @@
             if (e.target.classList.contains('clip_viewer')) {
                 e.preventDefault();
 
-                var outer = document.createElement('div');
-                outer.setAttribute('id', 'outer');
-                document.body.append(outer);
-
-                outer.addEventListener('click', (e) => {
-                    if (e.target.getAttribute('id') == 'outer') {
-                        outer.remove();
-                    }
-                });
-
-                var inner = document.createElement('div');
-                outer.append(inner);
-                inner.setAttribute('id', 'inner');
+                let { inner } = dumbPopup();
 
                 var iframe = document.createElement('iframe');
                 iframe.style.width = '100%';
@@ -313,19 +319,7 @@
                 let clipID = e.target.getAttribute('clipID');
                 clips_data.forEach(clip => {
                     if (clip.id == clipID) {
-                        var outer = document.createElement('div');
-                        outer.setAttribute('id', 'outer');
-                        document.body.append(outer);
-
-                        outer.addEventListener('click', (e) => {
-                            if (e.target.getAttribute('id') == 'outer') {
-                                outer.remove();
-                            }
-                        });
-
-                        var inner = document.createElement('div');
-                        outer.append(inner);
-                        inner.setAttribute('id', 'inner');
+                        let { inner } = dumbPopup();
 
                         let pre = document.createElement('pre');
                         pre.textContent = JSON.stringify(clip, null, 4);
@@ -356,24 +350,9 @@
                 );
 
                 let downloadData = await downloadReq.json();
+                let { inner } = dumbPopup();
 
                 if (downloadReq.status != 200) {
-                    //console.log('Error', await downloadReq.text());
-
-                    var outer = document.createElement('div');
-                    outer.setAttribute('id', 'outer');
-                    document.body.append(outer);
-
-                    outer.addEventListener('click', (e) => {
-                        if (e.target.getAttribute('id') == 'outer') {
-                            outer.remove();
-                        }
-                    });
-
-                    var inner = document.createElement('div');
-                    outer.append(inner);
-                    inner.setAttribute('id', 'inner');
-
                     var div = document.createElement('div');
                     inner.append(div);
 
@@ -391,20 +370,6 @@
                 }
 
                 let { landscape_download_url, portrait_download_url } = downloadData.data[0];
-
-                var outer = document.createElement('div');
-                outer.setAttribute('id', 'outer');
-                document.body.append(outer);
-
-                outer.addEventListener('click', (e) => {
-                    if (e.target.getAttribute('id') == 'outer') {
-                        outer.remove();
-                    }
-                });
-
-                var inner = document.createElement('div');
-                outer.append(inner);
-                inner.setAttribute('id', 'inner');
 
                 var div = document.createElement('div');
                 inner.append(div);
