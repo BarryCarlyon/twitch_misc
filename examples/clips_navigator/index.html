@@ -58,6 +58,7 @@
     <p>After authenticating to get a Key, it calls</p>
     <ul>
         <li><a href="https://dev.twitch.tv/docs/api/reference#get-clips" target="_blank">Get Clips</a>, to well, Get Clips</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-clips-download" target="_blank">Get Clips Download</a>, download a clip</li>
         <li><a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a>, to convert a name to an ID</li>
     </ul>
 
@@ -98,6 +99,8 @@
                 <th>CreatedAt</th>
                 <th>Views</th>
                 <th>URL</th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="clips"></tbody>
@@ -109,7 +112,8 @@
         var redirect = `https://${window.location.host}/twitch_misc/`;
         // setup a memory space for the token
         var access_token = '';
-        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+        var my_user_id = '';
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:manage:clips+editor:manage:clips')
 
         //lazy
         let baseyear = new Date().getFullYear();
@@ -121,10 +125,23 @@
         }
         months.value = new Date().getMonth();
 
-        function processToken(token) {
+        async function processToken(token) {
             loading.textContent = 'Got Token. Specify Streamer!';
 
             access_token = token;
+
+            // get me
+            let uReq = await fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            );
+            let uData = await uReq.json();
+            my_user_id = uData.data[0].id;
 
             form.classList.remove('disabled');
             streamer.focus();
@@ -218,21 +235,37 @@
                             var td = tr.insertCell();
                             td.textContent = row.created_at;
                             var td = tr.insertCell();
-                            td.textContent = row.view_count;
+
+                            var d = document.createElement('div');
+                            td.append(d);
+                            d.textContent = row.view_count;
+                            var d = document.createElement('div');
+                            td.append(d);
+                            d.textContent = row.is_featured ? 'Featured' : '';
+                            //td.textContent = row.view_count;
+
                             var td = tr.insertCell();
                             //td.textContent = row.url;
                             //td.setAttribute('clipID', row.id)
                             //td.classList.add('clip_viewer');
                             var a = document.createElement('a');
                             a.href = row.url;
-                            a.textContent = row.url;
+                            a.textContent = 'Clips';
                             a.classList.add('clip_viewer');
                             a.setAttribute('target', 'barryclipview');
-                            a.setAttribute('clipID', row.id)
+                            a.setAttribute('clipID', row.id);
                             td.append(a);
 
                             var td = tr.insertCell();
-                            td.textContent = 'Dump';
+                            var a = document.createElement('a');
+                            a.textContent = 'Req. Download';
+                            a.classList.add('clip_download');
+                            a.setAttribute('clipID', row.id);
+                            a.setAttribute('clipBroadcasterId', row.broadcaster_id);
+                            td.append(a);
+
+                            var td = tr.insertCell();
+                            td.textContent = 'RawJSON';
                             td.classList.add('dump');
                             td.setAttribute('clipID', row.id)
                         })
@@ -252,7 +285,7 @@
                 })
         });
 
-        document.getElementById('clips').addEventListener('click', (e) => {
+        document.getElementById('clips').addEventListener('click', async (e) => {
             if (e.target.classList.contains('clip_viewer')) {
                 e.preventDefault();
 
@@ -299,6 +332,107 @@
                         inner.append(pre);
                     }
                 })
+            }
+            if (e.target.classList.contains('clip_download')) {
+                e.preventDefault();
+
+                // oh lawdy...
+                // lets attempt the fetch
+                let u = new URL('https://api.twitch.tv/helix/clips/downloads');
+                u.search = new URLSearchParams([
+                    [ 'editor_id', my_user_id ],
+                    [ 'broadcaster_id', e.target.getAttribute('clipBroadcasterId') ],
+                    [ 'clip_id', e.target.getAttribute('clipID') ]
+                ]);
+                let downloadReq = await fetch(
+                    u,
+                    {
+                        method: 'GET',
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+
+                let downloadData = await downloadReq.json();
+
+                if (downloadReq.status != 200) {
+                    //console.log('Error', await downloadReq.text());
+
+                    var outer = document.createElement('div');
+                    outer.setAttribute('id', 'outer');
+                    document.body.append(outer);
+
+                    outer.addEventListener('click', (e) => {
+                        if (e.target.getAttribute('id') == 'outer') {
+                            outer.remove();
+                        }
+                    });
+
+                    var inner = document.createElement('div');
+                    outer.append(inner);
+                    inner.setAttribute('id', 'inner');
+
+                    var div = document.createElement('div');
+                    inner.append(div);
+
+                    try {
+                        inner.textContent = `Failed: ${downloadData.message}`;
+                    } catch (e) {
+                        console.log('Err', downloadData);
+                        inner.textContent = 'Failed to load. Check console';
+                    }
+
+                    return;
+                }
+                if (downloadData.data.length != 1) {
+                    return;
+                }
+
+                let { landscape_download_url, portrait_download_url } = downloadData.data[0];
+
+                var outer = document.createElement('div');
+                outer.setAttribute('id', 'outer');
+                document.body.append(outer);
+
+                outer.addEventListener('click', (e) => {
+                    if (e.target.getAttribute('id') == 'outer') {
+                        outer.remove();
+                    }
+                });
+
+                var inner = document.createElement('div');
+                outer.append(inner);
+                inner.setAttribute('id', 'inner');
+
+                var div = document.createElement('div');
+                inner.append(div);
+
+                let downloadLand = document.createElement('a');
+                downloadLand.setAttribute('href', landscape_download_url);
+                downloadLand.textContent = 'Download/View Landscape File';
+                div.append(downloadLand);
+
+                var iframe = document.createElement('iframe');
+                iframe.style.width = '200px';
+                iframe.style.height = ((1080 / 1920) * 200) + 'px';
+                iframe.setAttribute('src', landscape_download_url)
+                inner.append(iframe);
+
+                var div = document.createElement('div');
+                inner.append(div);
+
+                let downloadPort = document.createElement('a');
+                downloadPort.setAttribute('href', portrait_download_url);
+                downloadPort.textContent = 'Download/View Portrait File';
+                div.append(downloadPort);
+
+                var iframe = document.createElement('iframe');
+                iframe.style.width = '200px';
+                iframe.style.height = ((1920 / 1080) * 200) + 'px';
+                iframe.setAttribute('src', portrait_download_url)
+                inner.append(iframe);
             }
         });
     </script>

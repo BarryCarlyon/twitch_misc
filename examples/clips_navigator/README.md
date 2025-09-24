@@ -4,6 +4,7 @@ This is a very rough example of how to build a page to fetch and display clips b
 
 It uses Implicit auth to obtain a token, but this is just for the [GitHub pages demo](https://barrycarlyon.github.io/twitch_misc/examples/clips_navigator/).
 
+You can attempt to request the download links for a Clip, if you are an editor or broadcaster of the channel in question. This demos the [Get Clips Download API](https://dev.twitch.tv/docs/api/reference/#get-clips-download).
 
 ## TRY THIS EXAMPLE NOW!
 
@@ -15,6 +16,7 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/clips
 
 - [OAuth Implicit Code Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow)
 - [Get Clips](https://dev.twitch.tv/docs/api/reference#get-clips)
+- [Get Clips Download](https://dev.twitch.tv/docs/api/reference/#get-clips-download)
 - [Clips Embedding](https://dev.twitch.tv/docs/embed/video-and-clips#non-interactive-iframes-for-clips)
 
 ## Setting up the config
