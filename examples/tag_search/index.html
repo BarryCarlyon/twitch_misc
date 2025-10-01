@@ -159,7 +159,7 @@ div {
                 a.textContent = `(${user_login}) ${user_name}`;
             }
             let sp = document.createElement('span');
-            sp.textContent = ` - ${game_name} - ${viewer_count}`;
+            sp.textContent = `${a.textContent} - ${game_name} - ${viewer_count}`;
             ul.append(sp);
             d.append(ul);
         }
