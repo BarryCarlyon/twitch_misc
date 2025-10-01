@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Vod Player | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style type="text/css">
+        #different_channel {
+            float: right;
+            width: 25%;
+        }
+        #different_channel input {
+            width: 100%;
+        }
+
+        #player_zone,
+        #player_picker {
+            position: relative;
+            float: left;
+            box-sizing: border-box;
+        }
+        #player_zone {
+            min-height: 500px;
+            height: 80%;
+            width: 75%;
+        }
+        #player_zone p {
+            position: absolute;
+            top: 50px;
+            left: 0px;
+            right: 0px;
+            text-align: center;
+            font-size: 50px;
+        }
+        #player_picker {
+            min-height: 500px;
+            height: 80%;
+            overflow: auto;
+            width: 25%;
+        }
+        #player_muted {
+            border-bottom: 5px solid red;
+        }
+        #player_videos div {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            border-top: 2px solid #FFFFFF;
+            border-bottom: 2px solid #FFFFFF;
+            cursor: pointer;
+        }
+        #player_videos img {
+            width: 100%;
+        }
+        table {
+            width: 100%;
+        }
+
+        .cleared td { background: green; }
+    </style>
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will create a Player that will play a Vod from <a href="https://www.twitch.tv/gabrielanddresden" target="_blank">GabrielAndDresden</a> that will skip muted segments. You could also look up a Different Channel</p>
+
+    <p>This example uses the following API's <a href="https://dev.twitch.tv/docs/embed/everything" target="_blank">Embed Everything</a>, <a href="https://dev.twitch.tv/docs/embed/video-and-clips#interactive-frames-for-live-streams-and-vods" target="_blank">Player JS API</a>, <a href="https://dev.twitch.tv/docs/api/reference#get-videos" target="_blank">Get Videos</a>, <a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get users (for user Lookup)</a>. Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/vod_player/">Github</a> or just View the source instead</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+
+    <div id="different_channel">
+        <form action="" method="post" id="different_channel_form">
+            <input type="text" name="different_channel_field" id="different_channel_field" placeholder="Different Channel (Hit Enter)" />
+        </form>
+    </div>
+    <div>YOU MAY NEED TO MANUALLY UNMUTE THE PLAYER WHEN HITTING PLAY ON A VIDEO for the first time, yay browser interaction score</div>
+    <div id="loading"></div>
+
+    <div id="player">
+        <div id="player_zone"></div>
+        <div id="player_picker">
+            <div id="player_muted"></div>
+            <div id="player_videos"></div>
+        </div>
+        <div id="playhead"></div>
+        <div id="playhead_next_skip"></div>
+    </div>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        // setup a memory space for the token/userID
+        var access_token = '';
+        var next_after = '';
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        function processToken(token) {
+            access_token = token;
+
+            loadChannel('501041739', 'GabrielAndDresden');
+
+            document.getElementById('different_channel_form').addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                var chan = document.getElementById('different_channel_field').value;
+                document.getElementById('loading').textContent = 'Loading ' + chan;
+                document.getElementById('different_channel_field').value = '';//reset
+
+                fetch(
+                    'https://api.twitch.tv/helix/users?login=' + chan,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+                .then(resp => resp.json())
+                .then(resp => {
+                    if (resp.data.length == 1) {
+                        console.log('Load', resp.data[0].id, resp.data[0].display_name);
+                        loadChannel(resp.data[0].id, resp.data[0].display_name);
+                    } else {
+                        document.getElementById('loading').textContent = 'Channel Not Found?!';
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    document.getElementById('loading').textContent = 'An Error Occured loading Channel: error';
+                });
+            });
+        }
+
+        function loadChannel(channel_id, name, after) {
+            document.getElementById('loading').textContent = `Loading ${name} Videos`;
+            
+            let url = `https://api.twitch.tv/helix/videos?user_id=${channel_id}&type=archive&first=100`;
+            if (after) {
+                url = `${url}&after=${after}`;
+            }
+
+            fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                document.getElementById('player_videos').textContent = '';
+
+                if (resp.data.length > 0) {
+                    for (var x=0;x<resp.data.length;x++) {
+                        var vid = document.createElement('div');
+                        document.getElementById('player_videos').append(vid);
+                        vid.setAttribute('video_id', resp.data[x].id);
+
+                        if (resp.data[x].thumbnail_url) {
+                            var i = document.createElement('img');
+                            vid.append(i);
+
+                            var thumb = resp.data[x].thumbnail_url.replace('%{width}', 480);
+                            thumb = thumb.replace('%{height}', 270);
+
+                            i.setAttribute('src', thumb);
+                            i.setAttribute('title', resp.data[x].title);
+                        } else {
+                            var p = document.createElement('p');
+                            vid.append(p);
+
+                            p.textContent = 'Probably Still Recording';
+                        }
+
+                        var p = document.createElement('p');
+                        vid.append(p);
+
+                        p.textContent = resp.data[x].title;
+
+                        vid.addEventListener('click', (e) => {
+                            play(e.currentTarget);
+                        });
+                    }
+                    if (resp.hasOwnProperty('pagination') && resp.pagination.hasOwnProperty('cursor')) {
+                        next_after = resp.pagination.cursor;
+                    }
+
+                    document.getElementById('loading').textContent = `Loaded ${resp.data.length} Videos from ${name}`;
+
+                    if (!player) {
+                        var p = document.createElement('p');
+                        document.getElementById('player_zone').append(p);
+                        p.textContent = 'Select a Video to Play';
+                    }
+                } else {
+                    document.getElementById('loading').textContent = 'An Error Occured loading Videos: not returned';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'An Error Occured loading Videos: error';
+            });
+        }
+
+        var player = false;
+        function play(target) {
+            var video_id = target.getAttribute('video_id');
+            console.log('will play', video_id);
+
+            if (player) {
+                player.setVideo(video_id);
+            } else {
+                document.getElementById('player_zone').textContent = '';
+                player = new Twitch.Embed("player_zone", {
+                    width: '100%',
+                    height: '100%',
+
+                    autoplay: true,
+                    muted: false,
+                    layout: 'video',
+                    theme: 'dark',
+                    video: video_id,
+
+                    parent: [ window.document.location.hostname ]
+                });
+
+                player.addEventListener(Twitch.Player.PLAYING, (e) => {
+                    console.log('playing');
+                    is_seeking = false;
+                })
+                player.addEventListener(Twitch.Player.PLAY, (e) => {
+                    console.log('play');
+                    is_seeking = false;
+                })
+                player.addEventListener(Twitch.Player.PAUSE, (e) => {
+                    console.log('pause');
+                    // hack fix needs revist
+                    setTimeout(() => {
+                        is_seeking = true;
+                    }, 100);
+                })
+            }
+
+            // load muted segments
+            document.getElementById('loading').textContent = 'Loading Muted Segments for ' + video_id;
+            document.getElementById('player_muted').textContent = 'Loading Muted Segments for ' + video_id;
+            loadmuted(video_id);
+        }
+        function loadmuted(video_id) {
+            fetch(
+                'https://api.twitch.tv/helix/videos?id=' + video_id,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.data.length == 1) {
+                    document.getElementById('loading').textContent = 'Loaded Video Data OK';
+
+                    // convert human to seconds
+                    var reg = new RegExp(/([0-9]*)([a-z])/);
+                    var parts = resp.data[0].duration.split(reg);
+                    console.log(parts);
+
+                    var duration = 0;
+                    var duration_dsp = [];
+                    for (var x=0;x<parts.length;x++) {
+                        if (parts[x] == '') {
+                        } else {
+                            var time = parts[x];
+                            x++;
+                            var unit = parts[x];
+
+                            switch (unit) {
+                                case 'h':
+                                    duration += time * 3600;
+                                    duration_dsp.push(time);
+                                    break;
+                                case 'm':
+                                    duration += time * 60;
+                                    duration_dsp.push(time);
+                                    break;
+                                case 's':
+                                    duration += time;
+                                    duration_dsp.push(time);
+                                    break;
+                                default:
+                                    document.getElementById('loading').textContent = 'Unexpected tiem unit of ' + unit;
+                            }
+                        }
+                    }
+                    
+                    document.getElementById('playhead').textContent = '';
+                    muted_segments = [];
+
+                    var sp = document.createElement('span');
+                    document.getElementById('playhead').append(sp);
+                    sp.setAttribute('id', 'current_time');
+                    sp.textContent = '0:00:00';
+
+                    var sp = document.createElement('span');
+                    document.getElementById('playhead').append(sp);
+                    sp.textContent = '/';
+
+                    var sp = document.createElement('span');
+                    document.getElementById('playhead').append(sp);
+                    for (var x=0;x<duration_dsp.length;x++) {
+                        if (duration_dsp[x] < 10) {
+                            duration_dsp[x] = '0' + duration_dsp[x];
+                        }
+                    }
+                    sp.textContent = duration_dsp.join(':');
+
+                    var sp = document.createElement('span');
+                    document.getElementById('playhead').append(sp);
+                    sp.textContent = ' ' + resp.data[0].title;//lazy padding
+
+                    if (resp.data[0].muted_segments) {
+                        var pm = document.getElementById('player_muted');
+                        pm.textContent = '';
+
+                        var p = document.createElement('p');
+                        pm.append(p);
+                        p.textContent = 'Found ' + resp.data[0].muted_segments.length + ' segments';
+
+                        var tb = document.createElement('table');
+                        pm.append(tb);
+
+                        var r = document.createElement('tr');
+                        tb.append(r);
+
+                        var th = document.createElement('th');
+                        r.append(th);
+                        th.textContent = 'Duration';
+                        var th = document.createElement('th');
+                        r.append(th);
+                        th.textContent = 'Offset';
+
+                        muted_segments = [];
+                        for (var x=0;x<resp.data[0].muted_segments.length;x++) {
+                            var r = document.createElement('tr');
+                            tb.append(r);
+                            r.setAttribute('id', 'muted_segments_' + x);
+
+                            var td = document.createElement('td');
+                            r.append(td);
+                            td.textContent = resp.data[0].muted_segments[x].duration;
+                            var td = document.createElement('td');
+                            r.append(td);
+                            td.textContent = resp.data[0].muted_segments[x].offset;
+                            // add h m s
+                            var t = resp.data[0].muted_segments[x].offset;
+                            var dsp = [];
+                            var h = Math.floor(t / 3600);
+                            var left = t - (h * 3600);
+                            var m = Math.floor(left / 60);
+                            var left = left - (m * 60);
+
+                            dsp.push(h);
+                            dsp.push(m);
+                            dsp.push(left);
+
+                            for (var y=0;y<dsp.length;y++) {
+                                if (dsp[y] < 10) {
+                                    dsp[y] = '0' + dsp[y];
+                                }
+                            }
+                            td.textContent += ' // ' + dsp.join(':');
+
+                            muted_segments.push({
+                                duration: resp.data[0].muted_segments[x].duration,
+                                offset: resp.data[0].muted_segments[x].offset
+                            });
+                        }
+                    } else {
+                        document.getElementById('player_muted').textContent = 'No Muted Segments. Yay';
+                    }
+                    
+                    tickTimer();
+                } else {
+                    document.getElementById('player_muted').textContent = 'Failed to load muted';
+                    document.getElementById('loading').textContent = 'An Error Occured loading Muted for ' + video_id + ': No data';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'An Error Occured loading Muted for ' + video_id + ': error';
+            });
+        }
+
+        /*
+        getCurrentTime
+        getDuration
+        */
+
+        var muted_segments = [];
+        var is_seeking = false;
+        function tickTimer() {
+            var t = player.getCurrentTime();
+
+            var dsp = [];
+            var h = Math.floor(t / 3600);
+            var left = t - (h * 3600);
+            var m = Math.floor(left / 60);
+            var left = left - (m * 60);
+            left = Math.floor(left);
+
+            dsp.push(h);
+            dsp.push(m);
+            dsp.push(left);
+
+            for (var x=0;x<dsp.length;x++) {
+                if (dsp[x] < 10) {
+                    dsp[x] = '0' + dsp[x];
+                }
+            }
+            document.getElementById('current_time').textContent = dsp.join(':');
+
+            var next_segment = false;
+
+            if (!is_seeking) {
+                for (var x=0;x<muted_segments.length;x++) {
+                    if (document.getElementById('muted_segments_' + x)) {
+                        var start = muted_segments[x].offset;
+                        var end = muted_segments[x].offset + muted_segments[x].duration;
+                        if (t >= start && t <= end) {
+                            // skip segment
+                            document.getElementById('loading').textContent = 'Skipping segment no ' + x + '! Seeking ' + end;
+                            //player.pause();
+                            is_seeking = true;
+                            player.seek(end);
+                            //player.play();
+                            document.getElementById('muted_segments_' + x).classList.add('cleared');
+                         } else if (t < start) {
+                            var left = Math.floor(start - t);
+                            if (!next_segment || left < next_segment) {
+                                next_segment = left;
+                            }
+
+                            document.getElementById('muted_segments_' + x).classList.remove('cleared');
+                         } else if (t > end) {
+                            document.getElementById('muted_segments_' + x).classList.add('cleared');
+                         }
+                    }
+                }
+            }
+
+            document.getElementById('playhead_next_skip').textContent = 'Next Segment Skip in ' + next_segment + 's';
+
+            requestAnimationFrame(() => {
+                tickTimer();
+            });
+        }
+    </script>
+</body>
+</html>
