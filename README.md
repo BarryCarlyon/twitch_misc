@@ -44,6 +44,7 @@ These examples are testable on GitHub pages, and will prompt for implicit authen
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/stream_key/">Get my Stream Key</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/stream_key">Source</a></td><td>A simple demo to auth the user and show the user their own stream key.</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/clips_navigator/">Clips Navigator w/ Download</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/clips_navigator">Source</a></td><td>A simple demo fetch and display clips using started_at and ended_at parameters w/ download</td></tr>
         <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/twitchemotes/">TwitchEmotes</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/twitchemotes/">Source</a></td><td></td></tr>
+        <tr><td><a href="https://barrycarlyon.github.io/twitch_misc/examples/calendar/">Showing Calendar Externally</a></td><td><a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/calendar/">Source</a></td><td></td></tr>
     </tbody>
     <thead><tr><th colspan="3">Guest Star</th></tr></thead>
     <tbody>
