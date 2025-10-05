@@ -15,16 +15,17 @@
 <script type="text/javascript">
     let icalTemplate = 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id={id}';
     let icals = [
-        '26610234',
-        '15185913',
-        '23735582',
-        '7236692',
-        '10817445'
+        [ '26610234', '#990000' ],
+        [ '15185913', '#009900' ],
+        [ '23735582', '#f56607' ],
+        [ '7236692', '#924afe' ],
+        [ '10817445', '#fff70d']
     ]
 
     const calendarInstance = new calendarJs( "calendar" );
 
-    async function loadFeed(broadcasterId) {
+    async function loadFeed(setup) {
+        let [ broadcasterId, color ] = setup;
         // fetch the iCal feed from twitch
         // we'll template replace the URI here.
         // https://dev.twitch.tv/docs/api/reference/#get-channel-icalendar
@@ -40,6 +41,7 @@
 
         let icalParsed = ICAL.parse(icalText);
         let compData = new ICAL.Component(icalParsed);
+        let name = compData.getFirstPropertyValue("name");
         let vevents = compData.getAllSubcomponents("vevent");
 
         const events = [];
@@ -48,6 +50,8 @@
 
             /*
             // we pass to the recurrence loop to render with instead of rendering ONE event
+            // we could interupt RRULE and use the repeat stuff the cal lib has
+            // or we can add individual events (which is what we is doing)
             events.push({
                 title: event.summary,
                 from: event.startDate.toJSDate(),
@@ -55,7 +59,11 @@
                 description: event.description ?? '',
             });
             */
-            // tidy
+
+            // calculate the duration so we can pass to the repeator
+            let duration = event.endDate.toJSDate() - event.startDate.toJSDate();
+
+            // Check streamer gave the event a title
             if (event.summary == '') {
                 event.summary = 'A Stream';
             }
@@ -67,6 +75,9 @@
 
             // next is always an ICAL.Time or null
             let next;
+            // if we don't have a counter it will go FOREVER
+            // since Twitch events do not have a end of recurrence
+            // we'll make sure not to infinity loop
             let counter = 0;
 
             // @tofix: account for what is start date of shown calendar
@@ -78,14 +89,22 @@
             // do event start date which is LAWD knows when
             // and render the next 52 weeks...
             while (counter < 52 && (next = expand.next())) {
+                //console.log(next);
                 counter++;
+
+                // calc end based on start + duration
+                let end = next.toJSDate();
+                end.setMilliseconds(end.getMilliseconds() + duration);
 
                 // add the event and lock it
                 // otherwise viewers can drag shit around
                 events.push({
                     title: event.summary,
                     from: next.toJSDate(),
-                    to: next.toJSDate(),
+                    to: end,
+
+                    color,
+                    url: `https://twitch.tv/${name.toLowerCase()}`,
                     locked: true
                 });
             }
