@@ -13,6 +13,7 @@
 <div id="calendar"></div>
 
 <script type="text/javascript">
+    let icalTemplate = 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id={id}';
     let icals = [
         '26610234',
         '15185913',
@@ -23,32 +24,30 @@
 
     const calendarInstance = new calendarJs( "calendar" );
 
-    let icalTemplate = 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id={id}';
     async function loadFeed(broadcasterId) {
+        // fetch the iCal feed from twitch
+        // we'll template replace the URI here.
+        // https://dev.twitch.tv/docs/api/reference/#get-channel-icalendar
         let req = await fetch(
             icalTemplate.replace('{id}', broadcasterId),
         );
+        if (req.status != 200) {
+            // just in case of bad/banned TwitchID...
+            return;
+        }
+        // to text
         let icalText = await req.text();
-
 
         let icalParsed = ICAL.parse(icalText);
         let compData = new ICAL.Component(icalParsed);
         let vevents = compData.getAllSubcomponents("vevent");
 
-
         const events = [];
         vevents.forEach((vevent) => {
             const event = new ICAL.Event(vevent);
-            /*
-            console.log('EVT', event);
-            console.log(event.summary);
-            console.log(event.startDate);
-            console.log(event.endDate);
-            console.log(event.recur);
-            */
 
-            console.log(event);
             /*
+            // we pass to the recurrence loop to render with instead of rendering ONE event
             events.push({
                 title: event.summary,
                 from: event.startDate.toJSDate(),
@@ -56,6 +55,10 @@
                 description: event.description ?? '',
             });
             */
+            // tidy
+            if (event.summary == '') {
+                event.summary = 'A Stream';
+            }
 
             let expand = new ICAL.RecurExpansion({
                 component: vevent,
@@ -66,20 +69,33 @@
             let next;
             let counter = 0;
 
+            // @tofix: account for what is start date of shown calendar
+
+            // https://github.com/kewisch/ical.js/wiki/Parsing-iCalendar#recurring-events
+            // RFC https://datatracker.ietf.org/doc/html/rfc5545
+            // ical time https://kewisch.github.io/ical.js/api/ICAL.Time.html
+
+            // do event start date which is LAWD knows when
+            // and render the next 52 weeks...
             while (counter < 52 && (next = expand.next())) {
                 counter++;
-                //console.log(next);
 
+                // add the event and lock it
+                // otherwise viewers can drag shit around
                 events.push({
                     title: event.summary,
                     from: next.toJSDate(),
                     to: next.toJSDate(),
-                    description: event.description ?? '',
+                    locked: true
                 });
             }
         });
 
         calendarInstance.addEvents(events);
+    }
+
+    for (var idx in icals) {
+        loadFeed(icals[idx]);
     }
 </script>
 
