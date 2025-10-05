@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/williamtroup/Calendar.js@main/dist/calendar.js.min.css" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/williamtroup/Calendar.js@main/dist/calendar.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js"></script>
+    <script src="https://unpkg.com/ical.js/dist/ical.es5.min.cjs"></script>
 </head>
 <body>
 
@@ -21,30 +21,6 @@
         '10817445'
     ]
 
-    function parseIcalData(icalText) {
-        if (!icalText) {
-            return [];
-        }
-        const jcalData = ICAL.parse(icalText);
-        const comp = new ICAL.Component(jcalData);
-        const vevents = comp.getAllSubcomponents("vevent");
-
-        const events = [];
-        vevents.forEach((vevent) => {
-            const event = new ICAL.Event(vevent);
-
-            console.log(vevent);
-
-            events.push({
-                title: event.summary,
-                from: event.startDate.toJSDate(),
-                to: event.endDate.toJSDate(),
-                description: event.description ?? 'Some Description',
-            });
-        });
-        return events;
-    }
-
     const calendarInstance = new calendarJs( "calendar" );
 
     let icalTemplate = 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id={id}';
@@ -53,18 +29,59 @@
             icalTemplate.replace('{id}', broadcasterId),
         );
         let icalText = await req.text();
-        let events = parseIcalData(icalText);
 
-        if (events.length == 0) {
-            console.log('got no events');
-            return;
-        }
-        console.log('got events', events);
+
+        let icalParsed = ICAL.parse(icalText);
+        let compData = new ICAL.Component(icalParsed);
+        let vevents = compData.getAllSubcomponents("vevent");
+
+
+        const events = [];
+        vevents.forEach((vevent) => {
+            const event = new ICAL.Event(vevent);
+            /*
+            console.log('EVT', event);
+            console.log(event.summary);
+            console.log(event.startDate);
+            console.log(event.endDate);
+            console.log(event.recur);
+            */
+
+            console.log(event);
+            /*
+            events.push({
+                title: event.summary,
+                from: event.startDate.toJSDate(),
+                to: event.endDate.toJSDate(),
+                description: event.description ?? '',
+            });
+            */
+
+            let expand = new ICAL.RecurExpansion({
+                component: vevent,
+                dtstart: vevent.getFirstPropertyValue('dtstart')
+            });
+
+            // next is always an ICAL.Time or null
+            let next;
+            let counter = 0;
+
+            while (counter < 52 && (next = expand.next())) {
+                counter++;
+                //console.log(next);
+
+                events.push({
+                    title: event.summary,
+                    from: next.toJSDate(),
+                    to: next.toJSDate(),
+                    description: event.description ?? '',
+                });
+            }
+        });
 
         calendarInstance.addEvents(events);
-        //calendarInstance.refresh();
     }
 </script>
 
 </body>
-</html>inde
+</html>
