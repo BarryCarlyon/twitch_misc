@@ -14,7 +14,7 @@ This example generates a QR code to the iCalendar URL, the Javascript library [d
 
 This example is also available via GitHub Pages!
 
-Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/calendar/)
+Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/calendar_basic/)
 
 ## Reference Documentation
 
