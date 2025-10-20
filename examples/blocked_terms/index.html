@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Blocked Terms Manager | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+</head>
+<body>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="statusresp">Awaiting Auth!</div>
+
+    <form action="" method="post">
+        <fieldset>
+            <div>
+                <label for="channel_id">Select Channel</label>
+                <select id="channel_id" name="channel_id">
+                    <option value="self">My Own</option>
+                    <option>Select</option>
+                </select>
+                <input type="button" id="select_channel" value="Load Terms" />
+            </div>
+        </fieldset>
+        <table id="wordtable">
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td colspan="2">
+                        <input type="text" id="newterm" name="newterm" placeholder="New Word or Phrase" />
+                    </td>
+                    <td>
+                        <button id="newtermCreate">Create</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </form>
+
+    <div>
+        <p>The word or phrase to block from being used in the broadcaster's chat room. The term must contain a minimum of 2 characters and may contain up to a maximum of 500 characters.</p>
+        <p>Terms may include a wildcard character (*). The wildcard character must appear at the beginning or end of a word or set of characters. For example, *foo or foo*.</p>
+    </div>
+
+    <script type="text/javascript">
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        redirect = 'https://extensions.testing.barrycarlyon.co.uk/twitch_misc/';
+        // setup a memory space for the token
+        var access_token = '';
+        var user_id = '';
+        var headers = {};
+
+        document.getElementById('authorize').setAttribute('href', `https://id.twitch.tv/oauth2/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=user:read:moderated_channels+moderator:manage:blocked_terms`)
+
+        function processToken(token) {
+            access_token = token;
+
+            // we'll save some copy pasta by defining the headers
+            headers = {
+                'Client-ID': client_id,
+                'Authorization': `Bearer ${access_token}`,
+                'Accept': 'application/json'
+            }
+
+            getUser();
+        }
+
+        // first we need to get the userID that is using the tool
+        // we'll user getUser (other options available)
+        function getUser() {
+            statusresp.textContent = 'Got Auth!';
+
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    method: 'GET',
+                    headers
+                }
+            )
+            .then(async resp => {
+                if (resp.status != 200) {
+                    console.error(resp.status, await resp.text());
+                    throw new Error('User API returned a non 200');
+                }
+                return resp.json();
+            })
+            .then(resp => {
+                let { data } = resp;
+                if (data.length != 1) {
+                    console.log(data);
+                    statusresp.textContent = 'Did not get 1 user from the API';
+                    return;
+                }
+
+                let { id, login } = data[0];
+                statusresp.textContent = `Hello ${login}`;
+                user_id = id;
+
+                // and go
+                getModeratedChannels();
+            })
+            .catch(err => {
+                console.error(err);
+                // gosh darn it
+                statusresp.textContent = 'A bad error occured getting the user!';
+            });
+
+        }
+
+        async function getModeratedChannels() {
+            try {
+                let channels = await pageTillDone(
+                    'https://api.twitch.tv/helix/moderation/channels',
+                    [
+                        [ 'user_id', user_id ],
+                        [ 'first', '100' ]
+                    ]
+                );
+
+                for (var x=0;x<channels.length;x++) {
+                    let { broadcaster_id, broadcaster_login } = channels[x];
+                    let opt = document.createElement('option');
+                    opt.value = broadcaster_id;
+                    opt.textContent = broadcaster_login;
+                    channel_id.append(opt);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        select_channel.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            getBlockedTerms();
+        });
+
+        function channelID() {
+            let broadcaster_id = channel_id.value;
+            if (broadcaster_id == 'self') {
+                broadcaster_id = user_id;
+            }
+            return broadcaster_id;
+        }
+
+        async function getBlockedTerms() {
+            try {
+                let terms = await pageTillDone(
+                    'https://api.twitch.tv/helix/moderation/blocked_terms',
+                    [
+                        [ 'broadcaster_id', channelID() ],
+                        [ 'moderator_id', user_id ],
+                        [ 'first', 1 ]
+                    ]
+                );
+
+                for (var x=0;x<terms.length;x++) {
+                    addTermRow(terms[x]);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function addTermRow(term) {
+            let already = document.getElementById(term.id);
+            if (already) {
+                return;
+            }
+
+            let row = wordtable.insertRow();
+            row.setAttribute('id', term.id);
+
+            var td = row.insertCell();
+
+            var btn = document.createElement('div');
+            btn.setAttribute('data-wordID', term.id);
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>';
+            btn.addEventListener('click', removeTerm);
+            td.append(btn);
+
+            var td = row.insertCell();
+            td.textContent = term.id;
+            var td = row.insertCell();
+            td.textContent = term.text;
+            var td = row.insertCell();
+            td.textContent = term.created_at;
+        }
+        function removeTermRow(id) {
+            let tblRow = document.getElementById(id);
+            if (tblRow) {
+                tblRow.remove();
+            }
+        }
+
+
+        async function pageTillDone(u, p, after, passback) {
+            if (!passback) {
+                passback = [];
+            }
+
+            let url = new URL(u);
+            let thisp = [ ...p ];
+            if (after) {
+                thisp.push([ 'after', after ]);
+            }
+            url.search = new URLSearchParams(thisp);
+
+            // ug pagination...
+            return fetch(
+                url,
+                {
+                    method: 'GET',
+                    headers
+                }
+            )
+            .then(async resp => {
+                if (resp.status != 200) {
+                    console.error(resp.status, await resp.text());
+                    throw new Error('API returned a non 200');
+                }
+                return resp.json();
+            })
+            .then(resp => {
+                let { data, pagination } = resp;
+
+                passback = [ ...passback, ...data ];
+
+                if (pagination) {
+                    let { cursor } = pagination;
+                    if (cursor) {
+                        console.log('loop', passback);
+                        return pageTillDone(u, p, cursor, passback);
+                    }
+                }
+
+                console.log('final return');
+                return passback;
+            })
+            .catch(err => {
+                console.error(err);
+                // gosh darn it
+                statusresp.textContent = 'A bad error occured!';
+
+                throw err;
+            });
+        }
+
+        async function removeTerm(e) {
+            let id = e.currentTarget.getAttribute('data-wordID');
+            console.log('nail', id);
+
+            let req = await fetch(
+                'https://api.twitch.tv/helix/moderation/blocked_terms',
+                {
+                    method: 'DELETE',
+                    headers: {
+                        ...headers,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        broadcaster_id: channelID(),
+                        moderator_id: user_id,
+                        id
+                    })
+                }
+            );
+            if (req.status == 204) {
+                statusresp.textContent = 'Term Removed';
+                removeTermRow(id);
+            } else {
+                statusresp.textContent = `Term failed removal with ${req.status}`;
+                console.log(await req.text());
+            }
+        }
+
+        async function createTerm(text) {
+            let req = await fetch(
+                'https://api.twitch.tv/helix/moderation/blocked_terms',
+                {
+                    method: 'POST',
+                    headers: {
+                        ...headers,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        broadcaster_id: channelID(),
+                        moderator_id: user_id,
+                        text
+                    })
+                }
+            );
+
+            let {data} = await req.json();
+
+            if (req.status != 200) {
+                statusresp.textContent = 'Failed to add Term';
+                return;
+            }
+            if (data.length != 1) {
+                statusresp.textContent = 'Term not cteated';
+                return;
+            }
+
+            statusresp.textContent = `Term created with ID: ${data[0].id}`;
+            // create row
+            addTermRow(data[0]);
+        }
+        newtermCreate.addEventListener('click', (e) => {
+            e.preventDefault();
+            createTerm(newterm.value);
+        });
+
+        processToken('g11v6bm0jxr1w94i422vf3q9jt9j1o');
+    </script>
+</body>
+</html>
