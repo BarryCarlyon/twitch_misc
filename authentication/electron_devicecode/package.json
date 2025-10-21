@@ -10,11 +10,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ."
   },
+  "type": "module",
   "devDependencies": {
-    "electron": "^30.0.1"
+    "electron": "^38.3.0"
   },
   "dependencies": {
-    "electron-fetch": "^1.9.1",
-    "electron-store": "^8.2.0"
+    "electron-store": "^11.0.2"
   }
 }

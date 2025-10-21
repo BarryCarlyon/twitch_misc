@@ -1,22 +1,18 @@
 process.env.CLIENT_ID = '';
 let scopes = [ 'user:read:email' ];
 
-const { app, BrowserWindow, ipcMain, shell } = require('electron')
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 
 const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
     app.quit();
-    return;
 }
 
-const path = require('path');
+import * as path from 'path';
 
-const Store = require('electron-store');
-const { electron } = require('process');
+import Store from 'electron-store';
 const store = new Store();
-
-const fetch = require('electron-fetch').default
 
 let win;
 
@@ -115,7 +111,9 @@ function startPolling({ device_code, expires_in, interval }) {
     // run
     clearInterval(poller);
     poller = setInterval(() => {
-        console.log(new Date(), '>', expires_at);
+        let timLeft = expires_at - new Date();
+        let seconds = Math.floor(timLeft / 1000);
+        console.log(new Date(), '>', expires_at, '-', seconds);
 
         if (new Date() > expires_at) {
             console.log('its dead jim');
