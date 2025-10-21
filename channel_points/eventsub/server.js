@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
+const got = require('got').default;
 
 const client_config = JSON.parse(fs.readFileSync(path.join(
     __dirname,
@@ -273,7 +273,7 @@ function goGetSubs(pagination) {
         responseType: 'json'
     })
     .then(resp => {
-        console.log(resp.body.data.length, '/', subs_that_exist.length, '--', resp.body.total, '/', resp.body.limit);
+        console.log(resp.body.data.length, '/', subs_that_exist.length, '--', resp.body.total, '/', resp.body.max_total_cost);
 
         for (var x=0;x<resp.body.data.length;x++) {
             subs_that_exist.push(resp.body.data[x]);
