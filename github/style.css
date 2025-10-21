@@ -22,6 +22,7 @@ table.noborder, table.noborder th, table.noborder td {
 }
 input[disabled] {
     background: #3e0000;
+    cursor: not-allowed;
 }
 input, select { width: 100%; }
 input[type="submit"] {
@@ -34,6 +35,14 @@ input[type="submit"]:hover {
 input[type="button"], button {
     background: #7c63ac;
     cursor: pointer;
+    color: #ffffff;
+}
+
+.flex {
+    display: flex;
+}
+.flex * {
+    flex: 1;
 }
 
 #status {
@@ -59,7 +68,7 @@ input[type="button"], button {
 .disableit {
     position: relative;
 }
-.disableit:after {
+.disableit:after, .modal {
     content: '';
     position: absolute;
     top: 0px;
@@ -67,4 +76,16 @@ input[type="button"], button {
     right: 0px;
     bottom: 0px;
     background: rgba(0,0,0,0.5);
+}
+
+.modal_content {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    right: 50px;
+    bottom: 50px;
+    background: rgba(0,0,0,1);
+    margin: auto;
+    border: 1px solid white;
+    border-radius: 10px;
 }
