@@ -21,3 +21,11 @@ Give it a [whirl here](https://barrycarlyon.github.io/twitch_misc/examples/block
 - [Add Blocked Terms](https://dev.twitch.tv/docs/api/reference/#add-blocked-term)
 - [Remove Blocked Terms](https://dev.twitch.tv/docs/api/reference/#remove-blocked-term)
 - [Get Moderated Channels](https://dev.twitch.tv/docs/api/reference/#get-moderated-channels)
+
+## Running the example
+
+If you have PHP installed
+
+> sudo php -S 127.0.0.1:80
+
+or just throw the code up on a webpage somewhere
