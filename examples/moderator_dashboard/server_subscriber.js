@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
+const got = require('got').default;
 
 const express = require('express');
 
