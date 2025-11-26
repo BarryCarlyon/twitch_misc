@@ -116,18 +116,29 @@ function getRewards() {
                 output.append(tr);
 
                 tr.setAttribute('id', reward.id);
-                tr.style.backgroundColor = reward.background_color;
 
                 cell('Cannot', tr);
-                cell(reward.id, tr);
+                let info = cell('', tr);
+                var d = document.createElement('div');
+                info.append(d);
+                d.textContent = reward.id;
+                var d = document.createElement('div');
+                info.append(d);
+                d.textContent = reward.title;
 
                 let itd = cell('', tr);
+                itd.style.textAlign = 'center';
+                let iti = document.createElement('img');
+                itd.append(iti);
                 if (reward.image && reward.image.url_1x) {
-                    let iti = document.createElement('img');
-                    itd.append(iti);
                     iti.setAttribute('src', reward.image.url_1x);
+                } else {
+                    //default_image
+                    iti.setAttribute('src', reward.default_image.url_1x);
                 }
+                itd.style.backgroundColor = reward.background_color;
 
+                /*
                 let titleCell = cell('', tr);
                     var d = document.createElement('div');
                     titleCell.append(d);
@@ -142,6 +153,7 @@ function getRewards() {
                     u.setAttribute('data-update', 'title');
                     u.setAttribute('data-id', reward.id);
                     u.value = 'U';
+                */
                 cell(reward.cost, tr);
 
                 var td = tr.insertCell();
@@ -153,6 +165,9 @@ function getRewards() {
                 pauser.setAttribute('data-toggle', 'is_paused');
                 pauser.setAttribute('data-id', reward.id);
                 cell((reward.should_redemptions_skip_request_queue ? 'Skips' : 'Need Mod'), tr);
+
+                cell(reward.prompt, tr);
+                /*
                 let promptCell = cell('', tr);
                     var d = document.createElement('div');
                     promptCell.append(d);
@@ -167,10 +182,17 @@ function getRewards() {
                     u.setAttribute('data-update', 'prompt');
                     u.setAttribute('data-id', reward.id);
                     u.value = 'U';
+                */
                 var td = tr.insertCell();
                 colorCell((reward.is_user_input_required ? 'IsReq' : ''), td, reward.is_user_input_required);
 
-                let del = cell('x', tr);
+                let edit = cell('', tr);
+                edit.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/></svg>';
+                edit.classList.add('edit_reward');
+                edit.setAttribute('data-id', reward.id);
+
+                let del = cell('', tr);
+                del.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>';
                 del.classList.add('delete_reward');
                 del.setAttribute('data-id', reward.id);
             });
@@ -216,6 +238,7 @@ function getRewardsManage() {
             let { id } = reward;
             let el = document.getElementById(id);
             if (el) {
+                el.classList.add('can_manage');
                 el.querySelector('td').textContent = 'Can';
                 el.querySelector('td').style.backgroundColor = 'green';
             }
@@ -244,7 +267,7 @@ function cell(value, row) {
     return td;
 }
 
-
+/*
 document.getElementById('reward_create_form').addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -317,6 +340,7 @@ document.getElementById('reward_create_form').addEventListener('submit', (e) => 
         message('An Error Occured creating a reward: error');
     });
 });
+*/
 
 function deleteReward(id) {
     message(`Attempt to delete reward ${id}`);
@@ -339,7 +363,8 @@ function deleteReward(id) {
     .then(async resp => {
         message(`Reward Delete Result: ${resp.status}`);
         if (resp.status == 204) {
-            getRewards();
+            //getRewards();
+            // is trigger from evnetsub
         } else {
             message(`Reward Delete Result: ${await resp.text()}`);
         }
@@ -378,24 +403,55 @@ is_global_cooldown_enabled.addEventListener('change', (e) => {
 });
 global_cooldown_seconds.setAttribute('disabled', 'disabled');
 
+function updateDisables() {
+    if (is_max_per_stream_enabled.checked) {
+        max_per_stream.removeAttribute('disabled');
+    } else {
+        max_per_stream.setAttribute('disabled', 'disabled');
+    }
+    if (is_max_per_user_per_stream_enabled.checked) {
+        max_per_user_per_stream.removeAttribute('disabled');
+    } else {
+        max_per_user_per_stream.setAttribute('disabled', 'disabled');
+    }
+    if (is_global_cooldown_enabled.checked) {
+        global_cooldown_seconds.removeAttribute('disabled');
+    } else {
+        global_cooldown_seconds.setAttribute('disabled', 'disabled');
+    }
+}
+
+
 output.addEventListener('click', (e) => {
     let rewardID = e.target.getAttribute('data-id');
+    console.log('clicked on output', rewardID);
+    if (!rewardID) {
+        return;
+    }
 
     if (e.target.classList.contains('delete_reward')) {
-        deleteReward(e.target.getAttribute('data-id'));
+        if (confirm('Are you sure you wish to delete?')) {
+            deleteReward(rewardID);
+        }
+    } else if (e.target.classList.contains('edit_reward')) {
+        startEdit(rewardID);
     } else if (e.target.getAttribute('data-toggle')) {
         // we have a jerb
         let toggle = e.target.getAttribute('data-toggle');
 
         // build a patch
-        togglePatcher(rewardID, toggle);
+        togglePatcher(toggle, rewardID);
     } else if (e.target.getAttribute('data-update')) {
         let pl = {};
         pl[e.target.getAttribute('data-update')] = document.getElementById(e.target.getAttribute('data-linked')).value;
-        patcher(rewardID, pl);
+        patcher(pl, rewardID);
     }
 });
-async function togglePatcher(id, field) {
+
+// this function toggles asingle value
+// to the opposite of what it currently is on the API
+// so can differ from the current UI if desynced
+async function togglePatcher(field, id) {
     // get current value
     let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
     url.search = new URLSearchParams([
@@ -434,8 +490,170 @@ async function togglePatcher(id, field) {
     // and patch it
     patcher(id, pl);
 }
+// edit UI
+closemodal.addEventListener('click', (e) => {
+    e.preventDefault();
+    myshittymodal.classList.remove('show');
+});
+async function startEdit(rewardID) {
+    // get current values
+    let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+    url.search = new URLSearchParams([
+        [ 'broadcaster_id', user_id ],
+        [ 'id', rewardID ]
+    ]);
 
-async function patcher(id, pl) {
+    let currentReq = await fetch(
+        url,
+        {
+            "method": 'GET',
+            "headers": {
+                "Client-ID": client_id,
+                "Authorization": `Bearer ${access_token}`,
+            }
+        }
+    );
+    if (currentReq.status != 200) {
+        message(`Reward Update GET Error: ${await currentReq.text()}`);
+        // balls
+        return;
+    }
+
+    let currentData = await currentReq.json();
+    // find it
+    let { data } = currentData;
+    if (data.length != 1) {
+        message(`Reward Update Error: Failed to get current value`);
+        return;
+    }
+    let reward = data[0];
+
+    document.querySelector('[name="rewardID"]').value = reward.id;
+    // pop modal and populate values
+    document.querySelector('[name="title"]').value = reward.title;
+    document.querySelector('[name="prompt"]').value = reward.prompt;
+    document.querySelector('[name="cost"]').value = reward.cost;
+    document.querySelector('[name="background_color"]').value = reward.background_color;
+
+    document.querySelector('[name="is_enabled"]').checked = reward.is_enabled;
+    document.querySelector('[name="is_user_input_required"]').checked = reward.is_user_input_required;
+    document.querySelector('[name="should_redemptions_skip_request_queue"]').checked = reward.should_redemptions_skip_request_queue;
+
+    document.querySelector('[name="is_max_per_stream_enabled"]').checked = reward.max_per_stream_setting.is_enabled;
+    document.querySelector('[name="max_per_stream"]').value = reward.max_per_stream_setting.max_per_stream;
+    document.querySelector('[name="is_max_per_user_per_stream_enabled"]').checked = reward.max_per_user_per_stream_setting.is_enabled;
+    document.querySelector('[name="max_per_user_per_stream"]').value = reward.max_per_user_per_stream_setting.max_per_user_per_stream;
+    document.querySelector('[name="is_global_cooldown_enabled"]').checked = reward.global_cooldown_setting.is_enabled;
+    document.querySelector('[name="global_cooldown_seconds"]').value = reward.global_cooldown_setting.global_cooldown_seconds;
+
+    updateDisables();
+    // show
+    myshittymodal.classList.add('show');
+}
+
+mknew.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelector('[name="rewardID"]').value = '';
+    // blank
+    document.querySelector('[name="title"]').value = '';
+    document.querySelector('[name="prompt"]').value = '';
+    document.querySelector('[name="cost"]').value = '';
+    document.querySelector('[name="background_color"]').value = '';
+
+    document.querySelector('[name="is_enabled"]').checked = false;
+    document.querySelector('[name="is_user_input_required"]').checked = false;
+    document.querySelector('[name="should_redemptions_skip_request_queue"]').checked = false;
+
+    document.querySelector('[name="is_max_per_stream_enabled"]').checked = false;
+    document.querySelector('[name="max_per_stream"]').value = '';
+    document.querySelector('[name="is_max_per_user_per_stream_enabled"]').checked = false;
+    document.querySelector('[name="max_per_user_per_stream"]').value = '';
+    document.querySelector('[name="is_global_cooldown_enabled"]').checked = false;
+    document.querySelector('[name="global_cooldown_seconds"]').value = '';
+
+    updateDisables();
+
+    myshittymodal.classList.add('show');
+});
+createorupdate.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    let payload = {
+        title: document.querySelector('[name="title"]').value,
+        cost: document.querySelector('[name="cost"]').value,
+
+        prompt: document.querySelector('[name="prompt"]').value,
+        is_enabled: document.querySelector('[name="is_enabled"]').checked,
+
+        background_color: document.querySelector('[name="background_color"]').value,
+
+        is_user_input_required: document.querySelector('[name="is_user_input_required"]').checked,
+
+        is_max_per_stream_enabled: document.querySelector('[name="is_max_per_stream_enabled"]').checked,
+        is_max_per_user_per_stream_enabled: document.querySelector('[name="is_max_per_user_per_stream_enabled"]').checked,
+        is_global_cooldown_enabled: document.querySelector('[name="is_global_cooldown_enabled"]').checked,
+
+        should_redemptions_skip_request_queue: document.querySelector('[name="should_redemptions_skip_request_queue"]').checked
+    }
+
+    //if (payload.is_max_per_stream_enabled) {
+        payload.max_per_stream = parseInt(document.querySelector('[name="max_per_stream"]').value);
+    //}
+    //if (payload.is_max_per_user_per_stream_enabled) {
+        payload.max_per_user_per_stream = parseInt(document.querySelector('[name="max_per_user_per_stream"]').value);
+    //}
+    //if (payload.is_global_cooldown_enabled) {
+        payload.global_cooldown_seconds = parseInt(document.querySelector('[name="global_cooldown_seconds"]').value);
+    //}
+
+    // simple sanitize blanks
+    for (let key in payload) {
+        if (payload[key] === '') {
+            delete payload[key];
+        }
+    }
+
+    // decide what to do
+    let rewardID = document.querySelector('[name="rewardID"]').value;
+
+    if (rewardID) {
+        // patch
+        patcher(payload, rewardID)
+    } else {
+        // post
+        poster(payload)
+    }
+    myshittymodal.classList.remove('show');
+});
+
+// send request
+async function poster(pl) {
+    let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
+    url.search = new URLSearchParams([
+        [ 'broadcaster_id', user_id ]
+    ]).toString();
+
+    message('Attempting to create a reward');
+    let postReq = await fetch(
+        url,
+        {
+            "method": "POST",
+            "headers": {
+                "Client-ID": client_id,
+                "Authorization": `Bearer ${access_token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(pl)
+        }
+    );
+    if (postReq.status != 200) {
+        // balls
+        message(`Reward Create Error: ${await postReq.text()}`);
+    }
+    // is trigger from evnetsub
+    //getRewards();
+}
+async function patcher(pl, id) {
     let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
     url.search = new URLSearchParams([
         [ 'broadcaster_id', user_id ],
@@ -458,8 +676,18 @@ async function patcher(id, pl) {
         // balls
         message(`Reward Update Error: ${await patchReq.text()}`);
     }
-    getRewards();
+    // is trigger from evnetsub
+    //getRewards();
 }
+
+
+
+
+
+
+
+
+
 
 function eventsub() {
     let socket_space = new initSocket(true);
@@ -471,61 +699,9 @@ function eventsub() {
         console.log('keepalive', new Date());
     });
 
-    socket_space.on('channel.channel_points_custom_reward.update', ({ metadata, payload }) => {
-        let { event } = payload;
-
-        let { id } = event;
-        message(`Process a channel.channel_points_custom_reward.update on ${id}`);
-
-        let { image, title, cost } = event;
-
-        let { is_enabled, is_paused } = event;
-        let { should_redemptions_skip_request_queue } = event;
-
-        let { prompt, is_user_input_required } = event;
-
-        let row = document.getElementById(id);
-        if (!row) {
-            // not found
-            return;
-        }
-
-        let cells = row.querySelectorAll('td');
-
-        // 2 is the image
-        //cells[2].IMAGE
-        cells[2].textContent = '';
-        if (image && image.url_1x) {
-            let iti = document.createElement('img');
-            cells[2].append(iti);
-            iti.setAttribute('src', image.url_1x);
-        }
-
-        // 3 is the title
-        let inp = document.getElementById(`field_${id}_title`);
-        if (inp) {
-            inp.vlaue = title;
-        }
-        // 4 is the price
-        cells[4].textContent = cost;
-        // 5 is enabled 6 is paused
-        colorCell((is_enabled ? 'Enabled' : 'Disabled'), cells[5], is_enabled);
-        colorCell((is_paused ? 'Paused' : 'Running'), cells[6], !is_paused);
-        // 7 skip
-        cells[7].textContent = (should_redemptions_skip_request_queue ? 'Skips' : 'Need Mod');
-        // 8 prompt
-        //cells[8].textContent = prompt;
-        let promptCell = document.getElementById(`field_${id}_prompt`);
-        promptCell.value = prompt;
-        // 9 user input
-        colorCell((is_user_input_required ? 'IsReq' : ''), cells[9], is_user_input_required);
-    });
-    socket_space.on('channel.channel_points_custom_reward.add', ({ metadata, payload }) => {
-        getRewards();
-    });
-    socket_space.on('channel.channel_points_custom_reward.remove', ({ metadata, payload }) => {
-        getRewards();
-    });
+    socket_space.on('channel.channel_points_custom_reward.add', getRewards);
+    socket_space.on('channel.channel_points_custom_reward.update', getRewards);
+    socket_space.on('channel.channel_points_custom_reward.remove', getRewards);
 }
 
 

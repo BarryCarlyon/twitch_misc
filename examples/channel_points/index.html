@@ -4,6 +4,9 @@
     <title>Channel Points | Twitch API Example</title>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
     <style>
+        svg {
+            pointer-events: none;
+        }
         #loading {
             height: 200px;
             overflow: scroll;
@@ -36,14 +39,71 @@
             background: green;
             cursor: pointer;
         }
+        thead input[type="button"] {
+            width: 100%;
+        }
+
         input[type="button"]:hover, input[type="submit"]:hover {
             background: red;
         }
 
+        tr td:nth-child(5),
         tr td:nth-child(6),
-        tr td:nth-child(7),
-        .delete_reward {
+        .delete_reward,
+        .edit_reward {
+            cursor: not-allowed;
+        }
+
+        tr.can_manage td:nth-child(5),
+        tr.can_manage td:nth-child(6),
+        .can_manage .delete_reward,
+        .can_manage .edit_reward {
+            background: rgba(0,200,0,0.5);
             cursor: pointer;
+        }
+        tr.can_manage td:nth-child(5):hover,
+        tr.can_manage td:nth-child(6):hover,
+        .can_manage .delete_reward:hover,
+        .can_manage .edit_reward:hover {
+            opacity: 0.5;
+        }
+        img { text-align: center; }
+
+        #myshittymodal {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+            right: 0px;
+            background-color: rgba(0,0,0,0.5);
+
+            opacity: 0;
+            display: none;
+        }
+        #myshittymodal.show {
+            opacity: 1;
+            display: block;
+        }
+
+        #myshittymodal form {
+            background-color: rgba(0,0,0,1);
+            margin: auto;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            bottom: 20px;
+            right: 20px;
+            padding: 20px;
+            min-width: 650px;
+        }
+
+        .flexy {
+            display: flex;
+            align-items: center;
+        }
+        .flexy div input {
+            width: 90%;
+            margin: auto;
         }
     </style>
     <script type="text/javascript" src="eventsub.js"></script>
@@ -70,82 +130,88 @@
         <thead>
             <tr>
                 <th>Can Control</th>
-                <th>Reward ID</th>
+                <th>Reward Info</th>
                 <th>Custom Image</th>
-                <th>Reward Title</th>
                 <th>Cost</th>
                 <th>Visible</th>
                 <th>Paused</th>
                 <th>Skip Queue</th>
                 <th>Prompt</th>
-                <th>User Input Req.</th>
-                <th>X</th>
+                <th>Userenter</th>
+                <th colspan="2">
+                    <input type="button" id="mknew" value="Make New" />
+                </th>
             </tr>
         </thead>
         <tbody id="output"></tbody>
     </table>
 
-    <form id="reward_create_form" action="" method="post">
-        <fieldset>
-            <div>
-                <label for="reward_title">Reward Title</label>
-                <input type="text" name="reward_title" id="reward_title" />
-            </div>
-            <div>
+    <div id="myshittymodal">
+        <form action="" method="post" id="createorupdate">
+            <fieldset>
+                <legend>Details</legend>
+
                 <div>
-                    <label for="reward_cost">Reward Cost</label>
-                    <input type="number" name="reward_cost" id="reward_cost" min="1" step="1" value="50" />
+                    <label for="rewardID">ID</label>
+                    <input type="text" name="rewardID" id="rewardID" readonly />
+                </div>
+
+                <div>
+                    <label for="title">Title</label>
+                    <input type="text" name="title" id="title" required />
                 </div>
                 <div>
-                    <label for="reward_prompt">Reward Prompt</label>
-                    <input type="text" name="reward_prompt" id="reward_prompt" />
-                </div>
-            </div>
-            <div>
-                <label for="reward_background_color">Background Color</label>
-                <input type="color" name="reward_background_color" id="reward_background_color" />
-            </div>
-            <div>
-                <div>
-                    <label for="reward_is_enabled">Enabled</label>
-                    <input type="checkbox" name="reward_is_enabled" id="reward_is_enabled" />
+                    <label for="prompt">Prompt</label>
+                    <input type="text" name="prompt" id="prompt" />
                 </div>
                 <div>
-                    <label for="reward_is_user_input_required">User Input Required</label>
-                    <input type="checkbox" name="reward_is_user_input_required" id="reward_is_user_input_required" />
+                    <label for="cost">Cost</label>
+                    <input type="number" name="cost" id="cost" required />
                 </div>
-            </div>
-            <div>
                 <div>
-                    <label for="reward_should_redemptions_skip_request_queue">Skip Queue</label>
-                    <input type="checkbox" name="reward_should_redemptions_skip_request_queue" id="reward_should_redemptions_skip_request_queue" />
+                    <label for="background_color">Background Color</label>
+                    <input type="color" name="background_color" id="background_color" />
                 </div>
-            </div>
-            <div>
+            </fieldset>
+            <fieldset>
+                <legend>Controls</legend>
+                <div>
+                    <label for="is_enabled">Is Enabled</label>
+                    <input type="checkbox" name="is_enabled" id="is_enabled" />
+                </div>
+                <div>
+                    <label for="is_user_input_required">Is User Input Required</label>
+                    <input type="checkbox" name="is_user_input_required" id="is_user_input_required" />
+                </div>
+                <div>
+                    <label for="should_redemptions_skip_request_queue">Should Redemptions Skip Request Queue - aka allow disallow refunds</label>
+                    <input type="checkbox" name="should_redemptions_skip_request_queue" id="should_redemptions_skip_request_queue" />
+                </div>
+            </fieldset>
+            <fieldset class="flexy">
+                <legend>Rules</legend>
                 <div>
                     <label for="is_max_per_stream_enabled">Max Per Stream</label>
                     <input type="checkbox" name="is_max_per_stream_enabled" id="is_max_per_stream_enabled" />
-                    <input type="number" name="max_per_stream" id="max_per_stream" min="1" max="100" step="1" />
+                    <input type="number" name="max_per_stream" id="max_per_stream" />
                 </div>
                 <div>
                     <label for="is_max_per_user_per_stream_enabled">Max Per User Per Stream</label>
                     <input type="checkbox" name="is_max_per_user_per_stream_enabled" id="is_max_per_user_per_stream_enabled" />
-                    <input type="number" name="max_per_user_per_stream" id="max_per_user_per_stream" min="1" max="100" step="1" />
+                    <input type="number" name="max_per_user_per_stream" id="max_per_user_per_stream" />
                 </div>
-            </div>
-            <div>
                 <div>
-                    <label for="is_global_cooldown_enabled">Cool Down between (seconds)</label>
+                    <label for="is_global_cooldown_enabled">Cooldown between Redeems</label>
                     <input type="checkbox" name="is_global_cooldown_enabled" id="is_global_cooldown_enabled" />
-                    <input type="number" name="global_cooldown_seconds" id="global_cooldown_seconds" min="30" max="86400" step="30" />
+                    <input type="number" name="global_cooldown_seconds" id="global_cooldown_seconds" />
                 </div>
-            </div>
-
-            <div>
-                <input type="submit" value="Create" />
-            </div>
-        </fieldset>
-    </form>
+            </fieldset>
+            <fieldset>
+                <input type="submit" value="Create/Update Reward" />
+                <input type="button" id="closemodal" value="Cancel" />
+            </fieldset>
+        </form>
+    </div>
 
     <script type="text/javascript" src="channel_points.js"></script>
 </body>
