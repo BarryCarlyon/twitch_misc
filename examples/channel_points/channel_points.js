@@ -138,22 +138,6 @@ function getRewards() {
                 }
                 itd.style.backgroundColor = reward.background_color;
 
-                /*
-                let titleCell = cell('', tr);
-                    var d = document.createElement('div');
-                    titleCell.append(d);
-                    var i = document.createElement('input');
-                    d.append(i);
-                    i.value = reward.title;
-                    i.setAttribute('id', `field_${reward.id}_title`);
-                    var u = document.createElement('input');
-                    d.append(u);
-                    u.setAttribute('type', 'button');
-                    u.setAttribute('data-linked', `field_${reward.id}_title`);
-                    u.setAttribute('data-update', 'title');
-                    u.setAttribute('data-id', reward.id);
-                    u.value = 'U';
-                */
                 cell(reward.cost, tr);
 
                 var td = tr.insertCell();
@@ -167,22 +151,7 @@ function getRewards() {
                 cell((reward.should_redemptions_skip_request_queue ? 'Skips' : 'Need Mod'), tr);
 
                 cell(reward.prompt, tr);
-                /*
-                let promptCell = cell('', tr);
-                    var d = document.createElement('div');
-                    promptCell.append(d);
-                    var i = document.createElement('input');
-                    d.append(i);
-                    i.value = reward.prompt;
-                    i.setAttribute('id', `field_${reward.id}_prompt`);
-                    var u = document.createElement('input');
-                    d.append(u);
-                    u.setAttribute('type', 'button');
-                    u.setAttribute('data-linked', `field_${reward.id}_prompt`);
-                    u.setAttribute('data-update', 'prompt');
-                    u.setAttribute('data-id', reward.id);
-                    u.value = 'U';
-                */
+
                 var td = tr.insertCell();
                 colorCell((reward.is_user_input_required ? 'IsReq' : ''), td, reward.is_user_input_required);
 
@@ -266,81 +235,6 @@ function cell(value, row) {
     td.textContent = value;
     return td;
 }
-
-/*
-document.getElementById('reward_create_form').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    let payload = {
-        title: reward_title.value,
-        cost: reward_cost.value,
-
-        prompt: reward_prompt.value,
-        is_enabled: reward_is_enabled.checked,
-
-        background_color: reward_background_color.value,
-
-        is_user_input_required: reward_is_user_input_required.checked,
-
-        is_max_per_stream_enabled: is_max_per_stream_enabled.checked,
-        is_max_per_user_per_stream_enabled: is_max_per_user_per_stream_enabled.checked,
-        is_global_cooldown_enabled: is_global_cooldown_enabled.checked,
-
-        should_redemptions_skip_request_queue: reward_should_redemptions_skip_request_queue.checked
-    }
-    //max_per_stream
-    //max_per_user_per_stream
-    //global_cooldown_seconds
-    if (payload.is_max_per_stream_enabled) {
-        payload.max_per_stream = max_per_stream.value;
-    }
-    if (payload.is_max_per_user_per_stream_enabled) {
-        payload.max_per_user_per_stream = max_per_user_per_stream.value;
-    }
-    if (payload.is_global_cooldown_enabled) {
-        payload.global_cooldown_seconds = global_cooldown_seconds.value;
-    }
-
-    for (key in payload) {
-        if (payload[key] === '') {
-            delete payload[key];
-        }
-    }
-
-    console.log(payload);//return;
-
-    let url = new URL('https://api.twitch.tv/helix/channel_points/custom_rewards');
-    url.search = new URLSearchParams([
-        [ 'broadcaster_id', user_id ]
-    ]).toString();
-
-    message('Attempting to create a reward');
-    fetch(
-        url,
-        {
-            "method": "POST",
-            "headers": {
-                "Client-ID": client_id,
-                "Authorization": `Bearer ${access_token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        }
-    )
-    .then(r => r.json().then(data => ({ status: r.status, body: data })))
-    .then(resp => {
-        message(`Reward Create Result: ${resp.status}`);
-        if (resp.status != 204) {
-            message(`Response: ${resp.body.message}`);
-        }
-        getRewards();
-    })
-    .catch(err => {
-        console.log(err);
-        message('An Error Occured creating a reward: error');
-    });
-});
-*/
 
 function deleteReward(id) {
     message(`Attempt to delete reward ${id}`);
