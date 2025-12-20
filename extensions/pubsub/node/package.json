@@ -9,7 +9,6 @@
   "author": "Barry Carlyon",
   "license": "WTFPL",
   "dependencies": {
-    "jsonwebtoken": "^9.0.0",
-    "node-fetch": "^3.3.0"
+    "jsonwebtoken": "^9.0.3"
   }
 }

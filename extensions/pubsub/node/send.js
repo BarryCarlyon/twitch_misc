@@ -12,8 +12,7 @@ let channel_id = "";
 
 // Require depedancies
 // Fetch is used for making HTTP/API Calls
-// we use a module but current node fetch is included
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+// we use current node fetch as included
 // jsonwebtoken is used for creating an decoding JWT's
 const jwt = require('jsonwebtoken');
 
