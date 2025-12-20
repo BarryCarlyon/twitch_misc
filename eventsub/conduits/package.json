@@ -13,8 +13,8 @@
   "type": "module",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "socket.io": "^4.8.1",
-    "ws": "^8.18.0"
+    "ws": "^8.18.3"
   }
 }
