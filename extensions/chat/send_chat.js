@@ -9,7 +9,7 @@ const config = JSON.parse(fs.readFileSync(path.join(
 
 // Require depedancies
 // Fetch is used for making HTTP/API Calls
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+// we'll use node internall fetch
 // jsonwebtoken is used for creating an decoding JWT's
 const jwt = require('jsonwebtoken');
 
