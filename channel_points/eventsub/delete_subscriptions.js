@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
-
 const client_config = JSON.parse(fs.readFileSync(path.join(
     __dirname,
     '..',
@@ -26,14 +24,15 @@ const app_access_token = JSON.parse(fs.readFileSync(path.join(
 // generate app access token
 // then we'll go get the userID we wanna work with
 
-got({
-    url: 'https://id.twitch.tv/oauth2/validate',
-    method: 'GET',
-    headers: {
-        'Authorization': 'Bearer ' + app_access_token.access_token
-    },
-    responseType: 'json'
-})
+fetch(
+    'https://id.twitch.tv/oauth2/validate',
+    {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + app_access_token.access_token
+        }
+    }
+)
 .then(resp => {
     goUser();
 })
@@ -50,18 +49,22 @@ got({
 });
 
 function regenerateApp() {
-    got({
-        url: 'https://id.twitch.tv/oauth2/token',
-        method: 'POST',
-        searchParams: {
-            client_id: client_config.client_id,
-            client_secret: client_config.client_secret,
-            grant_type: 'client_credentials'
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        app_access_token.access_token = resp.body.access_token;
+    let token_url = new URL('https://id.twitch.tv/oauth2/token');
+    token_url.search = new URLSearchParams([
+        [ 'client_id',      client_config.client_id ],
+        [ 'client_secret',  client_config.client_secret ],
+        [ 'grant_type',     'client_credentials' ]
+    ]).toString();
+
+    fetch(
+        token_url,
+        {
+            method: 'POST',
+        }
+    )
+    .then(async resp => {
+        let { access_token } = await resp.json();
+        app_access_token.access_token = access_token;
 
         fs.writeFileSync(path.join(
             __dirname,
@@ -83,14 +86,15 @@ function regenerateApp() {
     });
 }
 function goUser() {
-    got({
-        url: 'https://id.twitch.tv/oauth2/validate',
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + account_config.access_token
-        },
-        responseType: 'json'
-    })
+    fetch(
+        "https://id.twitch.tv/oauth2/validate",
+        {
+            method: "GET",
+            headers: {
+                Authorization: "Bearer " + account_config.access_token
+            }
+        }
+    )
     .then(resp => {
         go();
     })
@@ -108,19 +112,26 @@ function goUser() {
 }
 
 function regenerateUser() {
-    got({
-        url: 'https://id.twitch.tv/oauth2/token',
-        method: 'POST',
-        searchParams: {
-            grant_type: 'refresh_token',
-            refresh_token: account_config.refresh_token,
-            client_id: client_config.client_id,
-            client_secret: client_config.client_secret
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        console.log(resp.body);
+    let url = new URL('https://id.twitch.tv/oauth2/token');
+    url.search = new URLSearchParams([
+        [ 'client_id', client_config.client_id ],
+        [ 'client_secret', client_config.client_secret ],
+        [ 'grant_type', 'refresh_token' ],
+        [ 'refresh_token', account_config.refresh_token ]
+    ]);
+
+    fetch(
+        url,
+        {
+            method: 'POST'
+        }
+    )
+    .then(async (resp) => {
+        if (resp.status != 200) {
+            throw new Error('failed to regenerateUser: ' + resp.status);
+        }
+
+        let body = await resp.json();
 
         for (var k in resp.body) {
             account_config[k] = resp.body[k];
@@ -135,11 +146,7 @@ function regenerateUser() {
         go();
     })
     .catch(err => {
-        if (err.response) {
-            console.error('Error regenerateUser', err.response.statusCode, err.response.body);
-        } else {
-            console.error('Error regenerateUser', err);
-        }
+        console.error('Error regenerateUser', err);
     });
 }
 
@@ -155,17 +162,22 @@ var subscriptions_to_make = {
 
 function go() {
     // who am I
-    got({
-        url: 'https://api.twitch.tv/helix/users',
-        method: 'GET',
-        headers: {
-            'Client-ID': client_config.client_id,
-            'Authorization': 'Bearer ' + account_config.access_token
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        broadcaster_id = resp.body.data[0].id;
+    fetch(
+        'https://api.twitch.tv/helix/users',
+        {
+            method: 'GET',
+            headers: {
+                'Client-ID': client_config.client_id,
+                'Authorization': 'Bearer ' + account_config.access_token
+            }
+        }
+    )
+    .then(async (resp) => {
+        if (resp.status != 200) {
+            throw new Error('Failed to get user: ' + resp.status);
+        }
+        let { data } = await resp.body;
+        broadcaster_id = data[0].id;
 
         // get subs that exist
         goGetSubs();
@@ -181,40 +193,49 @@ function go() {
 
 var subs_that_exist = [];
 
-function goGetSubs(pagination) {
-    got({
-        url: 'https://api.twitch.tv/helix/eventsub/subscriptions',
-        method: 'GET',
-        headers: {
-            'client-id': client_config.client_id,
-            'Authorization': 'Bearer ' + app_access_token.access_token
-        },
-        searchParams: {
-            first: 100,
-            after: (pagination ? pagination : '')
-        },
-        responseType: 'json'
-    })
-    .then(resp => {
-        console.log(resp.body.data.length, '/', subs_that_exist.length, '--', resp.body.total, '/', resp.body.limit);
 
-        for (var x=0;x<resp.body.data.length;x++) {
-            subs_that_exist.push(resp.body.data[x]);
+function goGetSubs(pagination) {
+    let url = new URL('https://api.twitch.tv/helix/eventsub/subscriptions');
+    let p = [
+        [ 'first', 100 ]
+    ]
+    if (pagination) {
+        p.push([
+            'after', pagination
+        ]);
+    }
+    url.search = new URLSearchParams(p);
+
+    fetch(
+        url,
+        {
+            method: 'GET',
+            headers: {
+                'client-id': client_config.client_id,
+                'Authorization': 'Bearer ' + app_access_token.access_token
+            }
+        }
+    )
+    .then(async (resp) => {
+        if (resp.status != 200) {
+            throw new Error('Failed to get subs: ' + resp.status);
+        }
+        let { data, total, max_total_cost, pagination } = await resp.body();
+        console.log(data.length, '/', subs_that_exist.length, '--', total, '/', max_total_cost);
+
+        for (var x=0;x<data.length;x++) {
+            subs_that_exist.push(data[x]);
         }
 
-        if (resp.body.pagination && resp.body.pagination.cursor) {
-            goGetSubs(resp.body.pagination.cursor);
+        if (pagination && pagination.cursor) {
+            goGetSubs(pagination.cursor);
         } else {
             console.log('Got all');
             processSubs();
         }
     })
     .catch(err => {
-        if (err.response) {
-            console.error('Error get subs', err.response.statusCode, err.response.body);
-        } else {
-            console.error('Error get subs', err);
-        }
+        console.error('Error get subs', err);
     });
 }
 
@@ -238,26 +259,20 @@ function processSubs() {
 }
 
 function deleteSubscription(id) {
-    got({
-        url: 'https://api.twitch.tv/helix/eventsub/subscriptions',
-        method: 'DELETE',
-        headers: {
-            'client-id': client_config.client_id,
-            'Authorization': 'Bearer ' + app_access_token.access_token
-        },
-        searchParams: {
-            id
-        },
-        responseType: 'json'
-    })
+    fetch(
+        `https://api.twitch.tv/helix/eventsub/subscriptions?id=${id}`,
+        {
+            method: 'DELETE',
+            headers: {
+                'client-id': client_config.client_id,
+                'Authorization': 'Bearer ' + app_access_token.access_token
+            }
+        }
+    )
     .then(resp => {
-        console.log('Deleted', resp.body);
+        console.log('Deleted', resp.status);
     })
     .catch(err => {
-        if (err.response) {
-            console.error('Error', err.response.statusCode, err.response.body);
-        } else {
-            console.error('Error', err);
-        }
+        console.error('Error', err);
     });
 }

@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -151,7 +150,7 @@ async function create(item) {
             body: JSON.stringify(item)
         }
     );
-    
+
     console.log('Did', resp.status, (resp.status != 200 ? await resp.text() : ''));
 
     go();

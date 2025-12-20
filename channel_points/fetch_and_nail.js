@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
 const client_config = JSON.parse(fs.readFileSync(path.join(
     __dirname,
     'jsons',

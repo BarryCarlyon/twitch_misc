@@ -10,8 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0",
-    "got": "^14.6.0",
-    "node-fetch": "^3.3.2"
+    "express": "^5.2.1"
   }
 }
