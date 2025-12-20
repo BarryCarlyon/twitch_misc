@@ -49,6 +49,7 @@ let my_command_prefix = '!';
 bot.on('privmsg', (payload) => {
     let [channel, message] = payload.params;
 
+    let badges = payload.tags['badges'];
     let room_id = payload.tags['room-id'];
     let message_id = payload.tags.id;
 
@@ -75,12 +76,22 @@ bot.on('privmsg', (payload) => {
                 bot.send(channel, `The number ${n} has been rolled`);
                 return;
             case '!word':
-                bot.reply(channel, message_id, `You said: ${word_two}`);
+                if (badges.hasOwnProperty('subscriber') || badges.hasOwnProperty('founder')) {
+                    bot.reply(channel, message_id, `You, a sub or founder, said: ${word_two}`);
+                } else {
+                    bot.reply(channel, message_id, `You said: ${word_two}`);
+                }
                 return;
             case '!announce':
-                console.log(`Trigger announcement to ${room_id}`);
-                bot.send(channel, '.announce This is a test announcement COMMAND');
-                bot.announcement(room_id, 'This is a test announcement API');
+                // this command only works if moderator or lead_moderator
+                if (badges.hasOwnProperty('moderator') || badges.hasOwnProperty('lead_moderator')) {
+                    // is mod or lead mod do the do
+                    console.log(`Trigger announcement to ${room_id}`);
+                    bot.announcement(room_id, 'This is a test announcement API');
+                } else {
+                    // not a mod or lead mod
+                    console.log('NOPE not mod');
+                }
                 break;
         }
     }

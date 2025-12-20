@@ -240,7 +240,7 @@ class ChatBot extends EventEmitter {
 
         this.emit('opened');
 
-        console.log('Login with', this._username, this.access_token, this._anonymous);
+        console.log('Login with', this._username, this._anonymous);
 
         // auto connect
         if (this._anonymous) {
@@ -814,7 +814,7 @@ class ChatBot extends EventEmitter {
                 })
             }
         );
-        //console.debug('announcement_response', announcement_response.status, await announcement_response.text());
+        //console.debug('announcement_response', announcement_response.status);
         this.emit('announcement_response', announcement_response);
         return announcement_response;
     }

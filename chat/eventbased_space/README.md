@@ -14,6 +14,22 @@ A rising tide lifts all boats?
 
 I'm not one for libraries too much but I'll shunt the parse logic into a includable.
 
+## Sample Commands
+
+A simple permission structure exists to test if a user has permission to do a thing.
+
+This is done off testing for the presence of the relevant Chat Badge. This logic also works for eventsub if using chat over eventsub
+
+| command | perm | notes |
+| -- | -- | -- |
+| !dice | everyone | |
+| !word <word> |  | if sub or founder different output to non sub |
+| !annonce | moderator or lead moderator | |
+
+Essentailly a `founder` is a sub type of `subscriber`. No additional abilities.
+
+`lead_moderator` is a sub type of `moderator`. Just a lead has extra powers via the Twitch Dashboard.
+
 ## Notes
 
 This example requires node.js 18+ as it uses the native fetch implementation in node.js 18
