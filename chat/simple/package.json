@@ -10,6 +10,6 @@
   "author": "Barry Carlyon",
   "license": "WTFPL",
   "dependencies": {
-    "ws": "^8.18.3"
+    "ws": "^8.19.0"
   }
 }
