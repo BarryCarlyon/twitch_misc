@@ -10,6 +10,6 @@
   "author": "Barry Carlyon",
   "license": "WTFPL",
   "dependencies": {
-    "dotenv": "^16.0.3"
+    "dotenv": "^17.2.4"
   }
 }

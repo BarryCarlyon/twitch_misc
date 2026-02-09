@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import fetch from 'node-fetch';
-
 import { createClient } from 'redis';
 const redisClient = createClient();
 redisClient.on('error', err => console.log('Redis Client Error', err));
