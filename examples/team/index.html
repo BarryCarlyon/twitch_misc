@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Teams Page | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style>
+        #different_team {
+            float: right;
+            width: 25%;
+        }
+        #different_team input {
+            width: 100%;
+        }
+
+        #team * {
+            /* fix a fun injerit from the main style */
+            background-color: inherit;
+        }
+        #status {
+            background: #000000;
+            color: #FFFFFF;
+            display: block;
+            padding: 5px;
+            margin: 2px;
+            box-sizing: border-box;
+        }
+
+        #team {
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
+
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+            #team_inner {
+                width: 90rem;
+                margin: auto;
+                background: #26262c;
+                display: flex;
+                margin: 20px;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+                #left, #right {
+                    margin: 10px;
+                    padding: 10px;
+                    box-sizing: border-box;
+                }
+                #left {
+                    width: 25%;
+                }
+                    #logo {
+                        width: 250px;
+                        height: 250px;
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        margin: auto;
+                    }
+
+                    #team_count {
+                        float: right;
+                    }
+
+                        #team_members_list {
+                            height: 500px;
+                            overflow: auto;
+                        }
+                        #team_members_list>div {
+                            height: 30px;
+                            line-height: 30px;
+                            padding: 0px 5px;
+                            position: relative;
+                            cursor: pointer;
+                        }
+                        #team_members_list>div:hover {
+                            background: #464649;
+                        }
+                            .pfp {
+                                background-size: 25px 25px;
+                                background-repeat: no-repeat;
+                                background-position: center;
+                                border-radius: 50%;
+                                width: 25px;
+                                height: 25px;
+                                display: inline-block;
+                                margin-right: 5px;
+                            }
+                        #team_members_list .name {
+                            display: inline-block;
+                            line-height: 30px;
+                            font-size: 15px;
+                        }
+                        #team_members_list .live {
+                            position: absolute;
+                            top: 0px;
+                            right: 5px;
+                        }
+                            .live:before {
+                                content: '';
+                                width: 10px;
+                                height: 10px;
+                                display: block;
+                                background: red;
+                                border-radius: 50%;
+                                position: absolute;
+                                top: 9px;
+                                left: -15px;
+                            }
+                #right {
+                    width: 75%;
+                }
+                    #banner {
+                        width: 100%;
+                        height: 13rem;
+
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                    }
+
+                    #player_top,
+                    #player_bottom {
+                        position: relative;
+                    }
+
+                    #player_top>div,
+                    #player_bottom>div {
+                        vertical-align: top;
+                        display: inline-block;
+                        line-height: 30px;
+                    }
+                    .boxart {
+                        width: 40px;
+                        height: 55px;
+                        margin: 10px;
+                    }
+/*
+                    #team_description {
+                        padding: 20px 0px;
+                    }
+*/
+
+                    .info {
+                        position: absolute;
+                        top: 0px;
+                        right: 20px;
+                        cursor: pointer;
+                        background: rgba(255,255,255,0.15);
+                        border-radius: 10px;
+                    }
+                    .info_widget {
+                        position: absolute;
+                        width: 200px;
+                        padding: 20px;
+                        padding: 20px;
+                        background: #18181b;
+
+                        box-shadow: 2px 2px #000000;
+                    }
+
+
+                #team_members_list,
+                #player {
+                    background: #18181b;
+                }
+    </style>
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will Various endpoints. Generally calls will be done/cached server side with an <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow" target="_blank">App Access Token</a></p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/team">Github</a> or just View the source instead</p>
+
+    <p>Teams to try
+    <table>
+        <tr><td>Different Team Value</td><td>Team Name</td></tr>
+        <tr><td>7311</td><td>Twitch Ambassadors</td></tr>
+        <tr><td>loadedllc</td><td>Loaded</td></tr>
+        <tr><td>ths</td><td>The Hammer Squad</td></tr>
+    </table>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="different_team">
+        <form action="" method="post" id="different_team_form">
+            <input type="text" name="different_team_field" id="different_team_field" placeholder="Different Team (Hit Enter)" disabled />
+        </form>
+    </div>
+
+    <div id="status">Pending</div>
+
+    <div id="team">
+        <div id="team_inner">
+            <div id="left">
+                <div id="logo"></div>
+                <div id="team_members">
+                    <div id="team_count"></div>
+                    <p>Team Members</p>
+                    <div id="team_members_list"></div>
+                </div>
+            </div>
+            <div id="right">
+                <div id="banner"></div>
+                <div id="player">
+                    <div id="player_top"></div>
+                    <div id="player_player"></div>
+                    <div id="player_bottom"></div>
+                </div>
+                <div id="team_description"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        // setup a memory space for the token/userID
+        var access_token = '';
+        var user_id = '';
+
+        let status = document.getElementById('status');
+
+        // setuo authorise link
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        function processToken(token) {
+            access_token = token;
+
+            status.textContent = 'Got Token. Loading Things';
+
+            loadATeam('loadedllc');
+
+            document.getElementById('different_team_field').removeAttribute('disabled');
+        }
+
+        // split out as a function
+        // for no real reason other than to tidy up the call
+        // from the main loop
+        function getStreams(params) {
+            // 100 streams per page
+            params.push(['first', 100]);
+
+            let url = new URL('https://api.twitch.tv/helix/streams');
+            url.search = new URLSearchParams(params).toString();
+
+            return fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+        }
+        function getUsers(users_ids) {
+            let url = new URL('https://api.twitch.tv/helix/users');
+
+            url.search = new URLSearchParams(users_ids).toString();
+
+            return fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+        }
+
+        function loadATeam(name) {
+            let url = new URL('https://api.twitch.tv/helix/teams');
+            let params = {
+                name
+            };
+
+            url.search = new URLSearchParams(params).toString();
+
+            fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(async resp => {
+                // https://github.com/twitchdev/issues/issues/495
+                if (resp.data && resp.data.length == 1) {
+                    let team = resp.data[0];
+                    let { users } = team;
+
+                    // base enrich
+                    users.forEach(user => {
+                        user.live = false;
+                        user.title = '';
+                        user.category = '';
+                        user.viewer_count = 0;
+
+                        user.profile_image_url = '';
+                    });
+
+                    //console.log(users);
+
+                    let offset = 0;
+                    let offset_end = 0;
+                    let limit = 100;//both users and streams support 100 at once
+
+                    offset_end += limit;
+
+                    status.textContent = `Paging with limit ${offset}/${offset_end}/${users.length}`;
+                    let group = users.slice(offset,offset_end);
+
+                    // split the users in to groups of 100
+                    // and fetch all streams before we render the page!
+                    // normally I'd async this if JS/front only and laod streams after render
+                    // or preferably run this server side and use eventsub for stream up/down
+                    //while (group.length > 0) {
+                    while (offset < users.length) {
+                        status.textContent = `Paging with limit ${offset}/${offset_end}/${users.length}`;
+
+                        let user_ids = [];
+                        let ids = [];
+                        group.forEach(user => {
+                            // preforamt for URL params
+                            user_ids.push(['user_id', user.user_id]);
+                            ids.push(['id', user.user_id]);
+                        });
+
+                        //console.log('Run IDS', user_ids);
+
+                        status.textContent = `Load a page of streams ${offset}/${offset_end}/${users.length}`;
+                        await getStreams(user_ids)
+                            .then(resp => {
+                                //console.log('We got', resp.data.length, 'streams');
+                                if (resp.data.length > 0) {
+                                    // we got some streams
+                                    resp.data.forEach(stream => {
+                                        //console.log(stream);
+
+                                        users.forEach(user => {
+                                            if (user.user_id == stream.user_id) {
+                                                user.live = true;
+                                                user.title = stream.title;
+                                                user.category = stream.game_name;
+                                                user.viewer_count = stream.viewer_count;
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    // no one on this page live
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                status.textContent = 'Failed to load streams';
+                            });
+
+                        status.textContent = `Load a page of users ${offset}/${offset_end}/${users.length}`;
+                        await getUsers(ids)
+                            .then(resp => {
+                                if (resp.data.length > 0) {
+                                    // we got some streams
+                                    resp.data.forEach(profile => {
+                                        users.forEach(user => {
+                                            if (user.user_id == profile.id) {
+                                                user.profile_image_url = profile.profile_image_url;
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    // no one on this page live
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                status.textContent = 'Failed to load streams';
+                            });
+
+                        status.textContent = `Grab Next ${offset}/${offset_end}/${users.length}`;
+                        offset += limit;
+                        offset_end += limit;
+                        group = users.slice(offset,offset_end);
+                    }
+                    //console.log(team.users);
+
+                    status.textContent = 'Go for Build';
+                    console.log('Go for build');
+                    buildLayout(team);
+                } else {
+                    status.textContent = 'Team Not returned, is the name correct?';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                status.textContent = 'An Error Occured loading Teams';
+            });
+        }
+
+        function buildLayout(team) {
+            status.textContent = 'Building Team';
+
+            document.getElementById('team').style.backgroundImage = `url('${team.background_image_url}')`;
+
+            document.getElementById('logo').style.backgroundImage = `url('${team.thumbnail_url}')`;
+
+                document.getElementById('team_members_list').textContent = '';
+                document.getElementById('team_count').textContent = team.users.length;
+                // build team UI
+                //console.log(team.users);
+
+                // sort users by view count
+                team.users.sort((b,a) => {
+                    if (a.viewer_count < b.viewer_count) {
+                        return -1;
+                    }
+                    if (a.viewer_count > b.viewer_count) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                let did_live = false;
+                // render
+                team.users.forEach(user => {
+                    if (!did_live && user.live) {
+                        drawPlayer(user.user_id);
+                        did_live = true;
+                    }
+
+                    let item = document.createElement('div');
+                    document.getElementById('team_members_list').append(item);
+
+                    item.setAttribute('id', `twitch_${user.user_id}`);
+                    item.setAttribute('channel_id', user.user_id);
+                    item.setAttribute('channel_login', user.user_login);
+                    //title
+                    //category
+                    //viewer_count
+                    item.setAttribute('sort', user.viewer_count);
+
+                    let pfp = document.createElement('span');
+                    item.append(pfp);
+
+                    pfp.classList.add('pfp');
+                    pfp.style.backgroundImage = `url('${user.profile_image_url}')`;
+
+                    let username = document.createElement('span');
+                    item.append(username);
+
+                    username.classList.add('name');
+                    username.textContent = user.user_name;
+
+                    if (user.live) {
+                        let live = document.createElement('span');
+                        item.append(live);
+
+                        live.classList.add('live');
+                        live.textContent = commaify(user.viewer_count);
+                    }
+                });
+                // always draw a player
+                if (!did_live) {
+                    drawPlayer(team.users[0].user_id);
+                }
+
+
+            document.getElementById('banner').style.backgroundImage = `url('${team.banner}')`;
+
+            let desc = document.getElementById('team_description');
+            desc.textContent = '';
+            let h = document.createElement('h3');
+            desc.append(h);
+            h.textContent = team.team_display_name ? team.team_display_name : team.team_name;
+
+            let p = document.createElement('p');
+            desc.append(p)
+            p.textContent = team.info;
+        }
+
+        let player = false;
+        let player_top = document.getElementById('player_top');
+        let player_bottom = document.getElementById('player_bottom');
+
+        function drawPlayer(channel_id) {
+            status.textContent = `drawPlayer for ${channel_id}`;
+
+            player_top.textContent = '';
+            player_bottom.textContent = '';
+
+            // get LIVE data for channel
+            let users = new URL('https://api.twitch.tv/helix/users');
+            users.search = new URLSearchParams({id: channel_id}).toString();
+
+            let channels_url = new URL('https://api.twitch.tv/helix/channels');
+            channels_url.search = new URLSearchParams({broadcaster_id: channel_id}).toString();
+
+            fetch(
+                users,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.data.length == 1) {
+                    let { display_name, profile_image_url, description } = resp.data[0];
+
+                    let pfp = document.createElement('div');
+                    player_top.append(pfp);
+                        pfp.classList.add('pfp');
+                        pfp.style.backgroundImage = `url('${profile_image_url}')`;
+
+
+                    let main = document.createElement('div');
+                    player_top.append(main);
+
+                    let title_el = document.createElement('div');
+                    main.append(title_el);
+
+                        title_el.textContent = display_name;
+
+                    let info = document.createElement('div');
+                    main.append(info);
+                    info.classList.add('info');
+                    info.textContent = 'Info';
+
+                    info.addEventListener('click', (e) => {
+                        let d = document.createElement('div');
+                        document.body.append(d);
+
+                        d.classList.add('info_widget');
+                        d.textContent = description;
+
+                        d.style.left = (e.clientX - 100) +'px';
+                        d.style.top = e.clientY+'px';
+
+                        // bleh quick and dirty
+                        setTimeout(() => {
+                            d.remove();
+                        }, 5000);
+                    });
+                } else {
+                    status.textContent = 'Error loading User. Not Found?';
+                }
+
+                return fetch(
+                    channels_url,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+                .then(resp => resp.json())
+            })
+            .then(resp => {
+                if (resp.data.length == 1) {
+                    let channel = resp.data[0].broadcaster_login;
+
+                    // go for player
+                    if (player) {
+                        player.setChannel(channel);
+                    } else {
+                        document.getElementById('player_player').textContent = '';
+                        player = new Twitch.Embed("player_player", {
+                            width: '100%',
+                            height: '500px',
+
+                            autoplay: true,
+                            muted: false,
+                            layout: 'video',
+                            theme: 'dark',
+                            channel,
+
+                            parent: [ window.document.location.hostname ]
+                        });
+                    }
+
+                    let pfp = document.createElement('div');
+
+
+                    let boxart = document.createElement('div');
+                    player_bottom.append(boxart);
+                        boxart.classList.add('boxart');
+                    let main = document.createElement('div');
+                    player_bottom.append(main);
+
+                    let title_el = document.createElement('div');
+                    main.append(title_el);
+                    let category_el = document.createElement('div');
+                    main.append(category_el);
+
+                    // built els
+                    title_el.textContent = resp.data[0].title;
+                    category_el.textContent = `Category: ${resp.data[0].game_name}`;
+
+                    // go for box art
+                    let boxart_url = new URL('https://api.twitch.tv/helix/games');
+                    boxart_url.search = new URLSearchParams({id: resp.data[0].game_id}).toString();
+                    fetch(
+                        boxart_url,
+                        {
+                            "headers": {
+                                "Client-ID": client_id,
+                                "Authorization": "Bearer " + access_token
+                            }
+                        }
+                    )
+                    .then(resp => resp.json())
+                    .then(resp => {
+                        if (resp.data.length == 1) {
+                            let { box_art_url } = resp.data[0];
+                            box_art_url = box_art_url.replace('{width}', 40);
+                            box_art_url = box_art_url.replace('{height}', 55);
+
+                            boxart.style.backgroundImage = `url('${box_art_url}')`;
+                        } else {
+                            status.textContent = 'An Error Occured loading game boxart. No Exist?';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        status.textContent = 'An Error Occured loading boxart';
+                    })
+                } else {
+                    status.textContent = 'Error loading Channel. Not Found?';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                status.textContent = 'An Error Occured loading channel';
+            });
+        }
+
+        document.getElementById('team_members_list').addEventListener('click', (e) => {
+            let target = e.target;
+            console.log(target);
+            if (target.tagName == 'SPAN') {
+                target = target.parentElement;
+            }
+            console.log(target);
+
+            let target_channel_id = target.getAttribute('channel_id');
+            let target_channel = target.getAttribute('channel_login');
+            drawPlayer(target_channel_id);
+        });
+
+/* https://gist.github.com/parisminton/5950879 commaify */
+function commaify (num) {
+  var num_string,
+    i,
+    len,
+    threes = [],
+    remainders;
+
+  num_string = num.toString();
+  len = num_string.length;
+  remainders = len % 3;
+
+
+  if (remainders != 0) {
+    threes.push(num_string.slice(0, remainders));
+  }
+
+  for (i = remainders; i < len; i += 3) {
+    threes.push(num_string.slice(i, i + 3));
+  }
+
+  return threes.join();
+}
+
+        document.getElementById('different_team_form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            var team = document.getElementById('different_team_field').value;
+            status.textContent = `Loading Team by Name ${team}`;
+
+            let url = new URL('https://api.twitch.tv/helix/teams');
+
+            url.search = new URLSearchParams({
+                name: team
+            }).toString();
+
+            fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                // https://github.com/twitchdev/issues/issues/495
+                if (resp.data && resp.data.length == 1) {
+                    loadATeam(resp.data[0].team_name);
+                } else {
+                    status.textContent = `Loading Team by ID ${team}`;
+
+                    url.search = new URLSearchParams({
+                        id: team
+                    }).toString();
+
+                    fetch(
+                        url,
+                        {
+                            "headers": {
+                                "Client-ID": client_id,
+                                "Authorization": "Bearer " + access_token
+                            }
+                        }
+                    )
+                    .then(resp => resp.json())
+                    .then(resp => {
+                        // https://github.com/twitchdev/issues/issues/495
+                        if (resp.data && resp.data.length == 1) {
+                            loadATeam(resp.data[0].team_name);
+                        } else {
+                            status.textContent = 'Failed to Find Team';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        status.textContent = 'An Error Occured loading team by ID';
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                status.textContent = 'An Error Occured loading team by Name';
+            });
+
+
+            document.getElementById('different_channel_field').value = '';//reset
+        });
+    </script>
+</body>
+</html>
