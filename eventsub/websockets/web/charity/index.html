@@ -1,0 +1,465 @@
+<html>
+
+<head>
+    <title>Charity EventSub Websockets with Implicit Auth Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <style>
+        #log {
+            box-sizing: border-box;
+            padding: 5px;
+            width: 100%;
+            height: 300px;
+            overflow: auto;
+            border: 1px solid #FFFFFF;
+            border-radius: 20px;
+
+            margin-bottom: 20px;
+        }
+
+        #log span {
+            margin-right: 5px;
+        }
+
+        #subscriptions_refresh {
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+        }
+    </style>
+
+    <style rel="stylesheet">
+        #charitys {
+            /*position: absolute;*/
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            background: darkred;
+            color: palegoldenrod;
+        }
+
+        .charity {
+            height: 50px;
+            margin: 5px;
+            background: red;
+        }
+
+        .charity_outer {
+            position: relative;
+            width: 100%;
+            background: white;
+            height: 50px;
+        }
+
+        .charity_inner {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: yellow;
+        }
+
+        .charity_text_section {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            line-height: 50px;
+            font-size: 40px;
+            color: #000000;
+            text-align: center;
+            background: transparent;
+        }
+
+        .charity_text_section span {
+            margin: 0px 5px;
+            color: #000000;
+            background: transparent;
+        }
+
+        .charity_info {
+            box-sizing: border-box;
+            padding: 15px;
+            margin: 5px;
+            border: 1px solid #FFFFFF;
+            border-radius: 25px;
+        }
+        .charity_info img {
+            float: right;
+            margin-left: 10px;
+        }
+
+        #overlay {
+            position: relative;
+            background: green;
+            width: 100%;
+            height: 300px;;
+        }
+        .a_donation {
+            position: absolute;
+            top: 50px;
+            left: 100px;
+            width: 300px;
+            height: 160px;
+            color: #FFFFFF;
+            background: #EFEFEF;
+            border-radius: 25px;
+            padding: 10px;
+
+            animation: faderotate 15s linear 1;
+            animation-fill-mode: forwards;
+            opacity: 0;
+        }
+        @keyframes faderotate {
+            0% { opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .a_donation img, .a_donation div {
+            width: 50%;
+            float: left;
+            text-align: center;
+        }
+        .a_donation div {
+            padding: 5px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <p>This example demonstrates how to connect to, create subscriptions and recieve data from EventSub Websockets</p>
+    <p>This will draw some basic overlay style charity stuff.</p>
+    <p>It'll use Implicit auth to obtain a token to use</p>
+
+    <ul>
+        <li>
+            <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize and Connect - with "channel:read:charity"
+                scope</a>
+        </li>
+    </ul>
+
+    <div id="log">
+        <div>LOG</div>
+    </div>
+
+    <div>Last KeepAlive: <span id="keepalive"></span></div>
+
+    <div id="overlay"></div>
+    <div id="charitys"></div>
+
+    <script type="text/javascript" src="../eventsub.js"></script>
+    <script type="text/javascript">
+        // These are set for the GitHub Pages Example
+        // Substitute as needed
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = window.location.origin + '/twitch_misc/';
+        var access_token = '';
+        var socket_space = '';
+        var session_id = '';
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:read:charity');
+
+        function processToken(token) {
+            access_token = token;
+
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    socket_space = new initSocket(true);
+                    // and build schnanaigans
+                    socket_space.on('connected', (id) => {
+                        log(`Connected to WebSocket with ${id}`);
+                        session_id = id;
+
+                        checkCharity(resp.data[0].id);
+                        requestHooks(resp.data[0].id);
+                    });
+
+                    socket_space.on('session_keepalive', () => {
+                        document.getElementById('keepalive').textContent = new Date();
+                    });
+
+                    socket_space.on('channel.charity_campaign.start', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        drawCharity(event);
+                    });
+                    socket_space.on('channel.charity_campaign.progress', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        updateCharityGoal(event);
+                    });
+                    socket_space.on('channel.charity_campaign.stop', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        let { id } = event;
+                        let charity_bar = document.getElementById(`charity_${id}`);
+                        if (charity_bar) {
+                            charity_bar.remove();
+                        }
+                    });
+                    socket_space.on('channel.charity_campaign.donate', (msg) => {
+                        let { metadata, payload } = msg;
+                        let { event } = payload;
+                        
+                        let { campaign_id } = event;
+                        let user = { user_id, user_name, user_login } = event;
+                        let { amount } = event;
+                        
+                        drawDonation(campaign_id, user, amount);
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    log('Error with Users Call');
+                });
+        }
+
+        function requestHooks(user_id) {
+            let topics = {
+                'channel.charity_campaign.start': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.progress': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.stop': { version: '1', condition: { broadcaster_user_id: user_id } },
+                'channel.charity_campaign.donate': { version: '1', condition: { broadcaster_user_id: user_id } },
+            }
+
+            log(`Spawn Topics for ${user_id}`);
+
+            for (let type in topics) {
+                log(`Attempt create ${type} - ${user_id}`);
+                let { version, condition } = topics[type];
+
+                fetch(
+                    'https://api.twitch.tv/helix/eventsub/subscriptions',
+                    {
+                        "method": "POST",
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token,
+                            'Content-Type': 'application/json'
+                        },
+                        "body": JSON.stringify({
+                            type,
+                            version,
+                            condition,
+                            transport: {
+                                method: "websocket",
+                                session_id
+                            }
+                        })
+                    }
+                )
+                    .then(resp => resp.json())
+                    .then(resp => {
+                        if (resp.error) {
+                            log(`Error with eventsub Call ${type} Call: ${resp.message ? resp.message : ''}`);
+                        } else {
+                            log(`Created ${type}`);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        log(`Error with eventsub Call ${type} Call: ${err.message ? err.message : ''}`);
+                    });
+            }
+        }
+
+
+
+
+        let memory_space = {};
+        let charitys_div = document.getElementById('charitys');
+
+        function checkCharity(broadcaster_id) {
+            console.log('Get Existing charity');
+            charitys_div.textContent = '';
+
+            let url = new URL('https://api.twitch.tv/helix/charity/campaigns');
+            let params = {
+                broadcaster_id
+            };
+            url.search = new URLSearchParams(params).toString();
+
+            fetch(
+                url,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token,
+                        'Accept': 'application/json'
+                    }
+                }
+            )
+                .then(resp => resp.json())
+                .then(resp => {
+                    console.log('Got', resp.data.length, ' charity goals');
+                    if (resp.data && resp.data.length > 0) {
+                        log('Got at least one Charity Goal');
+                        resp.data.forEach(goal => {
+                            console.log('Add', goal.id);
+                            drawCharity(goal);
+                        });
+                    } else {
+                        log('No Existing Charity Goals');
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    log(`Error with Charity Goals Call Call: ${err.message ? err.message : ''}`);
+                });
+        }
+
+        function drawCharity(goal) {
+            let { id } = goal;
+
+            console.log('Drawing', id);
+
+            let charity_bar = document.createElement('div');
+            charitys_div.append(charity_bar);
+
+            charity_bar.classList.add('goal');
+            charity_bar.setAttribute('id', `charity_${id}`);
+
+            let { charity_description, charity_logo, charity_name, charity_website } = goal;
+            // draw info widget
+            let charity_info = document.createElement('div');
+            charity_info.classList.add('charity_info');
+            charity_bar.append(charity_info);
+
+            let img = document.createElement('img');
+            charity_info.append(img);
+            img.src = charity_logo;
+            img.title = charity_name;
+            img.alt = charity_name;
+
+            let d = document.createElement('div');
+            d.classList.add('charity_donation');
+            charity_info.append(d);
+
+            let h = document.createElement('h2');
+            d.append(h);
+            h.textContent = charity_name;
+            let descrip = document.createElement('p');
+            d.append(descrip);
+            descrip.textContent = charity_description;
+
+            let { current_amount, target_amount } = goal;
+            // work around for https://github.com/twitchdev/issues/issues/696
+            memory_space[id] = target_amount;
+            // draw the bar
+            let bar_outer = document.createElement('div');
+            charity_bar.append(bar_outer);
+            bar_outer.classList.add('charity_outer');
+
+            let bar_inner = document.createElement('div');
+            bar_outer.append(bar_inner);
+            bar_inner.classList.add('charity_inner');
+
+            let bar = document.createElement('div');
+            bar_outer.append(bar);
+            bar.classList.add('charity_text_section');
+
+            let p = current_amount.value / target_amount.value;
+            p = p * 100;
+
+            let charity_text = document.createElement('span');
+            bar.append(charity_text);
+            charity_text.classList.add('charity_text');
+            charity_text.textContent = p.toFixed(2) + '%';
+
+            bar_inner.style.width = p + '%';
+        }
+
+        function updateCharityGoal(data) {
+            //let { id, current_amount, target_amount } = data;
+
+            // work around for https://github.com/twitchdev/issues/issues/696
+            let { id, current_amount, target_amount } = data;
+            if (target_amount.value == 0) {
+                // use memory space instead
+                target_amount = memory_space[id];
+            } else {
+                // update memory space
+                memory_space[id] = target_amount;
+            }
+
+            let charity_bar = document.getElementById(`charity_${id}`);
+            if (charity_bar) {
+                let bar_inner = charity_bar.querySelector('.charity_inner');
+
+                let p = current_amount.value / target_amount.value;
+                p = p * 100;
+
+                console.log('progress now', current_amount.value, target_amount.value, p);
+
+                let charity_text = charity_bar.querySelector('.charity_text');
+                charity_text.textContent = p.toFixed(2) + '%';
+
+                bar_inner.style.width = p + '%';
+            }
+        }
+
+        let overlay = document.getElementById('overlay');
+        async function drawDonation(campaign_id, user, amount) {
+            let { user_id, user_name, user_login } = user;
+            let { value, decimal_places, currency } = amount;
+
+            // get the donators profile image
+            let user_resp = await fetch(
+                `https://api.twitch.tv/helix/users?id=${user_id}`,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            if (user_resp.status != 200) {
+                return;
+            }
+            let user_data = await user_resp.json();
+            if (!user_data.hasOwnProperty('data') || user_data.data.length != 1) {
+                return;
+            }
+            let { profile_image_url } = user_data.data[0];
+
+            let adonation = document.createElement('div');
+            adonation.classList.add('a_donation');
+
+            let img = document.createElement('img');
+            adonation.append(img);
+            img.src = profile_image_url;
+
+            let text_div = document.createElement('div');
+            // reconsider
+            value = (value / Math.pow(10, 2)).toFixed(decimal_places);
+            text_div.textContent = `${user_login} has donated ${value}${currency}`;
+            adonation.append(text_div);
+
+            overlay.append(adonation);
+
+            setTimeout(() => {
+                adonation.remove();
+            }, 20000);
+        }
+
+    </script>
+</body>
+
+</html>
