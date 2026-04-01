@@ -12,9 +12,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "dotenv": "^17.2.4",
+    "dotenv": "^17.3.1",
     "jsonwebtoken": "^9.0.3",
     "socket.io": "^4.8.3",
-    "ws": "^8.19.0"
+    "ws": "^8.20.0"
   }
 }
