@@ -26,10 +26,10 @@ $payload = array(
 $secret = base64_decode(EXTENSION_SECRET);
 
 // generate a JWT token
-$token = JWT::encode($payload, $secret);
+$token = JWT::encode($payload, $secret, 'HS256');
 
 // build curl to make request
-$ch = curl_init('https://api.twitch.tv/helix/extensions/message/' . $channel_id);
+$ch = curl_init('https://api.twitch.tv/helix/extensions/pubsub');
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HEADER, true);
@@ -39,16 +39,15 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Content-Type: application/json'
 ));
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array(
-    'target': array('broadcast'),
-    'broadcaster_id': $channel_id,
-    'is_global_broadcast': false,
+    'target' => array('broadcast'),
+    'broadcaster_id' => $channel_id,
+    'is_global_broadcast' => false,
     'message' => $message_to_send
 )));
 
 // run the request
 $resp = curl_exec($ch);
 $info = curl_getinfo($ch);
-curl_close($ch);
 
 // lets do some basic parsing
 $header_size = $info['header_size'];
