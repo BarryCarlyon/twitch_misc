@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Get My Stream Key | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> with scope <strong>channel:read:stream_key</strong> to get a token to use.
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/stream_key">Github</a> or just View the source instead</p>
+
+    <p>After authenticating to get a Key, it calls</p>
+    <ul>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#get-users" target="_blank">Get Users</a> to convert a Token to a UserID</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#get-stream-key" target="_blank">Get Stream Key</a> to go fetch the Stream Key</li>
+    </ul>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="output"></div>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = `https://${window.location.host}/twitch_misc/`;
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=channel:read:stream_key')
+
+        async function processToken(access_token) {
+            output.textContent = 'Processing Token';
+
+            try {
+                let userRequest = await fetch(
+                    'https://api.twitch.tv/helix/users',
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+                if (userRequest.status != 200) {
+                    output.textContent = `Failed to load /users with ${await userRequest.text()}`;
+                    return;
+                }
+                let userData = await userRequest.json();
+                if (!userData.hasOwnProperty('data')) {
+                    console.log(userData);
+                    output.textContent = 'An Error Occured. No user data';
+                    return;
+                }
+                if (userData.data.length != 1) {
+                    output.textContent = 'An Error Occured. Not one user returned';
+                    return;
+                }
+                let user_id = userData.data[0].id;
+
+                let stremaKeyRequest = await fetch(
+                    `https://api.twitch.tv/helix/streams/key?broadcaster_id=${user_id}`,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+                if (stremaKeyRequest.status != 200) {
+                    output.textContent = `Failed to load stream key with ${await stremaKeyRequest.text()}`;
+                    return;
+                }
+                let streamKeyData = await stremaKeyRequest.json();
+                if (!streamKeyData.hasOwnProperty('data')) {
+                    console.log(streamKeyData);
+                    output.textContent = 'An Error Occured. No key data';
+                    return;
+                }
+                if (streamKeyData.data.length != 1) {
+                    output.textContent = 'An Error Occured. Not one key returned';
+                    return;
+                }
+                output.textContent = `StreamKey: ${streamKeyData.data[0].stream_key}`
+            } catch (e) {
+                console.error(e);
+                output.textContent = 'Failed. Check console';
+            }
+        }
+    </script>
+</body>
+</html>

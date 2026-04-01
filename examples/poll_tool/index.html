@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Poll Tool | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style>
+        #left, #right {
+            box-sizing: border-box;
+            width: 49vw;
+            display: inline-block;
+            vertical-align: top;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+        }
+        input[type="button"], input[type="submit"] {
+            width: 30%;
+            background: green;
+            cursor: pointer;
+        }
+        input[type="button"]:hover, input[type="submit"]:hover {
+            background: red;
+        }
+
+        table { width: 100%; }
+        .winner { background: green; }
+    </style>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will Various endpoints, with the "channel:manage:polls" scope</p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/poll_tool">Github</a> or just View the source instead</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="status" class="show">Pending</div>
+
+    <div id="left">
+        <form action="" method="post" id="poll_form">
+            <fieldset>
+                <div>
+                    <label for="poll_title">Title</label>
+                    <input type="text" name="poll_title" id="poll_title" />
+                    <p>Max 60 Characters</p>
+                </div>
+                <div>
+                    <label for="poll_duration">Duration</label>
+                    <input type="number" name="poll_duration" id="poll_duration" min="15" max="1800" step="1" value="60" />
+                    <p>Between 15s and 1800s (30 minutes)</p>
+                </div>
+                <div>
+                    <label for="poll_channel_points">Channel Points</label>
+                    <input type="number" name="poll_channel_points" id="poll_channel_points" min="0" max="1000000" value="0" />
+                    <p>Number of Channel Points required to vote once with Channel Points.</p>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Choices</legend>
+                <div id="poll_choices">
+                    <input type="text" name="poll_choice[]" />
+                    <input type="text" name="poll_choice[]" />
+                </div>
+                <p>Max 25 Characters</p>
+            </fieldset>
+            <fieldset>
+                <input type="button" id="add_choice" value="Add Choice (2-5)" />
+                <input type="submit" value="Create Poll" />
+                <input type="button" id="poll_end" value="Terminate Poll" />
+            </fieldset>
+        </form>
+        <div>Last KeepAlive: <span id="keepalive"></span></div>
+        <div id="eventsub_log"></div>
+    </div>
+    <div id="right"></div>
+
+    <script type="text/javascript" src="eventsub.js"></script>
+    <script type="text/javascript" src="poll_tool.js"></script>
+</body>
+</html>

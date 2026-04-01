@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Sponsor Finder| Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will return a page similar to <a href="https://www.twitch.tv/directory" target="_blank">The Directorty</a>.  Generally calls will be done/cached server side with an <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow" target="_blank">App Access Token</a></p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/sponsor_finder">Github</a> or just View the source instead</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="loading"></div>
+
+    <table id="streams">
+        <thead>
+
+        </thead>
+    </table>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://' + window.location.host + '/twitch_misc/';
+        // setup a memory space for the token
+        var access_token = '';
+        var page_counter = 0;
+        var total_streams = 0;
+        var page_record_viewer = 0;
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        function processToken(token) {
+            access_token = token;
+
+            document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams} ViewR0: ${page_record_viewer}`;
+
+            getPage();
+        }
+
+        function getPage(after) {
+            page_counter++;
+            fetch(
+                'https://api.twitch.tv/helix/streams?first=100' + (after ? '&after='+after : ''),
+                {
+                    method: 'GET',
+                    headers: {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                total_streams += resp.data.length;
+
+                let ids = [];
+                for (var x=0;x<resp.data.length;x++) {
+                    let { user_id, title, user_name, game_name, started_at, viewer_count } = resp.data[x];
+
+                    let ltitle = title.toLowerCase();
+                    if (ltitle.includes('#ad') || ltitle.includes('#sponsored') || ltitle.includes('#sponsored') || ltitle.includes('sponsor')) {
+                        ids.push([ 'broadcaster_id', user_id ]);
+
+                        let r = streams.insertRow();
+                        r.setAttribute('data-channel_id', user_id);
+
+                        var t = r.insertCell();
+                        t.textContent = user_name;
+                        var t = r.insertCell();
+                        t.textContent = title;
+
+                        var t = r.insertCell();
+                        t.textContent = game_name;
+                        var t = r.insertCell();
+                        t.textContent = started_at;
+
+                        var t = r.insertCell();
+                        t.setAttribute('id', `mature_${user_id}`);
+                        t.textContent = '?';
+                        var t = r.insertCell();
+                        t.setAttribute('id', `branded_${user_id}`);
+                        t.textContent = '?';
+
+                        var t = r.insertCell();
+                        t.textContent = viewer_count;
+                    }
+                }
+
+                document.getElementById('loading').textContent = `Loading Streams Page: ${page_counter} StreamCount: ${total_streams} ViewR0: ${page_record_viewer}`;
+
+                if (ids.length > 0) {
+                    chainChannelInfo(ids);
+                }
+
+                if (resp.pagination && resp.pagination.cursor) {
+                    getPage(resp.pagination.cursor);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'Something went wrong';
+            });
+        }
+
+        function chainChannelInfo(ids) {
+            let url = new URL('https://api.twitch.tv/helix/channels');
+            url.search = new URLSearchParams(ids).toString();
+
+            fetch(
+                url,
+                {
+                    method: 'GET',
+                    headers: {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                for (var x=0;x<resp.data.length;x++) {
+                    let { broadcaster_id, is_branded_content, content_classification_labels } = resp.data[x];
+                    let m = document.getElementById(`mature_${broadcaster_id}`);
+                    if (m) {
+                        m.textContent = content_classification_labels.includes('MatureGame') ? 'Yes' : 'No';
+                    }
+                    let b = document.getElementById(`branded_${broadcaster_id}`);
+                    if (b) {
+                        b.textContent = is_branded_content ? 'Yes' : 'No';
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'Something went wrong';
+            });
+        }
+    </script>
+</body>
+</html>
