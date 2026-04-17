@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Token Checker | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+</head>
+<body>
+    <p>This example demonstrates how to Check a token for it's type, what ClientID generated it, what scopes it has, whose token it is and lets you revoke the token</p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/token_checker">Github</a> or just View the source instead</p>
+
+    <p>APIs Used</p>
+    <ul>
+        <li><a href="https://dev.twitch.tv/docs/authentication/validate-tokens/">Validate a request</a></li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference#get-users">Obtaining a User by Access Token</a></li>
+        <li><a href="https://dev.twitch.tv/docs/authentication/revoke-tokens/">Revoking a token</a></li>
+    </ul>
+
+    <form action="" method="get" id="tokenform">
+        <fieldset>
+            <label for="token">Token</label>
+            <input type="text" name="token" id="token" size="50" />
+            <input type="submit" value="Check this token" />
+            <input type="button" id="revoker" disabled value="Revoke this token" />
+        </fieldset>
+    </form>
+
+    <h2>Output</h2>
+    <div id="output"></div>
+
+    <script type="text/javascript">
+        let client_id = '';
+
+        function validateToken() {
+            document.getElementById('output').textContent = 'Validating the token';
+
+            document.getElementById('revoker').setAttribute('disabled', 'disabled');
+            let access_token = document.getElementById('token').value;
+
+            fetch(
+                'https://id.twitch.tv/oauth2/validate',
+                {
+                    "headers": {
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.status) {
+                    if (resp.status == 401) {
+                        document.getElementById('output').textContent = 'This token is invalid: ' + resp.message;
+                        return;
+                    }
+                    console.log(resp);
+                    document.getElementById('output').textContent = 'Unexpected output with a status?';
+                    return;
+                }
+
+                if (resp.client_id) {
+                    client_id = resp.client_id;
+
+                    document.getElementById('revoker').removeAttribute('disabled');
+
+                    document.getElementById('output').textContent = 'Token is valid';
+
+                    let table = document.createElement('table');
+                    document.getElementById('output').append(table);
+
+                    for (let key in resp) {
+                        let row = document.createElement('tr');
+                        table.append(row);
+
+                        let leftcell = document.createElement('td');
+                        row.append(leftcell);
+
+                        leftcell.textContent = key;
+
+                        let rightcell = document.createElement('td');
+                        row.append(rightcell);
+
+                        if (key == 'scopes' && resp[key] !== null) {
+                            let ul = document.createElement('ul');
+                            rightcell.append(ul);
+                            for (let x=0;x<resp[key].length;x++) {
+                                let li = document.createElement('li');
+                                ul.append(li);
+                                li.textContent = resp[key][x];
+                            }
+                        } else {
+                            rightcell.textContent = resp[key];
+                        }
+                    }
+
+                    let p = document.createElement('p');
+                    document.getElementById('output').append(p);
+                    if (resp.user_id) {
+                        p.textContent += 'Token is type "User Access"';
+
+                        fetchUser(access_token);
+                    } else {
+                        p.textContent += 'Token is type "App Access"';
+                    }
+
+                    return;
+                }
+
+                document.getElementById('output').textContent = 'Token Check: Unexpected output!';
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('output').textContent = 'Token Check: An Error Occured loading token data';
+            });
+        }
+
+        document.getElementById('tokenform').addEventListener('submit', (e) => {
+            e.preventDefault();
+            validateToken();
+        });
+        document.getElementById('revoker').addEventListener('click', (e) => {
+            e.preventDefault();
+            revokeToken();
+        });
+
+        function fetchUser(access_token) {
+            let d = document.createElement('div');
+            document.getElementById('output').append(d);
+            d.setAttribute('id', 'user_data');
+
+
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                document.getElementById('user_data').innerHTML = '<p>This Tokens Twitch Profile from Helix:</p>';
+                var table = document.createElement('table');
+                document.getElementById('user_data').append(table);
+                for (var key in resp.data[0]) {
+                    var tr = document.createElement('tr');
+                    table.append(tr);
+                    var td = document.createElement('td');
+                    td.textContent = key;
+                    tr.append(td);
+                    var td = document.createElement('td');
+                    td.textContent = resp.data[0][key];
+                    tr.append(td);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('user_data').textContent = 'Something went wrong getting user data';
+            });
+        }
+
+        function revokeToken() {
+            let access_token = document.getElementById('token').value;
+
+            fetch(''
+                + 'https://id.twitch.tv/oauth2/revoke'
+                + '?client_id=' + client_id
+                + '&token=' + access_token,
+                {
+                    method: 'POST'
+                }
+            )
+            .then(async resp => {
+                if (resp.status != 200) {
+                    document.getElementById('output').textContent = 'Revoke: Token Revoke Error: ' + resp.status + ' -- ' + await resp.text();
+                } else {
+                    document.getElementById('output').textContent = 'Revoke: Token Revoked';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('output').textContent = 'Revoke: Something went wrong revoking the token';
+            });
+        }
+    </script>
+</body>
+</html>
