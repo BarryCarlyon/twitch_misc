@@ -1,6 +1,8 @@
 ## What is this example
 
-This is an exmaple of how to setup a EventSub WebSockets connection inside a Web Browser utilising the Chat Over EventSub Topics to build an activity feed of sorts
+This is an exmaple of how to setup a EventSub WebSockets connection inside a Web Browser utilising the Chat Over EventSub Topics to build an activity feed of sorts.
+
+If you authenticate as yourself to read your own events it will favour using `channel.bits.use` instead of using "signal to noise" filtering on `channel.chat.message` given that `channel.chat.message` will just give us "basic" cheer events and not power ups, custom or otherwise.
 
 It will use implicit auth to obtain an access token and then connect to EventSub WebSockets
 
