@@ -97,7 +97,7 @@ function requestHooks(broadcaster_user_id, user_id) {
         'channel.chat.notification': { version: "1", condition: { broadcaster_user_id, user_id } },
     }
     if (broadcaster_user_id == user_id) {
-        topics['channel.bits.use'] = { version: "beta", condition: { broadcaster_user_id } }
+        topics['channel.bits.use'] = { version: "1", condition: { broadcaster_user_id } }
     } else {
         topics['channel.chat.message'] = { version: "1", condition: { broadcaster_user_id, user_id } }
     }

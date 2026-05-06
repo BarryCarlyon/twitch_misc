@@ -339,7 +339,7 @@ function runLineNotification({ payload }) {
 function runLineBitsUse({ payload }) {
     let { event } = payload;
 
-    let {type } = event;
+    let { type } = event;
 
     switch (type) {
         case 'cheer':
@@ -347,6 +347,9 @@ function runLineBitsUse({ payload }) {
             break;
         case 'power_up':
             renderPowerUp(event);
+            break;
+        case 'custom_power_up':
+            renderCustomPowerUp(event);
             break;
         default:
             console.log(`Unexpected bits usage: ${type}`);
@@ -407,6 +410,40 @@ function renderPowerUp(event) {
     cell.textContent = type.replace(/_/g, ' ');
     if (message_effect_id) {
         cell.textContent = `${cell.textContent} - ${message_effect_id}`;
+    }
+    // count
+    var cell = r.insertCell();
+    cell.textContent = bits;
+    //message
+    var cell = r.insertCell();
+    buildFromFragments(cell, fragments);
+}
+function renderCustomPowerUp(event) {
+    let { bits, message, custom_power_up } = event;
+    let { text, fragments } = message;
+
+    let { title, reward_id } = custom_power_up;
+
+    // channel
+    let { broadcaster_user_name, broadcaster_user_login, broadcaster_user_id } = event;
+    // entity
+    let { user_name, user_login, user_id } = event;
+
+    var r = activity_feed.insertRow(0);
+
+    var cell = r.insertCell();
+    cell.textContent = dateTime();
+    var cell = r.insertCell();
+    cell.textContent = broadcaster_user_login;
+
+    var cell = r.insertCell();
+    //cell.style.color = color;
+    cell.textContent = processName(user_name, user_login);
+    // what span tier
+    var cell = r.insertCell();
+    cell.textContent = type.replace(/_/g, ' ');
+    if (message_effect_id) {
+        cell.textContent = `${cell.textContent} - ${title}`;
     }
     // count
     var cell = r.insertCell();
