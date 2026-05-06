@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Ban Request Manager | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <style>
+#act {
+    text-align: center;
+    width: 40%;
+}
+.alink {
+    cursor: pointer;
+}
+#act_act>div {
+    width: 33%;
+    display: inline;
+    box-sizing: border-box;
+    padding: 5px;
+    cursor: pointer;
+}
+#act_act>div:hover {
+    opacity: 0.5;
+}
+::backdrop {
+    background: rgba(0,0,0,0.5);
+}
+
+#act_accept {
+    background: green;
+}
+#act_reject {
+    background: red;
+}
+#act_noact {
+    background: blue;
+}
+    </style>
+</head>
+<body>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="status" class="show">Pending</div>
+
+    <div>
+        <select id="channel_select" disabled>
+            <option>Authorize To Continue</option>
+        </select>
+    </div>
+    <table id="requests"></table>
+
+    <dialog id="act">
+        <div>
+            <label for="resolution_text_text">Reason (can be blank)</label>
+            <input type="text" name="resolution_text_text" id="resolution_text_text" maxlength="500" />
+        </div>
+        <p>Select Action</p>
+        <div id="act_act">
+            <div id="act_accept">Accept</div>
+            <div id="act_reject">Reject</div>
+            <div id="act_noact">No Act</div>
+        </div>
+    </dialog>
+
+    <script type="text/javascript" src="eventsub.js"></script>
+    <script type="text/javascript" src="ban_manager.js"></script>
+</body>
+</html>
