@@ -66,7 +66,7 @@ function runLineNotification({ payload }) {
             }
 
             if (streak_months) {
-                cell.textContent = `${durational} for ${streak_months} streak`;
+                cell.textContent = `${durational} for ${streak_months} month streak`;
             } else {
                 cell.textContent = `${durational}`;
             }
@@ -292,9 +292,10 @@ function runLineNotification({ payload }) {
             cell.style.color = color;
             cell.textContent = processName(chatter_user_name, chatter_user_login);
             var cell = r.insertCell();
-            cell.textContent = `Watch Streak: ${streak_count}`;
+            cell.textContent = "Watch Streak";
             var cell = r.insertCell();
             // counts
+            cell.text = `${streak_count} streams`;
             var cell = r.insertCell();
             // message
             buildFromFragments(cell, fragments);
