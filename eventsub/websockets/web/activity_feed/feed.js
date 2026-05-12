@@ -277,6 +277,30 @@ function runLineNotification({ payload }) {
 
             break;
 
+        case 'watch_streak':
+            let { watch_streak } = event;
+            var { streak_count, channel_points_awarded } = watch_streak;
+
+            var r = activity_feed.insertRow(0);
+            r.setAttribute('title', system_message);
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
+            cell.textContent = broadcaster_user_login;
+
+            var cell = r.insertCell();
+            cell.style.color = color;
+            cell.textContent = processName(chatter_user_name, chatter_user_login);
+            var cell = r.insertCell();
+            cell.textContent = `Watch Streak: ${streak_count}`;
+            var cell = r.insertCell();
+            // counts
+            var cell = r.insertCell();
+            // message
+            buildFromFragments(cell, fragments);
+
+            break;
+
         case 'raid':
             let { raid } = event;
             let { profile_image_url, user_id, user_login, user_name, viewer_count } = raid;
