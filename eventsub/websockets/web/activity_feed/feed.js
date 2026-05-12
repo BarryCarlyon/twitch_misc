@@ -295,7 +295,7 @@ function runLineNotification({ payload }) {
             cell.textContent = "Watch Streak";
             var cell = r.insertCell();
             // counts
-            cell.text = `${streak_count} streams`;
+            cell.textContent = `${streak_count} streams`;
             var cell = r.insertCell();
             // message
             buildFromFragments(cell, fragments);
