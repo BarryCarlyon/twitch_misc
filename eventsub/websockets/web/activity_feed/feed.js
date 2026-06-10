@@ -301,6 +301,30 @@ function runLineNotification({ payload }) {
             buildFromFragments(cell, fragments);
 
             break;
+        case 'modiversary':
+            let { modiversary } = event;
+            var { months } = modiversary;
+
+            var r = activity_feed.insertRow(0);
+            r.setAttribute('title', system_message);
+            var cell = r.insertCell();
+            cell.textContent = dateTime();
+            var cell = r.insertCell();
+            cell.textContent = broadcaster_user_login;
+
+            var cell = r.insertCell();
+            cell.style.color = color;
+            cell.textContent = processName(chatter_user_name, chatter_user_login);
+            var cell = r.insertCell();
+            cell.textContent = "Modiversary";
+            var cell = r.insertCell();
+            // counts
+            cell.textContent = `${months} months`;
+            var cell = r.insertCell();
+            // message
+            buildFromFragments(cell, fragments);
+
+            break;
 
         case 'raid':
             let { raid } = event;
