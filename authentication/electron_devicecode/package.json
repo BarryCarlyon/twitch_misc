@@ -12,7 +12,7 @@
   },
   "type": "module",
   "devDependencies": {
-    "electron": "^42.4.0"
+    "electron": "^42.4.1"
   },
   "dependencies": {
     "electron-store": "^11.0.2"
