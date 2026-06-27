@@ -281,7 +281,7 @@ app
             + '&redirect_uri=' + encodeURIComponent(config.redirect_uri)
             + '&response_type=code'
             + '&force_verify=true'
-            + '&scope=' + oidc_data.scopes_supported.join('+')
+            + '&scope=' + oidc_data.scopes_supported.join('+') + '+user:read:email'
             + '&state=' + encodeURIComponent(req.session.state)
             + '&claims=' + JSON.stringify({
                 userinfo: {
