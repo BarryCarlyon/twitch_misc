@@ -463,7 +463,7 @@
 
         function buildFromFragments(chat, fragments) {
             for (var x=0;x<fragments.length;x++) {
-                let { type, text, cheermote, emote, mention } = fragments[x];
+                let { type, text, cheermote, emote, mention, gif } = fragments[x];
                 switch (type) {
                     case 'emote':
                         var { id, emote_set_id, owner_id, format } = emote;
@@ -498,6 +498,18 @@
                         var el = document.createElement('span');
                         chat.append(el);
                         el.textContent = bits;
+                        break;
+
+                    case 'gif':
+                        var { id, url } = gif;
+
+                        var el = document.createElement('img');
+                        el.setAttribute('src', url);
+                        el.setAttribute('title', text);
+                        el.setAttribute('alt', text);
+
+                        chat.append(el);
+
                         break;
 
                     default:
