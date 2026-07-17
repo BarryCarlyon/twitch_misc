@@ -1,0 +1,128 @@
+* {
+    background: rgb(14, 14, 16);
+    color: rgb(239, 239, 241);
+    font-family: Roobert, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+a {
+    color: rgb(169, 112, 255);
+}
+table {
+    width: 100%;
+    border-top: 1px solid rgb(239, 239, 241);
+    border-left: 1px solid rgb(239, 239, 241);
+}
+th, td {
+    border-right: 1px solid rgb(239, 239, 241);
+    border-bottom: 1px solid rgb(239, 239, 241);
+    padding: 5px 10px;
+}
+input[disabled] {
+    background: #3e0000;
+}
+input, select { width: 100%; }
+input[type="submit"] {
+    background: rgb(82, 0, 82);
+    cursor: pointer;
+}
+input[type="submit"]:hover {
+    background: rgb(189, 1, 189);
+}
+input[type="button"], button {
+    background: #7c63ac;
+    cursor: pointer;
+}
+input[type="range"] {
+    -webkit-appearance: slider-vertical; /* Chromium */
+    width: 8px;
+    height: 175px;
+    padding: 0 5px;
+}
+
+.row {
+    display: flex;
+}
+.col {
+    flex-grow: 1;
+    min-width: 50%;
+}
+@media only screen and (max-width: 600px)  {
+    .row {
+        flex-direction: column;
+    }
+    .col {
+        width: 100%;
+    }
+}
+
+#authorize {
+    background-image: url('/twitch_misc/twitch_login.png');
+    height: 32px;
+    display: block;
+    padding-left: 180px;
+    background-repeat: no-repeat;
+    line-height: 32px;
+}
+
+#obs_scenes {
+    display: flex;
+}
+.bigbutton {
+    padding: 30px;
+    border: 1px solid grey;
+    cursor: pointer;
+}
+#obs_scenes .bigbutton:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+#obs_scenes .bigbutton:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.bigbutton:hover {
+    background: grey;
+}
+.bigbutton.selected {
+    background: green;
+}
+
+#guest_star_slots {
+    display: flex;
+}
+.guest_star_slot {
+    padding: 30px 10px;
+    box-sizing: border-box;
+    border: 1px solid grey;
+    text-align: center;
+    min-width: 20%;
+    max-width: 20%;
+}
+#guest_star_slots .guest_star_slot:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+#guest_star_slots .guest_star_slot:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+button[data-hidden="true"],
+button[data-muted="true"] {
+    background: red;
+}
+
+
+.disable {
+    position: relative;
+}
+.disable:before {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: black;
+    opacity: 0.5;
+    content: '';
+}

@@ -1,0 +1,18 @@
+html
+doctype html
+head
+    title Broadcaster Authentication Needed
+    link(rel="stylesheet" href="/style.css")
+body
+    h1 Broadcaster Keys needed
+
+    p The Broadcaster Access Keys have died or do not exist
+    p Please authenticate
+
+    if (error)
+        p An Error Occured: #{error}
+    if (auth_error)
+        p An Auth Error Occured: #{auth_error}
+
+    p
+        a(href=authenticate) Authenticate Now
