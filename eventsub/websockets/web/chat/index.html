@@ -78,10 +78,15 @@
             border-image-source: linear-gradient(#9146ff,#ff75e6);
         }
 
+        /* I borrowed this from Twitch */
         .chat-line__message-body--highlighted {
             background: #755ebc;
             border: 4px solid #755ebc;
             color: #fff;
+        }
+
+        .is_gif {
+            height: 100px;
         }
     </style>
 </head>
@@ -472,6 +477,7 @@
                         el.setAttribute('src', `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/1.0`);
                         el.setAttribute('title', text);
                         el.setAttribute('alt', text);
+                        el.classList.add('is_emote');
 
                         chat.append(el);
                         break;
@@ -507,6 +513,7 @@
                         el.setAttribute('src', url);
                         el.setAttribute('title', text);
                         el.setAttribute('alt', text);
+                        el.classList.add('is_gif');
 
                         chat.append(el);
 
