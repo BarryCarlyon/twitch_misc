@@ -1,0 +1,63 @@
+<html>
+<head>
+    <title>OBS Assistant | Guest Star | Twitch API Example</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <p>This example will first ask you to login with <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get an API Token to use.</p>
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/obs_assist/">Github</a> or just View the source instead</p>
+    <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
+
+    <p>Note: this tool should work perfectly fine IF running on the same computer as OBS.</p>
+
+    <div class="row">
+        <div id="obs" class="col">
+            <div id="obs_status_bar">Please Authorize to continue</div>
+
+            <div id="connect_to_obs">
+                <form action="" method="post" id="connect_to_obs_form">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="obs_ip">OBS IP Address</label>
+                            <input type="text" name="obs_ip" id="obs_ip" value="127.0.0.1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="obs_port">OBS Port</label>
+                            <input type="number" name="obs_port" id="obs_port" value="4455" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="obs_password">OBS Password</label>
+                            <input type="password" name="obs_password" id="obs_password" value="" />
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Connect to OBS" />
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div>
+                <h2>OBS Scenes</h2>
+                <p>Which scene would you like to add/remove Guest Star from</p>
+                <div id="obs_scenes"></div>
+            </div>
+        </div>
+        <div id="twitch" class="col disable">
+            <div id="twitch_status_bar">Please Authorize to continue</div>
+
+            <div>
+                <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize with Twitch</a>
+                <button id="refreshGuestStar">Refresh Settings</button>
+            </div>
+            <div>
+                <h2>Guest Star Slots</h2>
+                <div id="guest_star_slots"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/obs-websocket-js"></script>
+    <script type="text/javascript" src="script.js"></script>
+
+    <script type="text/javascript" src="test.js"></script>
+</body>
+</html>
