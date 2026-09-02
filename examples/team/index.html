@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <title>Teams Page | Twitch API Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="/twitch_misc/style.css" />
     <style>
         #different_team {
@@ -539,7 +540,7 @@
                         document.body.append(d);
 
                         d.classList.add('info_widget');
-                        d.textContent = description;
+                        d.innerHTML = marked.parse(description);
 
                         d.style.left = (e.clientX - 100) +'px';
                         d.style.top = e.clientY+'px';

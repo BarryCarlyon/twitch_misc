@@ -19,6 +19,8 @@ Periodically load from the cache the users in the team and then load their strea
 
 So with EventSub you only poke [Get Teams](https://dev.twitch.tv/docs/api/reference#get-teams) periodically. And add/remove [EventSub Subscriptions](https://dev.twitch.tv/docs/api/reference#create-eventsub-subscription) as needed.
 
+Uses [Marked.js](https://marked.js.org/) to render Markdown.
+
 ## TRY THIS EXAMPLE NOW!
 
 This example is also available via GitHub Pages!
