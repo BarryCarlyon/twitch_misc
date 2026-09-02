@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Channel Dashboard | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style>
+        #search_results {
+            background-color: rgba(0,0,0,1);
+
+            overflow: auto;
+            max-height: 200px;
+        }
+        #search_results>div {
+            padding: 3px;
+            display: block;
+            width: 100%;
+            height: 60px;
+            cursor: pointer;
+            background-color: rgba(0,0,0,1);
+
+            background-size: auto 60px;
+            background-repeat: no-repeat;
+            box-sizing: border-box;
+            padding-left: 60px;
+        }
+        #search_results>div:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+    </style>
+    <script type="text/javascript" src="languages.js"></script>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will Various endpoints.
+
+    <p>We then utilise the following</p>
+
+    <ul>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-users">Get Users</a> - we need the UserID for other endpoints</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-channel-information">Get Channel Information</a></li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#modify-channel-information">Modify Channel Information</a></li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-user-extensions">Get User Extensions</a> - See what Extensions are installed to the channel</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-user-active-extensions">Get User Active Extensions</a> - See what Extensions are active</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#update-user-extensions">Update User Extensions</a></li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#search-categories">Search Categories</a> - In order to change your game as gameID is needed, not a name</li>
+        <li><a href="https://dev.twitch.tv/docs/api/reference/#get-content-classification-labels">Content Classification Labels</a> - ways a channel can be categorised</li>
+    </ul>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_dashboard">Github</a> or just View the source instead</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="status" class="show">Login to get Access Token</div>
+
+    <form action="" method="post" id="dashboard" class="disableit">
+        <fieldset>
+            <div style="display: flex;">
+                <div style="width: 50%;">
+                    <h2>Channel Information</h2>
+
+                    <table>
+                        <tr>
+                            <th>Title</th>
+                            <td><input type="text" name="channel_title" id="channel_title" maxlength="140" /></td>
+                        </tr>
+
+                        <tr>
+                            <th>Game/Category</th>
+                            <td style="position: relative;">
+                                <div style="display: flex;">
+                                    <div id="channel_game_id"></div>
+                                    <input type="text" name="channel_game_name" id="channel_game_name" />
+                                </div>
+
+                                <div id="search_results" style="position: absolute; top: 30px; left: 0px; right: 0px;"></div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Tags</th>
+                            <td>
+                                <table class="noborder">
+                                    <tr><td><input type="text" name="channel_tag[]" maxlength="25" /></td><td><input type="text" name="channel_tag[]" maxlength="25" /></td></tr>
+                                    <tr><td><input type="text" name="channel_tag[]" maxlength="25" /></td><td><input type="text" name="channel_tag[]" maxlength="25" /></td></tr>
+                                    <tr><td><input type="text" name="channel_tag[]" maxlength="25" /></td><td><input type="text" name="channel_tag[]" maxlength="25" /></td></tr>
+                                    <tr><td><input type="text" name="channel_tag[]" maxlength="25" /></td><td><input type="text" name="channel_tag[]" maxlength="25" /></td></tr>
+                                    <tr><td><input type="text" name="channel_tag[]" maxlength="25" /></td><td><input type="text" name="channel_tag[]" maxlength="25" /></td></tr>
+                                </table>
+                                <br />Add up to 10 tags. Duplicates allow. Each tag can be 25 characters long with no spaces or special characters.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Delay</th>
+                            <td>
+                                <input type="number" name="channel_delay" id="channel_delay" min="0" step="1" max="900" />
+                                <br />
+                                Channel Delay is a function only available to Partners.
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Language</th>
+                            <td><select name="channel_broadcaster_language" id="channel_broadcaster_language"></select></td>
+                        </tr>
+
+                        <tr class="disableit" title="Not Supported via the API">
+                            <th>Go Live Notification</th>
+                            <td>
+                                <input type="text" name="channel_golive" id="channel_golive" maxlength="140" />
+                                <br />
+                                Not Supported via the API
+                                <br />
+                                <a href="https://help.twitch.tv/s/article/how-to-use-go-live-notifications">Learn More</a>
+                            </td>
+                        </tr>
+
+                        <tr class="disableit" title="Not Supported via the API">
+                            <th>ReRun</th>
+                            <td>
+                                <input type="checkbox" name="channel_rerun" id="channel_rerun"/>
+                                <br />
+                                Not Supported via the API
+                                <br />
+                                <a href="https://help.twitch.tv/s/article/video-on-demand#reruns">Learn More</a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>CCLs - Content Classification Labels</th>
+                            <td>
+                                <div id="ccl_space"></div>
+                                <a href="https://safety.twitch.tv/s/article/Content-Classification-Guidelines">Learn More</a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Branded Content</th>
+                            <td>
+                                <input type="checkbox" name="channel_branded" id="channel_branded"/>
+                                <a href="https://help.twitch.tv/s/article/branded-content-policy">Learn More</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="width: 50%;">
+                    <h2>Extensions</h2>
+
+                    <table>
+                        <tr>
+                            <td>Overlay<br /><select name="extension_overlay" id="extension_overlay"></select></td>
+                            <td>Comp 1<br /><select name="extension_comp1" id="extension_comp1"></select></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Comp 2<br /><select name="extension_comp2" id="extension_comp2"></select></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <table class="noborder">
+                                    <tr>
+                                        <td>Panel 1<br /><select name="extension_panel1" id="extension_panel1"></select></td>
+                                        <td>Panel 2<br /><select name="extension_panel2" id="extension_panel2"></select></td>
+                                        <td>Panel 3<br /><select name="extension_panel3" id="extension_panel3"></select></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div style="width:100%">
+                <input type="submit" id="update_channel" value="Update Channel" />
+                <input type="button" id="refresh_channel" value="Refresh Channel" />
+            </div>
+        </fieldset>
+    </form>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://' + window.location.host + '/twitch_misc/';
+        // setup a memory space for the token/userID
+        var access_token = '';
+        var user_id = '';
+        var scopes = [
+            'channel:manage:broadcast',
+            'user:read:broadcast',
+            'user:edit:broadcast'
+        ]
+
+        let status = document.getElementById('status');
+
+        // setuo authorise link
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token&scope=' + encodeURIComponent(scopes.join(' ')))
+
+        function state(text) {
+            console.log('State>', text);
+            status.textContent = text;
+        }
+
+        languages.forEach(language => {
+            let opt = document.createElement('option');
+            opt.value = language.code;
+            opt.textContent = language.name;
+            channel_broadcaster_language.append(opt);
+        })
+
+        function processToken(token) {
+            access_token = token;
+
+            state('Got Token. Loading Things');
+
+            updateData();
+        }
+        async function updateData() {
+            // get user/channel ID
+            let userResp = await fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            if (userResp.status != 200) {
+                state('Failed to get user. Non 200');
+                return;
+            }
+
+            let userData = {}
+            try {
+                userData = await userResp.json();
+            } catch (e) {
+                state('Failed to get user. Parse Error');
+                return;
+            }
+
+            if (userData.data && userData.data.length == 1) {
+                user_id = userData.data[0].id;
+                let broadcaster_type = userData.data[0].broadcaster_type;
+                state(`Hello ${user_id} - a ${broadcaster_type}`);
+
+                if (broadcaster_type == 'partner') {
+                    channel_delay.removeAttribute('disabled');
+                } else {
+                    channel_delay.setAttribute('disabled', 'disabled');
+                }
+            } else {
+                state('Failed to get user. Invalid Data');
+                return;
+            }
+
+            // get CCLS
+            let cclResp = await fetch(
+                `https://api.twitch.tv/helix/content_classification_labels`,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            );
+            if (cclResp.status != 200) {
+                state('Failed to get CCLs. Non 200');
+                return;
+            }
+
+            // a dyanamic rebuild
+            // on the off chance the ccls change whilst using
+            ccl_space.textContent = '';
+            state('Got CCLs');
+
+            let cclData = await cclResp.json();
+            for (let x=0;x<cclData.data.length;x++) {
+                let { id, description, name } = cclData.data[x];
+
+                let div = document.createElement('div');
+                ccl_space.append(div);
+
+                let l = document.createElement('label');
+                div.append(l);
+                l.textContent = name;
+                l.setAttribute('title', description);
+
+                let c = document.createElement('input');
+                div.append(c);
+                c.classList.add('ccl_selector');
+                c.setAttribute('type', 'checkbox');
+                c.value = id;
+                c.setAttribute('name', `ccl_${id}`);
+                c.setAttribute('id', `ccl_${id}`);
+
+                // mature is only settable via game/category selection
+                if (id == 'MatureGame') {
+                    c.setAttribute('disabled', 'disabled');
+                }
+            }
+
+            // get channel information
+            let channelResp = await fetch(
+                `https://api.twitch.tv/helix/channels?broadcaster_id=${user_id}`,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            );
+
+            if (channelResp.status != 200) {
+                state('Failed to get channel. Non 200');
+                return;
+            }
+
+            let channelData = {}
+            try {
+                channelData = await channelResp.json();
+            } catch (e) {
+                state('Failed to get channel. Parse Error');
+                return;
+            }
+
+            if (channelData.data && channelData.data.length == 1) {
+                let { title, delay, game_id, game_name, tags, broadcaster_language, content_classification_labels, is_branded_content } = channelData.data[0];
+
+                channel_title.value = title;
+                channel_delay.value = delay;
+
+                channel_game_id.textContent = game_id;
+                channel_game_name.value = game_name;
+
+                channel_broadcaster_language.value = broadcaster_language;
+
+                let tagFields = document.querySelectorAll('input[name="channel_tag[]"]');
+                for (var x=0;x<tags.length;x++) {
+                    tagFields[x].value = tags[x];
+                }
+
+                // ccls
+                for (var x=0;x<content_classification_labels.length;x++) {
+                    let targetCB = document.getElementById(`ccl_${content_classification_labels[x]}`);
+                    if (targetCB) {
+                        targetCB.checked = true;
+                    }
+                }
+
+                // branded
+                channel_branded.checked = is_branded_content;
+            } else {
+                state('Failed to get channel. Invalid Data');
+                return;
+            }
+            state('Got Channel Data');
+
+            // get (and sort) installed extensions
+            let installedExtensionsResp = await fetch(
+                `https://api.twitch.tv/helix/users/extensions/list?user_id=${user_id}`,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            );
+
+            if (installedExtensionsResp.status != 200) {
+                state('Failed to get installed Extensions. Non 200');
+                return;
+            }
+
+            let installedExtensionsData = {}
+            try {
+                installedExtensionsData = await installedExtensionsResp.json();
+            } catch (e) {
+                state('Failed to get installed Extensions. Parse Error');
+                return;
+            }
+
+            // reset
+            extension_overlay.innerHTML = '<option value="">-Empty-</option>';
+            extension_comp1.innerHTML = '<option value="">-Empty-</option>';
+            extension_comp2.innerHTML = '<option value="">-Empty-</option>';
+            extension_panel1.innerHTML = '<option value="">-Empty-</option>';
+            extension_panel2.innerHTML = '<option value="">-Empty-</option>';
+            extension_panel3.innerHTML = '<option value="">-Empty-</option>';
+
+            // lets sort...
+            if (installedExtensionsData.data && installedExtensionsData.data.length > 0) {
+                installedExtensionsData.data.forEach(extension => {
+                    let { id, version, name, can_activate, type } = extension;
+
+                    let opt = document.createElement('option');
+                    opt.setAttribute('value', `${id}-${version}`);
+                    opt.textContent = `${name} (${version})`;
+
+                    if (type.includes('overlay')) {
+                        extension_overlay.append(opt.cloneNode(true));
+                    }
+                    if (type.includes('component')) {
+                        extension_comp1.append(opt.cloneNode(true));
+                        extension_comp2.append(opt.cloneNode(true));
+                    }
+                    if (type.includes('panel')) {
+                        extension_panel1.append(opt.cloneNode(true));
+                        extension_panel2.append(opt.cloneNode(true));
+                        extension_panel3.append(opt.cloneNode(true));
+                    }
+                });
+            }
+            state('Got Installed Extensions');
+
+            // get active extensions
+            let activeExtensionsResp = await fetch(
+                `https://api.twitch.tv/helix/users/extensions?user_id=${user_id}`,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            );
+
+            if (activeExtensionsResp.status != 200) {
+                state('Failed to get active Extensions. Non 200');
+                return;
+            }
+
+            let activeExtensionsData = {}
+            try {
+                activeExtensionsData = await activeExtensionsResp.json();
+            } catch (e) {
+                state('Failed to get active Extensions. Parse Error');
+                return;
+            }
+
+            if (activeExtensionsData.data) {
+                for (let position in activeExtensionsData.data) {
+                    // slot is a STRING
+                    for (let slot in activeExtensionsData.data[position]) {
+                        let { id, active, version } = activeExtensionsData.data[position][slot];
+
+                        // active can be weird sometimes....
+                        if (active) {
+                            switch (position) {
+                                case 'overlay':
+                                    extension_overlay.value = `${id}-${version}`;
+                                    break;
+                                case 'component':
+                                    if (slot == "1") {
+                                        extension_comp1.value = `${id}-${version}`;
+                                    } else {
+                                        extension_comp2.value = `${id}-${version}`;
+                                    }
+                                    break;
+                                case 'panel':
+                                    if (slot == "1") {
+                                        extension_panel1.value = `${id}-${version}`;
+                                    } else if (slot == "2") {
+                                        extension_panel2.value = `${id}-${version}`;
+                                    } else {
+                                        extension_panel3.value = `${id}-${version}`;
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                state('Failed to get installed Extensions. Invalid Response');
+                return;
+            }
+
+            state('Got Active Extensions');
+
+            state('Got Everything!');
+            dashboard.classList.remove('disableit');
+        }
+        refresh_channel.addEventListener('click', updateData);
+
+        dashboard.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // collect and update
+
+            // builds tags
+            let tags = [];
+            let tagFields = document.querySelectorAll('input[name="channel_tag[]"]');
+            tagFields.forEach(tagField => {
+                if (tagField.value.length > 0) {
+                    tags.push(tagField.value);
+                }
+            });
+
+            // build ccls
+            let content_classification_labels = [];
+            let cclFields = document.querySelectorAll('input[class="ccl_selector"]');
+
+            for (var x=0;x<cclFields.length;x++) {
+                let cclField = cclFields[x];
+                if (cclField.getAttribute('disabled')) {
+                    // cannot set this one
+                    continue;
+                }
+                content_classification_labels.push({
+                    id: cclField.value,
+                    is_enabled: cclField.checked
+                });
+            }
+
+            let channel = {
+                game_id: channel_game_id.textContent,
+                title: channel_title.value,
+                tags,
+
+                broadcaster_language: channel_broadcaster_language.language,
+
+                content_classification_labels,
+                is_branded_content: channel_branded.checked
+            }
+
+            if (!channel_delay.hasAttribute('disabled')) {
+                channel.delay = parseInt(channel_delay.value);
+            }
+
+            // modify channel
+            let modifyResponse = await fetch(
+                `https://api.twitch.tv/helix/channels?broadcaster_id=${user_id}`,
+                {
+                    "method": "PATCH",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    },
+                    "body": JSON.stringify(channel)
+                }
+            )
+
+            if (modifyResponse.status == 204) {
+                state('Updated Channel OK');
+            } else {
+                let modifyResp = await modifyResponse.text();
+                state(`Channel Update Error: ${modifyResp}`);
+                return;
+            }
+
+            // it's very untidy if you ask me
+            let payload = {
+                data: {
+                    overlay: {
+                        "1": {
+                            active: false
+                        }
+                    },
+                    component: {
+                        "1": {
+                            active: false
+                        },
+                        "2": {
+                            active: false
+                        }
+                    },
+                    panel: {
+                        "1": {
+                            active: false
+                        },
+                        "2": {
+                            active: false
+                        },
+                        "3": {
+                            active: false
+                        }
+                    }
+                }
+            };
+
+            if (extension_overlay.value != '') {
+                let [ id, version ] = extension_overlay.value.split('-');
+                payload.data.overlay["1"] = {
+                    active: true,
+                    id,
+                    version
+                }
+            }
+            if (extension_comp1.value != '') {
+                let [ id, version ] = extension_comp1.value.split('-');
+                payload.data.component["1"] = {
+                    active: true,
+                    id,
+                    version
+                }
+            }
+            if (extension_comp2.value != '') {
+                let [ id, version ] = extension_comp2.value.split('-');
+                payload.data.component["2"] = {
+                    active: true,
+                    id,
+                    version
+                }
+            }
+            if (extension_panel1.value != '') {
+                let [ id, version ] = extension_panel1.value.split('-');
+                payload.data.panel["1"] = {
+                    active: true,
+                    id,
+                    version
+                }
+            }
+            if (extension_panel2.value != '') {
+                let [ id, version ] = extension_panel2.value.split('-');
+                payload.data.panel["2"] = {
+                    active: true,
+                    id,
+                    version
+                }
+            }
+            if (extension_panel3.value != '') {
+                let [ id, version ] = extension_panel3.value.split('-');
+                payload.data.panel["3"] = {
+                    active: true,
+                    id,
+                    version
+                }
+            }
+
+            // modify extensions
+            let extensionsResponse = await fetch(
+                'https://api.twitch.tv/helix/users/extensions',
+                {
+                    "method": "PUT",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    },
+                    "body": JSON.stringify(payload)
+                }
+            );
+
+            if (extensionsResponse.status == 200) {
+                state('Updated Extensions OK');
+                // and we get returned the new config.
+                // which we won't do anything with here.
+            } else {
+                let extensionsResp = await extensionsResponse.text();
+                state(`Extension Update Error: ${extensionsResp}`);
+                return;
+            }
+        });
+
+        // category search
+        channel_game_name.addEventListener('keyup', (e) => {
+            categorySearch();
+        });
+        let categorySearchTick = false;
+        function categorySearch() {
+            clearTimeout(categorySearchTick);
+            categorySearchTick = setTimeout(() => {
+                categorySearchGo();
+            }, 300);
+        }
+        async function categorySearchGo() {
+            let searchURL = new URL('https://api.twitch.tv/helix/search/categories');
+            searchURL.search = new URLSearchParams([
+                [ 'query', channel_game_name.value ],
+                [ 'first', 50 ]
+            ]);
+
+            let searchResp = await fetch(
+                searchURL,
+                {
+                    "method": "GET",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+
+            if (searchResp.status != 200) {
+                state('Failed to get Search Results. Non 200');
+                return;
+            }
+
+            let searchResults = {};
+            try {
+                searchResults = await searchResp.json();
+            } catch (e) {
+                state('Failed to get Search Results. Parse Error');
+                return;
+            }
+
+            search_results.textContent = '';
+            if (searchResults.data && searchResults.data.length > 0) {
+                searchResults.data.forEach(result => {
+                    let { box_art_url, id, name } = result;
+
+                    let hit = document.createElement('div');
+                    hit.addEventListener('click', (e) => {
+                        channel_game_id.textContent = id;
+                        channel_game_name.value = name;
+
+                        search_results.textContent = '';
+                    });
+
+                    //box_art_url = box_art_url.replace('')
+
+                    hit.textContent = name;
+                    hit.style.backgroundImage = `url(${box_art_url})`;
+                    // if exact match put it first
+                    if (name.toLowerCase() == channel_game_name.value.toLowerCase()) {
+                        search_results.prepend(hit);
+                    } else {
+                        search_results.append(hit);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
