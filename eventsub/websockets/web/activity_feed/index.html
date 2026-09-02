@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Activity Feed | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <script type="text/javascript" src="../eventsub.js"></script>
+
+    <style>
+        table ul {
+            max-height: 150px;
+            overflow: auto;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+    <p>This example demonstrates how to connect to, create subscriptions and recieve data from EventSub WebSockets</p>
+    <p>It'll use Implicit auth to obtain a token to use</p>
+
+    <p><a href="" id="authorize" target="barrysgithubtwitchauth">Authorize and Connect</a></p>
+
+    <div>
+        <p>Add another broadcaster channel to your socket to listen to</p>
+        <form action="" method="post" id="form">
+            <fieldset>
+                <label for="add_user">Channel:</label>
+                <input type="text" name="add_user" id="add_user" />
+                <input type="submit" value="Add User" id="add_user_go" />
+            </fieldset>
+        </form>
+    </div>
+
+    <div>Last KeepAlive: <span id="keepalive"></span> Total/Cost/MaxCost: <span id="subscriptions_cost"></span></div>
+
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Channel</th>
+                    <th>Whom</th>
+                    <th>What</th>
+                    <th>Counts</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody id="activity_feed"></tbody>
+        </table>
+    </div>
+
+    <div>
+        <div id="subscriptions_refresh">Click to Refresh Subscriptions</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subscription ID</th>
+                    <th>Topic</th>
+                    <th>Condition User ID</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="subscriptions"></tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript" src="framework.js"></script>
+    <script type="text/javascript" src="feed.js"></script>
+    <script type="text/javascript" src="sample.js"></script>
+</body>
+</html>
