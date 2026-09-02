@@ -480,9 +480,9 @@
             desc.append(h);
             h.textContent = team.team_display_name ? team.team_display_name : team.team_name;
 
-            let p = document.createElement('p');
-            desc.append(p)
-            p.textContent = team.info;
+            let descDiv = document.createElement('div');
+            desc.append(descDiv);
+            descDiv.innerHTML = marked.parse(team.info);
         }
 
         let player = false;
@@ -540,7 +540,7 @@
                         document.body.append(d);
 
                         d.classList.add('info_widget');
-                        d.innerHTML = marked.parse(description);
+                        d.textContent = description;
 
                         d.style.left = (e.clientX - 100) +'px';
                         d.style.top = e.clientY+'px';
