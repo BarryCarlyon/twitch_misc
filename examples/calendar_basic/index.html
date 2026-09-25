@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Calendar Stuff | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <script type="text/javascript" src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style type="text/css">
+        .main_div { display: flex; }
+        .half_div { width: 50%; }
+    </style>
+</head>
+<body>
+    <p>This example will first ask you to login with <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get an API Token to use. It'll then fetch your iCalendar URL, generate a QR Code for that URL and display you schedule segments. You can then also lookup another streamer.</p>
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/calendar">Github</a> or just View the source instead</p>
+    <ul>
+        <li>
+            <a href="" id="authorize_public" target="barrysgithubtwitchauth">Authorize with Twitch</a>
+        </li>
+    </ul>
+    <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
+    <div><span id="status"></span></div>
+
+    <div id="authenticated" style="display: none;">
+        <form action="" method="post" id="form">
+            <fieldset>
+                <label for="streamer">Streamer</label>
+                <input type="text" name="streamer" id="streamer" />
+                <input type="submit" value="Lookup" />
+            </fieldset>
+        </form>
+        <div class="main_div">
+            <div class="half_div">
+                <p>Calendar URL</p>
+                <div id="ical_url"></div>
+                <p>QR Code for iCal URL</p>
+                <div id="ical_qr"></div>
+            </div>
+            <div class="half_div">
+                <p>WebCal URL: should invoke default calendar program</p>
+                <div id="webcal_url"></div>
+                <p>QR Code for WebCal URL</p>
+                <div id="webcal_qr"></div>
+            </div>
+        </div>
+        <br />
+        <p>Schedule segments for this Streamer, for this Week only</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Title</th>
+                    <th>Category (If Any)</th>
+                </tr>
+            </thead>
+            <tbody id="segments"></tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        // These are set for the GitHub Pages Example
+        // Substitute as needed
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        var access_token = '';
+
+        document.getElementById('authorize_public').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token');
+
+        function processToken(token) {
+            access_token = token;
+
+            document.getElementById('status').textContent = 'Loading';
+
+            // call API
+            runLookup();
+        }
+
+        function runLookup(username) {
+            document.getElementById('status').textContent = 'loading';
+
+            let start_week = false;
+            let end_week = false;
+
+            let url = 'https://api.twitch.tv/helix/users';
+            if (username) {
+                // just in case
+                url += '?login=' + encodeURIComponent(username);
+            }
+
+            fetch(
+                url,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                document.getElementById('authenticated').style.display = 'block';
+                document.getElementById('status').textContent = 'authenticated';
+
+                document.getElementById('streamer').value = resp.data[0].login;
+
+                let a = document.createElement('a');
+                a.setAttribute('href', 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id);
+                a.textContent = 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id;
+                document.getElementById('ical_url').textContent = 'iCalendar URL: ';
+                document.getElementById('ical_url').append(a);
+                
+                document.getElementById('ical_qr').textContent = '';
+                new QRCode("ical_qr", {
+                    text: 'https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id
+                });
+
+                let wa = document.createElement('a');
+                wa.setAttribute('href', 'webcal://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id);
+                wa.textContent = 'webcal://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id;
+                document.getElementById('webcal_url').textContent = 'WebCal URL: ';
+                document.getElementById('webcal_url').append(wa);
+
+                document.getElementById('webcal_qr').textContent = '';
+                new QRCode("webcal_qr", {
+                    text: 'webcal://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=' + resp.data[0].id
+                });
+                
+                // load the schedule since last monday if today is not monday
+                start_week = new Date();
+                // reset to start of day
+                start_week.setHours(0);
+                start_week.setMinutes(0);
+                start_week.setSeconds(0);
+
+                let today = start_week.getDay();
+                if (today < 1) {
+                    start_week.setDate(start_week.getDate() - 6);
+                } else if (today > 1) {
+                    let diff = today - 1;
+                    start_week.setDate(start_week.getDate() - diff);
+                }
+
+                end_week = new Date(start_week);
+                end_week.setDate(end_week.getDate() + 7);
+
+                return fetch(
+                    'https://api.twitch.tv/helix/schedule'
+                    + '?broadcaster_id=' + resp.data[0].id
+                    + '&start_time=' + start_week.toISOString()
+                    + '&first=25',
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                )
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                document.getElementById('segments').textContent = '';
+
+                for (var x=0;x<resp.data.segments.length;x++) {
+                    let { start_time, end_time, title, category } = resp.data.segments[x];
+
+                    if (end_week.getTime() > new Date(start_time).getTime()) {
+
+                        let row = document.createElement('tr');
+                        document.getElementById('segments').append(row);
+
+                        makecell(row, start_time);
+                        makecell(row, end_time);
+                        makecell(row, title);
+
+                        if (category && category.name) {
+                            makecell(row, category.name);
+                        } else {
+                            makecell(row, '');
+                        }
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('status').textContent = 'Something went wrong';
+            });
+        }
+
+        function makecell(row, text) {
+            let cell = document.createElement('td');
+            row.append(cell);
+            cell.textContent = text;
+        }
+
+        document.getElementById('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            runLookup(document.getElementById('streamer').value);
+        });
+    </script>
+</body>
+</html>
