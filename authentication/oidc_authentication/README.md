@@ -23,15 +23,15 @@ In this case that is `https://id.twitch.tv/oauth2/` and the OIDC library will se
 
 ## Setting up the config
 
-- Open `config_sample.json` in a text editor
+- Open `.env.sample` in a text editor
 - Visit [Twitch Dev Console](https://dev.twitch.tv/console/)
 - Visit Applications
 - Manage your Application, or create one if you don't have one
-- Copy the Client ID into the `""` of `client_id`
+- Copy the Client ID into the `""` of `CLIENT_ID`
 - Hit New Secret then Ok
-- Copy the new Client Secret into the `""` of `client_secret`
+- Copy the new Client Secret into the `""` of `CLIENT_SECRET`
 - Add or change the `OAuth Redirect URLs` to include one for `http://localhost:8000/` as Twitch now support multiples
-- Save your modified file as `config.json`
+- Save your modified file as `.env`
 
 You can change the port in config if you want but remember to change it in the Redirect URL's as well, and update the configs `redirect_uri`
 
@@ -56,7 +56,7 @@ Also note the `validate` endpoint uses `OAuth` instead of `Bearer` in the `Autho
 ## Nginx and Cookie Security
 
 This is an example, so doesn't contain all the _best_ security practices.
-Since this uses cookies to manage logins you should change the session code to something like
+Since this uses cookies to manage logins you should change the session code to something like. (don't forget to `npm install` what you need/use)
 
 ```
 app.use(session({
