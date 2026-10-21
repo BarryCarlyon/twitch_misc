@@ -271,24 +271,26 @@ app
         req.session.state = crypto.randomBytes(16).toString('base64');
 
         // construct the linking URL
-        var login_url = oidc_data.authorization_endpoint
-            + '?client_id=' + process.env.CLIENT_ID
-            + '&redirect_uri=' + encodeURIComponent(process.env.REDIRECT_URI)
-            + '&response_type=code'
-            + '&force_verify=true'
-            + '&scope=' + oidc_data.scopes_supported.join('+') + '+user:read:email'
-            + '&state=' + encodeURIComponent(req.session.state)
-            + '&claims=' + JSON.stringify({
+        const loginUrl = new URL(oidc_data.authorization_endpoint);
+        loginUrl.search = new URLSearchParams({
+            client_id: process.env.CLIENT_ID,
+            redirect_uri: process.env.REDIRECT_URI,
+            response_type: 'code',
+            force_verify: 'true',
+            scope: oidc_data.scopes_supported.join(' ') + ' user:read:email',
+            claims: JSON.stringify({
                 userinfo: {
                     email:null,
                     email_verified:null,
                     picture:null,
                     preferred_username:null
                 }
-            });
+            }),
+            state: req.session.state,
+        });
 
-        console.log('Redirect to', login_url);
-        res.redirect(login_url);
+        console.log('Redirect to', loginUrl.toString());
+        res.redirect(loginUrl.toString());
     });
 
 app
