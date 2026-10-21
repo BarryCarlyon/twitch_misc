@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Channel Information | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style>
+        .infoblock {
+            width: 33%;
+            float: left;
+            box-sizing: border-box;
+
+            height: 400px;
+            overflow-y: scroll;
+        }
+        #loading {
+            height: 200px;
+            overflow: scroll;
+        }
+        #loading p {
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <p>This example first uses <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get a token to use then will Various endpoints. Generally calls will be done/cached server side with an <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow" target="_blank">App Access Token</a></p>
+
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/channel_information">Github</a> or just View the source instead</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+
+    <form action="" method="post" id="form">
+        <fieldset>
+            <label for="streamer">Streamer</label>
+            <input type="text" name="streamer" id="streamer" />
+            <input type="submit" value="Lookup" id="streamer_lookup" />
+        </fieldset>
+    </form>
+
+    <div id="loading"></div>
+    <div id="output"></div>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://barrycarlyon.github.io/twitch_misc/';
+        // setup a memory space for the token/userID
+        var access_token = '';
+        var user_id = '';
+
+        var output = document.getElementById('output');
+        
+        document.getElementById('streamer').setAttribute('disabled', 'disabled');
+        document.getElementById('streamer_lookup').setAttribute('disabled', 'disabled');
+
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        function processToken(token) {
+            access_token = token;
+
+            document.getElementById('loading').textContent = 'Loading Profile';
+
+            fetch(
+                'https://api.twitch.tv/helix/users',
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.data.length == 1) {
+                    user_id = resp.data[0].id;
+
+                    getInformation(user_id);
+                } else {
+                    document.getElementById('loading').textContent = 'An Error Occured loading Profile: not returned';
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'An Error Occured loading Profile: error';
+            });
+        }
+
+        function message(words) {
+            let p = document.createElement('p');
+            document.getElementById('loading').prepend(p);
+            p.textContent = words;
+        }
+        function tabulate(title, data, override, id_link = false) {
+            let div = document.createElement('div');
+            if (override) {
+                override.append(div);
+            } else {
+                output.append(div);
+                div.classList.add('infoblock');
+            }
+            if (title) {
+                let p = document.createElement('p');
+                div.append(p);
+                p.textContent = title;
+            }
+
+            let table = document.createElement('table');
+            div.append(table);
+            for (var key in data) {
+                let tr = document.createElement('tr');
+                table.append(tr);
+                let th = document.createElement('th');
+                tr.append(th);
+                th.textContent = key;
+
+                let td = document.createElement('td');
+                tr.append(td);
+                if (typeof data[key] == 'object') {
+                    tabulate('', data[key], td, id_link);
+                } else {
+                    if (typeof data[key] == 'string' && data[key].indexOf('https://') == 0) {
+                        let a = document.createElement('a');
+                        a.setAttribute('href', data[key]);
+                        a.textContent = data[key];
+                        a.setAttribute('target', '_blank');
+                        td.append(a);
+                    } else if (key == 'id' && id_link) {
+                        let a = document.createElement('a');
+                        a.setAttribute('href', 'https://dashboard.twitch.tv/extensions/' + data[key]);
+                        a.textContent = data[key];
+                        a.setAttribute('target', '_blank');
+                        td.append(a);
+                    } else {
+                        td.textContent = data[key];
+                    }
+                }
+            }
+        }
+        function getInformation(user_id, is_not_id) {
+            output.textContent = '';
+
+            document.getElementById('streamer').setAttribute('disabled', 'disabled');
+            document.getElementById('streamer_lookup').setAttribute('disabled', 'disabled');
+            
+            var lookup = 'id=' + user_id;
+            if (is_not_id) {
+                lookup = 'login=' + user_id;
+            }
+            fetch(
+                'https://api.twitch.tv/helix/users?' + lookup,
+                {
+                    "headers": {
+                        "Client-ID": client_id,
+                        "Authorization": "Bearer " + access_token
+                    }
+                }
+            )
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length == 1) {
+                    document.getElementById('streamer').value = resp.data[0].login;
+                    user_id = resp.data[0].id;
+
+                    message('Did get one user');
+                    tabulate('User', resp.data[0]);
+                } else {
+                    message('Did not get one user');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/channels?broadcaster_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length == 1) {
+                    message('Did get one channel');
+                    tabulate('Channel', resp.data[0]);
+                } else {
+                    message('Did not get one channel');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/teams/channel?broadcaster_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data && resp.data.length > 0) {
+                    message('Did get at least one channel team');
+                    tabulate('Channel Teams', resp.data);
+                } else {
+                    message('Did not get any channel team');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/streams?user_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data')) {
+                    if (resp.data.length == 1) {
+                        message('Is Live');
+                        tabulate('Stream', resp.data[0]);
+                    } else {
+                        message('Is not Live');
+                    }
+                } else {
+                    message('Did not get stream data');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/videos?user_id=' + user_id + '&type=archive',
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    message('Did get at least one past broadcasts');
+                    tabulate('Past Broadcast', resp.data);
+                } else {
+                    message('Did not get any past broadcasts');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/users/extensions?user_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data')) {
+                    message('Did get extensions');
+                    tabulate('Extensions', resp.data, false, true);
+                } else {
+                    message('Did not get extensions');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/chat/emotes?broadcaster_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    message('Did get at least one emote');
+                    tabulate('Emotes', resp.data);
+                } else {
+                    message('Did not get any emotes');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    message('Did get at least one cheermote');
+                    tabulate('Cheermotes', resp.data);
+                } else {
+                    message('Did not get any cheermote');
+                }
+
+                return fetch(
+                    'https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + user_id,
+                    {
+                        "headers": {
+                            "Client-ID": client_id,
+                            "Authorization": "Bearer " + access_token
+                        }
+                    }
+                );
+            })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.hasOwnProperty('data') && resp.data.length > 0) {
+                    message('Did get at least one chat badges');
+                    tabulate('Chat Badges', resp.data);
+                } else {
+                    message('Did not get any chat badges');
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                document.getElementById('loading').textContent = 'Something went wrong';
+            })
+            .finally(() => {
+                document.getElementById('streamer').removeAttribute('disabled');
+                document.getElementById('streamer_lookup').removeAttribute('disabled');
+            })
+        }
+
+        document.getElementById('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            message(`Running a lookup for: ${document.getElementById('streamer').value}`);
+            getInformation(document.getElementById('streamer').value, true);
+        });
+    </script>
+</body>
+</html>

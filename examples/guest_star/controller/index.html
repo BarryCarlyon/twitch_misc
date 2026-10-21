@@ -1,0 +1,318 @@
+<html>
+<head>
+    <title>Controller | Guest Star | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+
+    <style>
+        .flexer {
+            display: flex;
+        }
+        .flexer>div {
+            flex-grow: 1;
+        }
+
+        .camon,
+        .camoff,
+        .unmuted,
+        .muted {
+            display: none;
+        }
+
+        svg {
+            pointer-events: none;
+        }
+
+        .active .camon,
+        .inactive .camoff,
+        .active .unmuted,
+        .inactive .muted {
+            display: block;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        tr {
+            position: relative;
+        }
+        tr.disabled:after {
+            content: '';
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: rgb(255 0 0 / 50%);
+        }
+        input[type="button"][data-function="stop"] {
+            background: rgb(255 0 0 / 50%);
+        }
+    </style>
+</head>
+<body>
+    <p>This example will first ask you to login with <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-implicit-code-flow" target="_blank">Implicit Auth</a> to get an API Token to use.</p>
+    <p>Get the code for this example on <a href="https://github.com/BarryCarlyon/twitch_misc/tree/main/examples/guest_star/controller/">Github</a> or just View the source instead</p>
+    <p style="background: rgb(255 0 0 / 50%);">The Moderate Channel stuff isn't setup right</p>
+    <ul>
+        <li>
+            <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize with Twitch</a>
+        </li>
+    </ul>
+    <p>After testing you can Disconnect the "Barry's GitHub Examples" Application on the <a href="https://www.twitch.tv/settings/connections">Connections page</a></p>
+
+    <div id="status_bar"></div>
+
+    <div id="selector" style="display: none;">
+        <form action="" method="post" id="moderate_channel_form">
+            <fieldset class="flexer">
+                <div class="whoami"></div>
+                <div>
+                    <input type="text" id="moderate_channel_name" placeholder="Control a Channel" />
+                </div>
+                <div>
+                    <input type="button" id="moderate_channel" value="Moderate" />
+                </div>
+                <div>
+                    <input type="button" id="control_channel" value="My Own" />
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="controls" style="display: none;">
+        <div id="master_controls" style="display: flex;">
+            <input type="button" id="master_control" data-function="start_stop" value="Start Guest Star" />
+        </div>
+        <div id="ui" style="display: flex;">
+            <div id="invite_manager" style="width: 40%;">
+                <form action="" method="post" id="invite_username_form">
+                    <fieldset>
+                        <legend>Create Invite for <span class="target_channel"></span></legend>
+                        <input type="text" name="invite_username" id="invite_username" placeholder="Username" />
+                    </fieldset>
+                </form>
+                <table id="invite_manager_list"></table>
+                <input type="button" id="invite_manager_refresh" data-function="refresh_invites" value="Refresh Invites" />
+            </div>
+            <div style="width: 60%;">
+                <div id="settings">
+                    <form action="" method="post" id="settings_form">
+                        <fieldset style="display: flex">
+                            <div class="form-group">
+                                <label>Moderator can Live</label>
+                                <input type="checkbox" name="is_moderator_send_live_enabled" id="is_moderator_send_live_enabled" />
+                            </div>
+                            <div class="form-group" style="width: 25%; display: inline-block;">
+                                <label>Slot Count</label>
+                                <select name="slot_count" id="slot_count">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Audio Enabled</label>
+                                <input type="checkbox" name="is_browser_source_audio_enabled" id="is_browser_source_audio_enabled" />
+                            </div>
+                            <div class="form-group">
+                                <label>Layout</label>
+                                <select name="group_layout" id="group_layout">
+                                    <option value="TILED">Tiled</option>
+                                    <option value="SCREENSHARE">Screenshare</option>
+                                </select>
+                            </div>
+                        </fieldset>
+                        <input type="submit" value="Update Settings" />
+                    </form>
+                </div>
+
+                <div id="slots">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Who</th>
+                                <th>Move Guest</th>
+                                <th>Live/Backstage</th>
+                                <th>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                                        <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                        <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                    </svg>
+                                </th>
+                                <th>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                                    </svg>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="slot_1">
+                                <td id="slot_1_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="1" id="slot_1_move"><option>Remove</option><option>Queue</option></option><option selected="selected">1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="1" id="slot_1_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                                <td id="slot_1_mic">
+                                    <div class="unmuted" data-function="slot_mute" data-slot-id="1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="muted" data-function="slot_unmute" data-slot-id="1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic-mute" viewBox="0 0 16 16">
+                                            <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4.02 4.02 0 0 0 12 8V7a.5.5 0 0 1 1 0v1zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a4.973 4.973 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4zm3-9v4.879l-1-1V3a2 2 0 0 0-3.997-.118l-.845-.845A3.001 3.001 0 0 1 11 3z"/>
+                                            <path d="m9.486 10.607-.748-.748A2 2 0 0 1 6 8v-.878l-1-1V8a3 3 0 0 0 4.486 2.607zm-7.84-9.253 12 12 .708-.708-12-12-.708.708z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td id="slot_1_cam">
+                                    <div class="camon" data-function="slot_camoff" data-slot-id="1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="camoff" data-function="slot_camon" data-slot-id="1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-off" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M10.961 12.365a1.99 1.99 0 0 0 .522-1.103l3.11 1.382A1 1 0 0 0 16 11.731V4.269a1 1 0 0 0-1.406-.913l-3.111 1.382A2 2 0 0 0 9.5 3H4.272l.714 1H9.5a1 1 0 0 1 1 1v6a1 1 0 0 1-.144.518l.605.847zM1.428 4.18A.999.999 0 0 0 1 5v6a1 1 0 0 0 1 1h5.014l.714 1H2a2 2 0 0 1-2-2V5c0-.675.334-1.272.847-1.634l.58.814zM15 11.73l-3.5-1.555v-4.35L15 4.269v7.462zm-4.407 3.56-10-14 .814-.58 10 14-.814.58z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="slot_2">
+                                <td id="slot_2_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="2" id="slot_2_move"><option>Remove</option><option>Queue</option><option>1</option><option selected="selected">2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="2" id="slot_2_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                                <td id="slot_2_mic">
+                                    <div class="unmuted" data-function="slot_mute" data-slot-id="2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="muted" data-function="slot_unmute" data-slot-id="2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic-mute" viewBox="0 0 16 16">
+                                            <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4.02 4.02 0 0 0 12 8V7a.5.5 0 0 1 1 0v1zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a4.973 4.973 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4zm3-9v4.879l-1-1V3a2 2 0 0 0-3.997-.118l-.845-.845A3.001 3.001 0 0 1 11 3z"/>
+                                            <path d="m9.486 10.607-.748-.748A2 2 0 0 1 6 8v-.878l-1-1V8a3 3 0 0 0 4.486 2.607zm-7.84-9.253 12 12 .708-.708-12-12-.708.708z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td id="slot_2_cam">
+                                    <div class="camon" data-function="slot_camoff" data-slot-id="2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="camoff" data-function="slot_camon" data-slot-id="2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-off" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M10.961 12.365a1.99 1.99 0 0 0 .522-1.103l3.11 1.382A1 1 0 0 0 16 11.731V4.269a1 1 0 0 0-1.406-.913l-3.111 1.382A2 2 0 0 0 9.5 3H4.272l.714 1H9.5a1 1 0 0 1 1 1v6a1 1 0 0 1-.144.518l.605.847zM1.428 4.18A.999.999 0 0 0 1 5v6a1 1 0 0 0 1 1h5.014l.714 1H2a2 2 0 0 1-2-2V5c0-.675.334-1.272.847-1.634l.58.814zM15 11.73l-3.5-1.555v-4.35L15 4.269v7.462zm-4.407 3.56-10-14 .814-.58 10 14-.814.58z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="slot_3">
+                                <td id="slot_3_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="3" id="slot_3_move"><option>Remove</option><option>Queue</option><option>1</option><option>2</option><option selected="selected">3</option><option>4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="3" id="slot_3_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                                <td id="slot_3_mic">
+                                    <div class="unmuted" data-function="slot_mute" data-slot-id="3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="muted" data-function="slot_unmute" data-slot-id="3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic-mute" viewBox="0 0 16 16">
+                                            <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4.02 4.02 0 0 0 12 8V7a.5.5 0 0 1 1 0v1zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a4.973 4.973 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4zm3-9v4.879l-1-1V3a2 2 0 0 0-3.997-.118l-.845-.845A3.001 3.001 0 0 1 11 3z"/>
+                                            <path d="m9.486 10.607-.748-.748A2 2 0 0 1 6 8v-.878l-1-1V8a3 3 0 0 0 4.486 2.607zm-7.84-9.253 12 12 .708-.708-12-12-.708.708z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td id="slot_3_cam">
+                                    <div class="camon" data-function="slot_camoff" data-slot-id="3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="camoff" data-function="slot_camon" data-slot-id="2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-off" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M10.961 12.365a1.99 1.99 0 0 0 .522-1.103l3.11 1.382A1 1 0 0 0 16 11.731V4.269a1 1 0 0 0-1.406-.913l-3.111 1.382A2 2 0 0 0 9.5 3H4.272l.714 1H9.5a1 1 0 0 1 1 1v6a1 1 0 0 1-.144.518l.605.847zM1.428 4.18A.999.999 0 0 0 1 5v6a1 1 0 0 0 1 1h5.014l.714 1H2a2 2 0 0 1-2-2V5c0-.675.334-1.272.847-1.634l.58.814zM15 11.73l-3.5-1.555v-4.35L15 4.269v7.462zm-4.407 3.56-10-14 .814-.58 10 14-.814.58z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="slot_4">
+                                <td id="slot_4_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="4" id="slot_4_move"><option>Remove</option><option>Queue</option><option>1</option><option>2</option><option>3</option><option selected="selected">4</option><option>5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="4" id="slot_4_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                                <td id="slot_4_mic">
+                                    <div class="unmuted" data-function="slot_mute" data-slot-id="4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="muted" data-function="slot_unmute" data-slot-id="4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic-mute" viewBox="0 0 16 16">
+                                            <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4.02 4.02 0 0 0 12 8V7a.5.5 0 0 1 1 0v1zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a4.973 4.973 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4zm3-9v4.879l-1-1V3a2 2 0 0 0-3.997-.118l-.845-.845A3.001 3.001 0 0 1 11 3z"/>
+                                            <path d="m9.486 10.607-.748-.748A2 2 0 0 1 6 8v-.878l-1-1V8a3 3 0 0 0 4.486 2.607zm-7.84-9.253 12 12 .708-.708-12-12-.708.708z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td id="slot_4_cam">
+                                    <div class="camon" data-function="slot_camoff" data-slot-id="4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="camoff" data-function="slot_camon" data-slot-id="4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-off" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M10.961 12.365a1.99 1.99 0 0 0 .522-1.103l3.11 1.382A1 1 0 0 0 16 11.731V4.269a1 1 0 0 0-1.406-.913l-3.111 1.382A2 2 0 0 0 9.5 3H4.272l.714 1H9.5a1 1 0 0 1 1 1v6a1 1 0 0 1-.144.518l.605.847zM1.428 4.18A.999.999 0 0 0 1 5v6a1 1 0 0 0 1 1h5.014l.714 1H2a2 2 0 0 1-2-2V5c0-.675.334-1.272.847-1.634l.58.814zM15 11.73l-3.5-1.555v-4.35L15 4.269v7.462zm-4.407 3.56-10-14 .814-.58 10 14-.814.58z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="slot_5">
+                                <td id="slot_5_guest"></td>
+                                <td><select data-function="slot_guest" data-slot-id="5" id="slot_5_move"><option>Remove</option><option>Queue</option><option>1</option><option>2</option><option>3</option><option>4</option><option selected="selected">5</option></select></td>
+                                <td><select data-function="slot_live" data-slot-id="5" id="slot_5_live"><option value="backstage">Backstage</option><option value="live">Live</option></select></td>
+                                <td id="slot_4_mic">
+                                    <div class="unmuted" data-function="slot_mute" data-slot-id="5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="muted" data-function="slot_unmute" data-slot-id="5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic-mute" viewBox="0 0 16 16">
+                                            <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4.02 4.02 0 0 0 12 8V7a.5.5 0 0 1 1 0v1zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a4.973 4.973 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4zm3-9v4.879l-1-1V3a2 2 0 0 0-3.997-.118l-.845-.845A3.001 3.001 0 0 1 11 3z"/>
+                                            <path d="m9.486 10.607-.748-.748A2 2 0 0 1 6 8v-.878l-1-1V8a3 3 0 0 0 4.486 2.607zm-7.84-9.253 12 12 .708-.708-12-12-.708.708z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td id="slot_5_cam">
+                                    <div class="camon" data-function="slot_camoff" data-slot-id="5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="camoff" data-function="slot_camon" data-slot-id="5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-off" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M10.961 12.365a1.99 1.99 0 0 0 .522-1.103l3.11 1.382A1 1 0 0 0 16 11.731V4.269a1 1 0 0 0-1.406-.913l-3.111 1.382A2 2 0 0 0 9.5 3H4.272l.714 1H9.5a1 1 0 0 1 1 1v6a1 1 0 0 1-.144.518l.605.847zM1.428 4.18A.999.999 0 0 0 1 5v6a1 1 0 0 0 1 1h5.014l.714 1H2a2 2 0 0 1-2-2V5c0-.675.334-1.272.847-1.634l.58.814zM15 11.73l-3.5-1.555v-4.35L15 4.269v7.462zm-4.407 3.56-10-14 .814-.58 10 14-.814.58z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input type="button" id="slot_refresh" data-function="slot_refresh" value="Refresh Show" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="eventsub.js"></script>
+    <script type="text/javascript" src="gueststar.js"></script>
+
+    <footer>Icons from <a href="https://icons.getbootstrap.com/">Bootstrap</a></footer>
+</body>
+</html>
