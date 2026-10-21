@@ -1,30 +1,23 @@
-const fs = require('fs');
-const path = require('path');
+import "dotenv/config";
 
-// Load configuation
-const config = JSON.parse(fs.readFileSync(path.join(
-    __dirname,
-    'config.json'
-)));
+import * as path from 'node:path';
 
 // Require depedancies
 // express is used for handling incoming HTTP requests "like a webserver"
-const express = require('express');
-// bodyparser is for reading incoming data
-const bodyParser = require('body-parser');
+import express from "express";
+
 // cypto handles Crpytographic functions, sorta like passwords (for a bad example)
-const crypto = require('crypto');
-// fetch is used for HTTP/API requests
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+import * as crypto from 'node:crypto';
 
 // OIDC FUN STUFF
-const jwt = require('jsonwebtoken');
+import jsonwebtoken from "jsonwebtoken";
 
 let oidc_data = {};
 let verifier_options;
 let verifier_keys;
 let verifier_client;
-const jwksClient = require('jwks-rsa');
+
+import jwksClient from 'jwks-rsa';
 
 // Fetch OpenID data
 
@@ -47,7 +40,7 @@ async function getOpenIDConfig() {
 
     verifier_options = {
         algorithms: oidc_data.id_token_signing_alg_values_supported,
-        audience: config.client_id,
+        audience: process.env.CLIENT_ID,
         issuer: oidc_data.issuer
     }
 
@@ -67,9 +60,11 @@ getOpenIDConfig();
 
 // Express basics
 const app = express();
-const http = require('http').Server(app);
-http.listen(config.port, function() {
-    console.log('Server raised on', config.port);
+import { Server } from "http";
+
+const http = Server(app);
+http.listen(process.env.SERVER_PORT, function () {
+    console.log(new Date(), `booted express on ${process.env.SERVER_PORT}`);
 });
 
 // For production see the node in the README.md
@@ -77,7 +72,7 @@ http.listen(config.port, function() {
 // https://expressjs.com/en/advanced/best-practice-security.html#use-cookies-securely
 
 // Setup a session manager
-var session = require('express-session');
+import session from 'express-session';
 app.use(session({
     secret: crypto.randomBytes(4).toString('base64'),
     resave: true,
@@ -90,9 +85,9 @@ app.use(session({
 }));
 
 // Using Pug to make rendering easier
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(import.meta.dirname, 'views'));
 app.set('view engine', 'pug');
-app.locals.basedir = path.join(__dirname, 'views');
+app.locals.basedir = path.join(import.meta.dirname, 'views');
 
 app.set('view options', {
    debug: false,
@@ -100,7 +95,7 @@ app.set('view options', {
 });
 
 // need a script
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(import.meta.dirname, 'public')));
 
 /* Flash Warnings/Error handler */
 app.use(function(req,res,next) {
@@ -184,11 +179,11 @@ app
                         "Accept": "application/json"
                     },
                     "body": new URLSearchParams([
-                        [ "client_id", config.client_id ],
-                        [ "client_secret", config.client_secret ],
+                        [ "client_id", process.env.CLIENT_ID ],
+                        [ "client_secret", process.env.CLIENT_SECRET ],
                         [ "code", code ],
                         [ "grant_type", "authorization_code" ],
-                        [ "redirect_uri", config.redirect_uri ]
+                        [ "redirect_uri", process.env.REDIRECT_URI ]
                     ])
                 }
             );
@@ -199,12 +194,12 @@ app
 
                 return;
             }
-            
+
             // oAuth dance success!
             req.session.token = await resp.json();
             // console.log(resp.body);
 
-            jwt.verify(req.session.token.id_token, getKey, verifier_options, async function(err, payload) {
+            jsonwebtoken.verify(req.session.token.id_token, getKey, verifier_options, async function(err, payload) {
                 if (err) {
                     if (err.Error) {
                         req.session.warning = 'Error: ' + err.Error;
@@ -277,8 +272,8 @@ app
 
         // construct the linking URL
         var login_url = oidc_data.authorization_endpoint
-            + '?client_id=' + config.client_id
-            + '&redirect_uri=' + encodeURIComponent(config.redirect_uri)
+            + '?client_id=' + process.env.CLIENT_ID
+            + '&redirect_uri=' + encodeURIComponent(process.env.REDIRECT_URI)
             + '&response_type=code'
             + '&force_verify=true'
             + '&scope=' + oidc_data.scopes_supported.join('+') + '+user:read:email'
