@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>TwitchEmotes | Twitch API Example</title>
+    <link rel="stylesheet" href="/twitch_misc/style.css" />
+    <style>
+        #status { display: block; background: rgba(255,0,0,0.5); }
+        .input-group input { display: inline-block; width: 49%; }
+
+        .whoisit {
+            box-sizing: border-box;
+            background-repeat: no-repeat;
+            background-size: contain;
+            height: 100px;
+            padding-left: 120px;
+        }
+        .emote {
+            box-sizing: border-box;
+            background-repeat: no-repeat;
+            background-size: contain;
+            width: 40px;
+            height: 40px;
+        }
+        .emote_section {
+            vertical-align: top;
+            display: inline-block;
+            box-sizing: border-box;
+            width: 49%;
+            max-width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <p>Twitch Emotes</p>
+    <p>We need a token to work with so please Authorize to continue</p>
+
+    <a href="" id="authorize" target="barrysgithubtwitchauth">Authorize</a>
+    <div id="status">Please Login with Twitch</div>
+
+    <div id="main" class="disableit">
+        <div id="section_0" class="emote_section">
+            <div>
+                <form action="" method="post" data-side="section_0">
+                    <fieldset>
+                        <legend>Select a Channel</legend>
+                        <div class="input-group">
+                            <input type="text" name="channel" placeholder="shroud" />
+                            <input type="submit" value="Load" />
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div id="section_0_content"></div>
+        </div>
+        <div id="section_1" class="emote_section">
+            <div>
+                <form action="" method="post" data-side="section_1">
+                    <fieldset>
+                        <legend>Select a Channel to Compare</legend>
+                        <div class="input-group">
+                            <input type="text" name="channel" placeholder="lirik" />
+                            <input type="submit" value="Load" />
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div id="section_1_content"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // go populate this with a client_id
+        var client_id = 'hozgh446gdilj5knsrsxxz8tahr3koz';
+        var redirect = 'https://' + window.location.host + '/twitch_misc/';
+        // setup a memory space for the token/userID
+        var access_token = '';
+
+        let status = document.getElementById('status');
+
+        // setuo authorise link
+        document.getElementById('authorize').setAttribute('href', 'https://id.twitch.tv/oauth2/authorize?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect) + '&response_type=token')
+
+        function processToken(token) {
+            access_token = token;
+
+            status.textContent = 'Got Token. Specify a channel to load';
+            main.classList.remove('disableit');
+        }
+
+        document.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let side = e.target.getAttribute('data-side');
+            let channel = e.target.querySelector('input[name="channel"]').value;
+
+            console.log('submit', side, channel);
+
+            if (!channel || channel == '') {
+                return;
+            }
+
+            loadChannelArt(side, channel);
+        });
+
+        async function loadChannelArt(side, channel_name) {
+            let user = await fetch(
+                `https://api.twitch.tv/helix/users?login=${channel_name}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Client-ID': client_id,
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                }
+            )
+            if (user.status != 200) {
+                status.textContent = `An Error Occured loading the UserID for ${channel_name}`;
+                return;
+            }
+            let userData = await user.json();
+            if (userData.data.length != 1) {
+                status.textContent = `The user ${channel_name} was not found`;
+                return;
+            }
+
+            let { broadcaster_type, display_name, login, id, profile_image_url } = userData.data[0];
+            let target = document.getElementById(side + '_content');
+            if (!target) {
+                console.log('missing target');
+                return;
+            }
+            target.textContent = '';
+
+            let whoisit = document.createElement('div');
+            target.append(whoisit);
+            whoisit.style.backgroundImage = `url(${profile_image_url})`;
+            whoisit.classList.add('whoisit');
+            whoisit.textContent = `${display_name} (${login}) a ${broadcaster_type}`;
+
+            // and on to load stuff
+            let badges = document.createElement('table');
+            target.append(badges);
+            badges.classList.add('channel_badges');
+
+            let emotes = document.createElement('table');
+            target.append(emotes);
+            emotes.classList.add('channel_emotes');
+
+            loadEmotes(emotes, id);
+            loadBadges(badges, id);
+        }
+
+        async function loadEmotes(tbl, broadcaster_id) {
+            let emotes = await fetch(
+                `https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${broadcaster_id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Client-ID': client_id,
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                }
+            )
+            if (emotes.status != 200) {
+                var r = tbl.insertRow();
+                var c = r.insertCell();
+                c.textContent = `An Error Occured loading the emotes for ${channel_name}`;
+                return;
+            }
+            let emotesData = await emotes.json();
+            if (emotesData.data.length == 0) {
+                var r = tbl.insertRow();
+                var c = r.insertCell();
+                c.textContent = `The user has no emotes?`;
+                return;
+            }
+
+            // cycle
+            var h = document.createElement('thead');
+            tbl.append(h);
+            var r = h.insertRow();
+            var c = r.insertCell();
+            c.textContent = 'Subscriber';
+            let sub = document.createElement('tbody');
+            tbl.append(sub);
+
+            var h = document.createElement('thead');
+            tbl.append(h);
+            var r = h.insertRow();
+            var c = r.insertCell();
+            c.textContent = 'Follower';
+            let follower = document.createElement('tbody');
+            tbl.append(follower);
+
+            var h = document.createElement('thead');
+            tbl.append(h);
+            var r = h.insertRow();
+            var c = r.insertCell();
+            c.textContent = 'Cheer';
+            let cheer = document.createElement('tbody');
+            tbl.append(cheer);
+
+            emotesData.data.forEach(emote => {
+                let { id, name, images, tier, emote_type } = emote;
+                let { url_2x, url_4x } = images;
+
+                switch (emote_type) {
+                    case 'subscriptions':
+                        var r = sub.insertRow();
+                        var c = r.insertCell();
+                        c.textContent = name;
+                        var c = r.insertCell();
+                        c.textContent = tier;
+                        var c = r.insertCell();
+                        var d = document.createElement('div');
+                        d.classList.add('emote');
+                        //d.style.backgroundImage = `url(${url_2x})`;
+                        let u = emotesData.template.replace('{{id}}', id);
+                        u = u.replace('{{format}}', 'default');
+                        u = u.replace('{{theme_mode}}', 'dark');
+                        u = u.replace('{{scale}}', '2.0');
+                        d.style.backgroundImage = `url(${u})`;
+                        
+                        c.append(d);
+                        break;
+                    case 'follower':
+                        var r = follower.insertRow();
+                        var c = r.insertCell();
+                        c.textContent = name;
+                        var c = r.insertCell();
+                        c.textContent = '';
+                        var c = r.insertCell();
+                        var d = document.createElement('div');
+                        d.classList.add('emote');
+                        d.style.backgroundImage = `url(${url_2x})`;
+                        c.append(d);
+                        break;
+                    case 'bitstier':
+                        var r = cheer.insertRow();
+                        var c = r.insertCell();
+                        c.textContent = name;
+                        var c = r.insertCell();
+                        c.textContent = '';
+                        var c = r.insertCell();
+                        var d = document.createElement('div');
+                        d.classList.add('emote');
+                        d.style.backgroundImage = `url(${url_2x})`;
+                        c.append(d);
+                        break;
+                    default:
+                        console.log('Skip', emote_type);
+                }
+            });
+        }
+
+        async function loadBadges(tbl, broadcaster_id) {
+            let badges = await fetch(
+                `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${broadcaster_id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Client-ID': client_id,
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                }
+            )
+            if (badges.status != 200) {
+                var r = tbl.insertRow();
+                var c = r.insertCell();
+                c.textContent = `An Error Occured loading the badges for ${channel_name}`;
+                return;
+            }
+            let badgesData = await badges.json();
+            if (badgesData.data.length == 0) {
+                var r = tbl.insertRow();
+                var c = r.insertCell();
+                c.textContent = `The user has no badges?`;
+                return;
+            }
+
+            var h = document.createElement('thead');
+            tbl.append(h);
+            var r = h.insertRow();
+            var c = r.insertCell();
+            c.textContent = 'Subscriber';
+            let sub = document.createElement('tbody');
+            tbl.append(sub);
+
+            var h = document.createElement('thead');
+            tbl.append(h);
+            var r = h.insertRow();
+            var c = r.insertCell();
+            c.textContent = 'Cheer';
+            let cheer = document.createElement('tbody');
+            tbl.append(cheer);
+
+            badgesData.data.forEach(badge => {
+                let { set_id, versions } = badge;
+                for (var x=0;x<versions.length;x++) {
+                    let { id, title, description, image_url_2x } = versions[x];
+
+                    switch (set_id) {
+                        case 'subscriber':
+                            var r = sub.insertRow();
+                            var c = r.insertCell();
+                            c.textContent = `${title} (${id}/${description})`;
+
+                            var c = r.insertCell();
+                            var d = document.createElement('div');
+                            d.classList.add('emote');
+                            d.style.backgroundImage = `url(${image_url_2x})`;
+                            c.append(d);
+                            break;
+                        case 'bits':
+                            var r = cheer.insertRow();
+                            var c = r.insertCell();
+                            c.textContent = `${title} (${id}/${description})`;
+
+                            var c = r.insertCell();
+                            var d = document.createElement('div');
+                            d.classList.add('emote');
+                            d.style.backgroundImage = `url(${image_url_2x})`;
+                            c.append(d);
+                            break;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
