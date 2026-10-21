@@ -382,7 +382,7 @@ async function togglePatcher(field, id) {
     pl[field] = !currentValue;
     console.log('Patching', pl);
     // and patch it
-    patcher(id, pl);
+    patcher(pl, id);
 }
 // edit UI
 closemodal.addEventListener('click', (e) => {
